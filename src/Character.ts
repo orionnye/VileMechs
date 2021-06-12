@@ -1,6 +1,6 @@
 import { Vector } from "./math";
 import Input from "./Input";
-import { Deck } from "./Card";
+import { Deck } from "./Deck";
 
 export default class Character {
     name : string;
