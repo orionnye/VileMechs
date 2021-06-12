@@ -25,6 +25,13 @@ input.watchCursor();
 input.watchMouse();
 input.watchKeys();
 
+window.addEventListener("keyup", (e) => {
+    if (e.key == "Enter") {
+        console.log("PSADFLAJSHDFLAKJH")
+        player.endTurn();
+    }
+});
+
 
 //-------------------WORLD DATA --------------------
 let map = new Grid(10, 10, new Vector(500, 500));
@@ -81,22 +88,6 @@ function update() {
             }
         }
     }
-    //card cycling
-    if (input.keys.get("Enter")) {
-        //timers are cosmetic
-        //discard
-        hand.emptyInto(discard);
-        //draw
-        hand.addCards(draw.removeCards(hand.max));
-        if (draw.cards.length == 0) {
-            discard.emptyInto(draw);
-            draw.shuffle();
-            if (hand.cards.length < hand.max) {
-                let missing = hand.max - hand.cards.length;
-                hand.addCards(draw.removeCards(missing));
-            }
-        }
-    }
     //card picking
     hand.cards.forEach(card => {
         if (card.contains(input.cursor)) {
@@ -114,13 +105,11 @@ function render() {
     drawRect(enemyCell.add(map.pos), map.tileSize, "red");
     drawGrid(map);
     
-    c.drawImage(rogue, playerCell.x+map.pos.x, playerCell.y+map.pos.y, 50, 50);
-    // c.drawImage(treant, 100+map.pos.x, 100+map.pos.y, 100, 100);
+    c.drawImage(rogue, playerCell.x+map.pos.x, playerCell.y+map.pos.y-10, 50, 50);
+    c.drawImage(treant, enemyCell.x+map.pos.x - 11, enemyCell.y+map.pos.y-30, 70, 70);
 
     //card rendering
-    draw.render();
-    hand.render();
-    discard.render();
+    player.renderCards();
 }
 function reload() {
     update();
