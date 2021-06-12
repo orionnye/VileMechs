@@ -3,7 +3,8 @@ import rogueSrc from "../www/images/BloodRogue.png";
 
 import { Vector } from './math';
 import { clearCanvas, drawGrid, fillCell, drawRect } from './render';
-import { Card, Deck } from './card';
+import { Card } from './Card';
+import { Deck } from './Deck';
 import Character from './character';
 import Input from "./input";
 import Grid from './Grid';
