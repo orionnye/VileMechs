@@ -1,6 +1,6 @@
 import { randomFloor, Vector } from "./math"
 import { drawRect } from "./render";
-import Character from "./character";
+import Character from "./Character";
 
 export class Card {
     pos : Vector;

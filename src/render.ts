@@ -1,5 +1,5 @@
 import { Vector } from "./math"
-import Grid from "./grid"
+import Grid from "./Grid"
 
 //should recieve a world model
 let canvas = <HTMLCanvasElement> document.getElementById("canvas1");

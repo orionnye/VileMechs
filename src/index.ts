@@ -6,7 +6,7 @@ import { clearCanvas, drawGrid, fillCell, drawRect } from './render';
 import { Card, Deck } from './card';
 import Character from './character';
 import Input from "./input";
-import Grid from './grid';
+import Grid from './Grid';
 import "./GlobalTypes";
 
 
@@ -106,7 +106,7 @@ function render() {
     drawGrid(map);
     
     c.drawImage(rogue, playerCell.x+map.pos.x, playerCell.y+map.pos.y-10, 50, 50);
-    c.drawImage(treant, enemyCell.x+map.pos.x - 11, enemyCell.y+map.pos.y-30, 70, 70);
+    // c.drawImage(treant, enemyCell.x+map.pos.x - 11, enemyCell.y+map.pos.y-30, 70, 70);
 
     //card rendering
     player.renderCards();
