@@ -115,7 +115,7 @@ function render() {
     drawGrid(map);
     
     c.drawImage(rogue, playerCell.x+map.pos.x, playerCell.y+map.pos.y, 50, 50);
-    c.drawImage(treant, 100+map.pos.x, 100+map.pos.y, 100, 100);
+    // c.drawImage(treant, 100+map.pos.x, 100+map.pos.y, 100, 100);
 
     //card rendering
     draw.render();
