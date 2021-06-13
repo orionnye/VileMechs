@@ -11,7 +11,7 @@ export class Vector {
     add(that: Vector) {
         return new Vector(this.x + that.x, this.y + that.y)
     }
-    cross(that: Vector) {
+    product(that: Vector) {
         return new Vector(this.x * that.x, this.y * that.y)
     }
     scale(that: number) {
@@ -20,6 +20,9 @@ export class Vector {
     get length() {
         let dist = Math.sqrt(this.x**2 + this.y**2)
         return dist
+    }
+    toString() {
+        return this.x + "," + this.y
     }
 }
 export function randomFloor(upperLimit: number) {

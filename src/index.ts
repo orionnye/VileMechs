@@ -1,117 +1,45 @@
-import treantSrc from "../www/images/Treant.png";
-import rogueSrc from "../www/images/BloodRogue.png";
 
 import { Vector } from './math';
-import { clearCanvas, drawGrid, fillCell, drawRect } from './render';
-import { Card } from './Card';
-import { Deck } from './Deck';
-import Character from './character';
+import World from './World';
 import Input from "./input";
-import Grid from './Grid';
+import Canvas from "./canvas";
 import "./GlobalTypes";
 
 
-//------------------Page Access---------------------
-let canvas = <HTMLCanvasElement> document.getElementById("canvas1");
-let c = canvas.getContext("2d");
-let canvasSize = new Vector(canvas.clientWidth, canvas.clientHeight);
-//images
-let treant = new Image();
-treant.src = treantSrc;
-let rogue = new Image();
-rogue.src = rogueSrc;
-//player input
+// DOM
+let canvas = new Canvas()
+
+// Input
 let input = new Input();
 input.watchCursor();
 input.watchMouse();
 input.watchKeys();
 
-window.addEventListener("keyup", (e) => {
-    if (e.key == "Enter") {
-        console.log("PSADFLAJSHDFLAKJH")
-        player.endTurn();
-    }
-});
+// State
+let world = new World()
+let camera = new Vector(0, 0)
+let cameraVelocity = new Vector(0, 0)
 
-
-//-------------------WORLD DATA --------------------
-let map = new Grid(10, 10, new Vector(500, 500));
-let player = new Character(new Vector(0, 0));
-let enemy = new Character(new Vector(5, 5));
-
-//random terrain switch
-let randomTerrain = 1;
-if (randomTerrain) {
-    map.randomize(0.3);
-} else {
-    //custom map
-    map.setBlock(new Vector(2, 2), new Vector(4, 4), 1);
-}
-
-//!!!!!!!!!!!!!temporary deck data!!!!!!!!!!!!!!will be ported into character class when done
-let draw = new Deck(new Vector(10, 400), new Vector(4, 1));
-draw.getRandomCards(3);
-let hand = new Deck(new Vector(300, 400), new Vector(70, 0));
-hand.max = 3;
-//card stats test
-let discard = new Deck(new Vector(850, 400), new Vector(4, 1));
-discard.getRandomCards(2);
-player.draw.getRandomCards(10);
-player.draw.cards[0].r = 255;
-draw.cards[0].g = 0;
-draw.cards[0].b = 0;
-draw.cards[0].onApply = (player, enemy) => {
-    console.log("CUSTOM RED EFFECT");
-};
-
-
-//-------------------CORE GAME LOOP--------------------
 function update() {
-    //useless and fun mouse centering display
-    if (input.keys.get("a")) {
-        map.pos = map.pos.add(new Vector(10, 0));
-    }
-    if (input.keys.get("d")) {
-        map.pos = map.pos.subtract(new Vector(10, 0));
-    }
-    if (input.keys.get("s")) {
-        map.pos = map.pos.subtract(new Vector(0, 10));
-    }
-    if (input.keys.get("w")) {
-        map.pos = map.pos.add(new Vector(0, 10));
-    }
-    //onclick player movement
-    if (input.mouse.get(0)) {
-        let cell = map.pick(input.cursor);
-        if (map.containsCell(cell)) {
-            if (map.content[cell.y][cell.x].content == 0) {
-                player.pos = cell;
-            }
-        }
-    }
-    //card picking
-    hand.cards.forEach(card => {
-        if (card.contains(input.cursor)) {
-            card.apply(player, enemy);
-        }
-    });
-    
+    if (input.keys.get("w"))
+        cameraVelocity.y += -1
+    if (input.keys.get("s"))
+        cameraVelocity.y += 1
+    if (input.keys.get("a"))
+        cameraVelocity.x += -1
+    if (input.keys.get("d"))
+        cameraVelocity.x += 1
+    camera = camera.add(cameraVelocity)
+    cameraVelocity = cameraVelocity.scale(0.8)
 }
-function render() {
-    clearCanvas();
-    
-    //draw Character
-    let playerCell = player.pos.cross(map.tileSize);
-    let enemyCell = enemy.pos.cross(map.tileSize);
-    drawRect(enemyCell.add(map.pos), map.tileSize, "red");
-    drawGrid(map);
-    
-    c.drawImage(rogue, playerCell.x+map.pos.x, playerCell.y+map.pos.y-10, 50, 50);
-    // c.drawImage(treant, enemyCell.x+map.pos.x - 11, enemyCell.y+map.pos.y-30, 70, 70);
 
-    //card rendering
-    player.renderCards();
+function render() {
+    canvas.clear();
+    canvas.c.translate(-camera.x, -camera.y)
+    world.render(canvas)
+    canvas.c.translate(camera.x, camera.y)
 }
+
 function reload() {
     update();
     render();

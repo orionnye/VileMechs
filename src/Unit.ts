@@ -2,7 +2,7 @@ import { Vector } from "./math";
 import Input from "./Input";
 import { Deck } from "./Deck";
 
-export default class Character {
+export default class Unit {
     name : string;
     pos : Vector;
     speed : number;

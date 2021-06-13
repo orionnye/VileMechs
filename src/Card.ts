@@ -1,6 +1,5 @@
 import { Vector } from "./math"
-import { drawRect } from "./render";
-import Character from "./Character";
+import Unit from "./Unit";
 
 export class Card {
     pos : Vector;
@@ -19,7 +18,7 @@ export class Card {
         this.b = blue;
         this.onApply;
     }
-    apply(caster: Character, target: Character) {
+    apply(caster: Unit, target: Unit) {
         if (this.onApply == undefined) {
             console.log(`default color: ${this.r}, ${this.g}, ${this.b}`);
         } else {

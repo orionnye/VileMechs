@@ -2,7 +2,6 @@ import { Vector } from "./math"
 import Tile from "./tile"
 
 export default class Grid {
-    pos: Vector
     size: Vector
     content: any[]
     width: number
@@ -10,7 +9,6 @@ export default class Grid {
     wall: number
     empty: number
     constructor(width, height, size = new Vector(100, 100)) {
-        this.pos = new Vector(0, 0)
         this.size = size
         this.width = width
         this.height = height
@@ -65,13 +63,9 @@ export default class Grid {
         return false
     }
     pick(cursor: Vector) {
-        //+distance from gridPOS divided by total cells in that direction and math.floored
-        // if (!this.contains(cursor)) {
-        //     console.error("tried picking a non-existant cell:", cursor)
-        // }
         let cellSize = new Vector(this.size.x / this.width, this.size.y / this.height)
-        let pickedX = Math.floor((cursor.x - this.pos.x) / cellSize.x)
-        let pickedY = Math.floor((cursor.y - this.pos.y) / cellSize.y)
+        let pickedX = Math.floor(cursor.x / cellSize.x)
+        let pickedY = Math.floor(cursor.y / cellSize.y)
         let picked = new Vector(pickedX, pickedY)
         return picked
     }
