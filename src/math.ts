@@ -38,6 +38,9 @@ export class Vector {
         let beta = 1 - alpha
         return new Vector( this.x * beta + other.x * alpha, this.y * beta + other.y * alpha )
     }
+    distance( other: Vector ) {
+        return this.subtract( other ).length
+    }
     get length() {
         let dist = Math.sqrt( this.x ** 2 + this.y ** 2 )
         return dist

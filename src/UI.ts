@@ -32,6 +32,16 @@ export default class UI {
         this.retarget = true
     }
 
+
+
+    selectUnit( world: World, unit: Unit ) {
+        let index = world.units.indexOf( unit )
+        if ( index > -1 ) {
+            this.unitIndex = index
+            this.retarget = true
+        }
+    }
+
     getSelectedUnit( world: World ) {
         return world.units[ this.unitIndex ]
     }

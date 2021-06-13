@@ -6,6 +6,8 @@ import "./GlobalTypes";
 import UI from './UI';
 
 export default class Game {
+    static instance: Game
+
     static uiScale = 4 // Size of one grunit in pixels.
 
     canvas = new Canvas()
@@ -19,10 +21,17 @@ export default class Game {
 
     camTarget: Vector | null = null
 
+    static minSeekDistance = World.tileSize * 3
+
+    constructor() {
+        window.addEventListener( "click", ( ev ) => this.onClick() )
+        Game.instance = this
+    }
+
     setCameraTarget( pos: Vector ) {
         let halfScreenDims = this.canvas.size.scale( 0.5 / Game.uiScale ) // in ui space
         let adjustedTarget = pos.subtract( halfScreenDims )
-        if ( adjustedTarget.subtract( this.camPos ).length / World.tileSize < 3 )
+        if ( adjustedTarget.distance( this.camPos ) < Game.minSeekDistance )
             return
         this.camTarget = pos.subtract( halfScreenDims )
     }
@@ -37,6 +46,10 @@ export default class Game {
 
     worldCursor() {
         return this.pixelSpaceToWorldSpace( this.input.cursor )
+    }
+
+    onClick() {
+        this.world.onClick( this.worldCursor(), this )
     }
 
     update() {
@@ -62,15 +75,18 @@ export default class Game {
         }
 
         this.camPos = camPos.add( camVelocity )
-        this.camVelocity = camVelocity.scale( 0.8 )
+        this.camVelocity = camVelocity.scale( 0.85 )
         if ( camVelocity.length < 0.5 ) {
             camVelocity = new Vector( 0, 0 )
             camPos.x |= 0
             camPos.y |= 0
         }
 
-        if ( this.camTarget )
-            this.camPos = this.camPos.lerp( this.camTarget, 0.075 )
+        if ( this.camTarget ) {
+            this.camVelocity = this.camPos.lerp( this.camTarget, 0.075 ).subtract( this.camPos )
+            if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
+                this.camTarget = null
+        }
 
     }
 

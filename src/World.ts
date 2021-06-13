@@ -34,6 +34,18 @@ export default class World {
         } else {
             //custom map
             this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 );
+            this.map.set( new Vector( 2, 2 ), 0 )
+        }
+    }
+
+    onClick( cursor: Vector, game: Game ) {
+        let cell = cursor.floor()
+        for ( let unit of this.units ) {
+            if ( unit.pos.equals( cell ) ) {
+                console.log( unit )
+                game.ui.selectUnit( this, unit )
+                break
+            }
         }
     }
 
@@ -56,7 +68,7 @@ export default class World {
             let tileDims = new Vector( tileSize, tileSize )
             if ( path )
                 for ( let step of path )
-                    cv.drawRect( step.scale( tileSize ), tileDims, "orange" )
+                    cv.drawRect( step.scale( tileSize ), tileDims, "cyan" )
         }
         this.drawMap( cv )
         if ( cursorWalkable ) {
