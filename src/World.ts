@@ -15,18 +15,18 @@ export default class World {
 
     constructor() {
         this.map = new Grid( 10, 10 )
-        // this.units = [
-        //     new Unit( new Vector( 0, 0 ) ),
-        //     new Unit( new Vector( 1, 1 ) ),
-        //     new Unit( new Vector( 2, 0 ) ),
-        //     new Unit( new Vector( 3, 1 ) ),
-        // ]
         this.units = [
             new Unit( new Vector( 0, 0 ) ),
             new Unit( new Vector( 1, 1 ) ),
-            new Unit( new Vector( 0, 9 ) ),
-            new Unit( new Vector( 9, 9 ) ),
+            new Unit( new Vector( 2, 0 ) ),
+            new Unit( new Vector( 3, 1 ) ),
         ]
+        // this.units = [
+        //     new Unit( new Vector( 0, 0 ) ),
+        //     new Unit( new Vector( 1, 1 ) ),
+        //     new Unit( new Vector( 0, 9 ) ),
+        //     new Unit( new Vector( 9, 9 ) ),
+        // ]
 
         let randomTerrain = false;
         if ( randomTerrain ) {
@@ -44,8 +44,14 @@ export default class World {
             if ( unit.pos.equals( cell ) ) {
                 console.log( unit )
                 game.ui.selectUnit( this, unit )
-                break
+                return
             }
+        }
+        let selectedUnit = game.ui.getSelectedUnit( this )
+        if ( selectedUnit ) {
+            let path = findPath( this, selectedUnit.pos, cell )
+            if ( path )
+                selectedUnit.pos = cell
         }
     }
 

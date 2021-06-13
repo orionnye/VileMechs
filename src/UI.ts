@@ -32,8 +32,6 @@ export default class UI {
         this.retarget = true
     }
 
-
-
     selectUnit( world: World, unit: Unit ) {
         let index = world.units.indexOf( unit )
         if ( index > -1 ) {
