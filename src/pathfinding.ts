@@ -8,7 +8,7 @@ const offsets = [
     new Vector( 0, -1 )
 ]
 
-export function findPath( world: World, from: Vector, to: Vector ) {
+export function findPath( world: World, from: Vector, to: Vector, maxDepth = 4 ) {
     type Node = { pos: Vector, parent: Node }
     function makeNode( pos: Vector, parent: Node ): Node {
         return { pos, parent }
@@ -35,7 +35,6 @@ export function findPath( world: World, from: Vector, to: Vector ) {
     let visited = new Set<string>()
     visited.add( from.toString() )
 
-    const maxDepth = 100;
     for ( let i = 0; i < maxDepth; i++ ) {
         for ( let node of currLayer ) {
 

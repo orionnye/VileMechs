@@ -8,7 +8,7 @@ import UI from './UI';
 export default class Game {
     static instance: Game
 
-    static uiScale = 4 // Size of one grunit in pixels.
+    static uiScale = 3 // Size of one grunit in pixels.
 
     canvas = new Canvas()
     input = new Input()
@@ -21,7 +21,7 @@ export default class Game {
 
     camTarget: Vector | null = null
 
-    static minSeekDistance = World.tileSize * 3
+    static minSeekDistance = World.tileSize * 12 / Game.uiScale
 
     constructor() {
         window.addEventListener( "click", ( ev ) => this.onClick() )

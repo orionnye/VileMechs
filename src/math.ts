@@ -49,14 +49,32 @@ export class Vector {
         return this.x + "," + this.y
     }
 }
+
 export function randomFloor( upperLimit: number ) {
     return Math.floor( Math.random() * upperLimit );
 }
+
 export class AABB {
-    pos: Vector
-    dims: Vector
-    constructor( pos: Vector, dims: Vector ) {
-        this.pos = pos
-        this.dims = dims
+    minx: number
+    miny: number
+    maxx: number
+    maxy: number
+
+    constructor( minx: number, miny: number, maxx: number, maxy: number ) {
+        this.minx = minx
+        this.miny = miny
+        this.maxx = maxx
+        this.maxy = maxy
+    }
+
+    hull( a: AABB, b: AABB ) {
+        function min( x, y ) { return Math.min( x, y ) }
+        function max( x, y ) { return Math.max( x, y ) }
+        return new AABB(
+            min( a.minx, b.minx ),
+            min( a.miny, b.miny ),
+            max( a.maxx, b.maxx ),
+            max( a.maxy, b.maxy ),
+        )
     }
 }
