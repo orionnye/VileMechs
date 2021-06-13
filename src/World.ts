@@ -1,58 +1,67 @@
-import treantSrc from "../www/images/Treant.png";
-import rogueSrc from "../www/images/BloodRogue.png";
-
-const rougeImg = new Image()
-rougeImg.src = rogueSrc
-
 import Unit from "./Unit";
 import Grid from "./Grid";
 import Canvas from "./Canvas";
-import SparseGrid from "./SparseGrid";
 import { Vector } from "./math";
+import { findPath } from "./pathfinding";
 
 export default class World {
 
     map: Grid
     units: Unit[]
 
+    static tileSize = 32;
+
     constructor() {
-        this.map = new Grid(10, 10, new Vector(500, 500))
+        this.map = new Grid( 10, 10 )
         this.units = [
-            new Unit(new Vector(0, 0))
+            new Unit( new Vector( 0, 0 ) ),
+            new Unit( new Vector( 1, 1 ) )
         ]
 
         let randomTerrain = false;
-        if (randomTerrain) {
-            this.map.randomize(0.3);
+        if ( randomTerrain ) {
+            this.map.randomize( 0.3 );
         } else {
             //custom map
-            this.map.setBlock(new Vector(2, 2), new Vector(4, 4), 1);
+            this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 );
         }
     }
 
-    render(c: Canvas) {
-        this.drawGrid(c, this.map)
-        c.c.drawImage(rougeImg, 0, 0)
+    render( c: Canvas ) {
+        let tileSize = World.tileSize
+        // let path = findPath( this, new Vector( 0, 0 ), new Vector( 6, 5 ) )
+        // let tileDims = new Vector( tileSize, tileSize )
+        // if ( path )
+        //     for ( let step of path )
+        //         c.drawRect( step.scale( tileSize ), tileDims, "red" )
+
+        this.drawGrid( c, this.map )
+        for ( let unit of this.units ) {
+            let pos = unit.pos
+            c.c.save()
+            unit.render( c, unit.pos.scale( tileSize ) )
+            c.c.restore()
+        }
     }
 
-    drawGrid(c: Canvas, grid: Grid, numbered: boolean = true) {
-        let tileSize = grid.tileSize;
-        grid.content.forEach((row, indexR) => {
-            row.forEach((tile, indexC) => {
-                let currentPos = new Vector(indexC * tileSize.x, indexR * tileSize.y);
-                c.strokeRect(currentPos, tileSize);
+    drawGrid( c: Canvas, grid: Grid, numbered: boolean = true ) {
+        let tileSize = World.tileSize
+        let tileDimensions = new Vector( tileSize, tileSize )
+        grid.content.forEach( ( row, indexR ) => {
+            row.forEach( ( tile, indexC ) => {
+                let currentPos = new Vector( indexC * tileSize, indexR * tileSize );
+                c.strokeRect( currentPos, tileDimensions );
                 //type definition
-                if (tile.content == 1) {
-                    c.drawRect(currentPos, tileSize, "grey");
+                if ( tile.content == 1 ) {
+                    c.drawRect( currentPos, tileDimensions, "grey" );
                 }
                 //numbers
-                if (numbered) {
-                    let textPos = new Vector(indexC * tileSize.x - tileSize.x / 3.3, indexR * tileSize.y);
-                    let currentText = indexC.toString() +", "+ indexR.toString();
-                    c.drawText(textPos, tileSize.x / 3.3, currentText);
+                if ( numbered ) {
+                    let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 );
+                    let currentText = indexC.toString() + ", " + indexR.toString();
+                    c.drawText( textPos, tileSize / 3.3, currentText );
                 }
-            });
-        });
+            } );
+        } );
     }
-
 }

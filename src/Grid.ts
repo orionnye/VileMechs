@@ -2,72 +2,59 @@ import { Vector } from "./math"
 import Tile from "./tile"
 
 export default class Grid {
-    size: Vector
-    content: any[]
+    content: Tile[][]
     width: number
     height: number
     wall: number
     empty: number
-    constructor(width, height, size = new Vector(100, 100)) {
-        this.size = size
+    constructor( width, height ) {
         this.width = width
         this.height = height
         this.content = []
-        for (let r = 0; r < this.height; r++) {
-            this.content.push([])
-            for (let c = 0; c < this.width; c++) {
-                this.content[r].push(new Tile(this.empty))
-            }
-        }
         //temporary fixed numbers
         this.wall = 1
         this.empty = 0
+        for ( let r = 0; r < this.height; r++ ) {
+            this.content.push( [] )
+            for ( let c = 0; c < this.width; c++ ) {
+                this.content[ r ].push( new Tile( this.empty ) )
+            }
+        }
     }
-    get tileSize() {
-        return (new Vector(this.size.x / this.width, this.size.y / this.height))
-    }
-    randomize(blockChance: number) {
+    randomize( blockChance: number ) {
         //TEMPORARY PLACEHOLDER NUMBER
-        this.content.forEach((row, IRow) => {
-            row.forEach((tile, ICol) => {
-            let currentPos = new Vector(ICol, IRow)
-            let isBlock = Math.random() < blockChance
-            if (isBlock)
-                this.set(currentPos, this.wall)
-            })
-        })
+        this.content.forEach( ( row, IRow ) => {
+            row.forEach( ( tile, ICol ) => {
+                let currentPos = new Vector( ICol, IRow )
+                let isBlock = Math.random() < blockChance
+                if ( isBlock )
+                    this.set( currentPos, this.wall )
+            } )
+        } )
     }
-    set(pos: Vector, value) {
-        if (pos.y >= this.height || pos.x >= this.width)
-            console.error("tried setting value on grid that does not exist")
-        this.content[pos.y][pos.x].content = value
+    set( pos: Vector, value ) {
+        if ( pos.y >= this.height || pos.x >= this.width )
+            console.error( "tried setting value on grid that does not exist" )
+        this.content[ pos.y ][ pos.x ].content = value
     }
-    setBlock(pos: Vector, size: Vector, value) {
-        if (pos.y >= this.height || pos.x >= this.width)
-            console.error("tried setting value on grid that does not exist")
-        if (pos.y + size.y >= this.height || pos.x + size.x >= this.width)
-            console.error("tried setting value on grid that does not exist")
-        for (let r = pos.y; r < pos.y + size.y; r++) {
-            for (let c = pos.x; c < pos.x + size.x; c++) {
-                this.content[r][c].content = value
+    get( pos: Vector ) {
+        return this.content[ pos.y ][ pos.x ]
+    }
+    setBlock( pos: Vector, size: Vector, value ) {
+        if ( pos.y >= this.height || pos.x >= this.width )
+            console.error( "tried setting value on grid that does not exist" )
+        if ( pos.y + size.y >= this.height || pos.x + size.x >= this.width )
+            console.error( "tried setting value on grid that does not exist" )
+        for ( let r = pos.y; r < pos.y + size.y; r++ ) {
+            for ( let c = pos.x; c < pos.x + size.x; c++ ) {
+                this.content[ r ][ c ].content = value
             }
         }
     }
-    containsCell(point: Vector) {
-        if (point.x >= 0 && point.x < this.width) {
-            if (point.y >= 0 && point.y < this.height) {
-                return true
-            }
-            return false
-        }
-        return false
+    contains( pos: Vector ) {
+        return pos.y >= 0 && pos.x >= 0 && pos.x < this.width && pos.y < this.height
     }
-    pick(cursor: Vector) {
-        let cellSize = new Vector(this.size.x / this.width, this.size.y / this.height)
-        let pickedX = Math.floor(cursor.x / cellSize.x)
-        let pickedY = Math.floor(cursor.y / cellSize.y)
-        let picked = new Vector(pickedX, pickedY)
-        return picked
+    isEmpty( pos: Vector ) {
+        return this.get( pos ).content == this.empty
     }
-
 }
