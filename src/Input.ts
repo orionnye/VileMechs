@@ -15,10 +15,10 @@ export default class Input {
     }
 
     setKeyTrue( e: KeyboardEvent ) {
-        this.keys.set( e.key, true );
+        this.keys.set( e.key.toLowerCase(), true );
     }
     setKeyFalse( e: KeyboardEvent ) {
-        this.keys.set( e.key, false );
+        this.keys.set( e.key.toLowerCase(), false );
     }
     setMouse( button: number, value: boolean ) {
         this.mouse.set( button, value );

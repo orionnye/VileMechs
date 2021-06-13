@@ -6,7 +6,7 @@ import "./GlobalTypes";
 import UI from './UI';
 
 export default class Game {
-    static grunitSize = 4
+    static uiScale = 4 // Size of one grunit in pixels.
 
     canvas = new Canvas()
     input = new Input()
@@ -14,19 +14,53 @@ export default class Game {
     world = new World()
     ui = new UI()
 
-    camPos = new Vector( 0, 0 ) // grunit space
+    camPos = new Vector( 0, 0 ) // in ui space
     camVelocity = new Vector( 0, 0 )
+
+    camTarget: Vector | null = null
+
+    setCameraTarget( pos: Vector ) {
+        let halfScreenDims = this.canvas.size.scale( 0.5 / Game.uiScale ) // in ui space
+        let adjustedTarget = pos.subtract( halfScreenDims )
+        if ( adjustedTarget.subtract( this.camPos ).length / World.tileSize < 3 )
+            return
+        this.camTarget = pos.subtract( halfScreenDims )
+    }
+
+    pixelSpaceToWorldSpace( pos: Vector ) {
+        return pos.scale( 1 / Game.uiScale ).add( this.camPos ).scale( 1 / World.tileSize )
+    }
+
+    worldSpaceToUISpace( pos: Vector ) {
+        return pos.scale( World.tileSize ).subtract( this.camPos )
+    }
+
+    worldCursor() {
+        return this.pixelSpaceToWorldSpace( this.input.cursor )
+    }
 
     update() {
         let { input, camVelocity, camPos } = this
-        if ( input.keys.get( "w" ) )
+
+        this.ui.update( this )
+
+        if ( input.keys.get( "w" ) ) {
             camVelocity.y += -1
-        if ( input.keys.get( "s" ) )
+            this.camTarget = null
+        }
+        if ( input.keys.get( "s" ) ) {
             camVelocity.y += 1
-        if ( input.keys.get( "a" ) )
+            this.camTarget = null
+        }
+        if ( input.keys.get( "a" ) ) {
             camVelocity.x += -1
-        if ( input.keys.get( "d" ) )
+            this.camTarget = null
+        }
+        if ( input.keys.get( "d" ) ) {
             camVelocity.x += 1
+            this.camTarget = null
+        }
+
         this.camPos = camPos.add( camVelocity )
         this.camVelocity = camVelocity.scale( 0.8 )
         if ( camVelocity.length < 0.5 ) {
@@ -34,10 +68,14 @@ export default class Game {
             camPos.x |= 0
             camPos.y |= 0
         }
+
+        if ( this.camTarget )
+            this.camPos = this.camPos.lerp( this.camTarget, 0.075 )
+
     }
 
     render() {
-        let grunitSize = Game.grunitSize
+        let grunitSize = Game.uiScale
         let { canvas, camPos, world, ui } = this
         let { c } = canvas
         canvas.clear();
@@ -47,7 +85,7 @@ export default class Game {
         c.save()
         {
             c.translate( -camPos.x, -camPos.y )
-            world.render( canvas )
+            world.render( canvas, this )
         }
         c.restore()
         ui.render( canvas, world )

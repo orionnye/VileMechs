@@ -3,7 +3,7 @@
         "src"
     ],
     "compilerOptions": {
-        "target": "ES2021",
+        "target": "ESNext",
         "module": "commonjs",
         "declaration": true,
         "outDir": "lib",

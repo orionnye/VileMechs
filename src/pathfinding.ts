@@ -14,10 +14,6 @@ export function findPath( world: World, from: Vector, to: Vector ) {
         return { pos, parent }
     }
 
-    function isValid( pos: Vector ) {
-        return world.map.contains( pos ) && ( world.map.isEmpty( pos ) )
-    }
-
     function rebuildPath( node: Node ) {
         let steps = [ node.pos ]
         while ( node.parent != null ) {
@@ -27,7 +23,9 @@ export function findPath( world: World, from: Vector, to: Vector ) {
         return steps.reverse()
     }
 
-    if ( !isValid( to ) || !isValid( from ) )
+    if ( from.equals( to ) )
+        return [ from ]
+    if ( !world.isWalkable( to ) ) // || !world.isWalkable( from ) )
         return null
 
     let destKey = to.toString()
@@ -35,13 +33,15 @@ export function findPath( world: World, from: Vector, to: Vector ) {
     let currLayer = [ makeNode( from, null ) ]
     let nextLayer = [] as Node[]
     let visited = new Set<string>()
+    visited.add( from.toString() )
 
-    while ( true ) {
+    const maxDepth = 100;
+    for ( let i = 0; i < maxDepth; i++ ) {
         for ( let node of currLayer ) {
 
             for ( let offset of offsets ) {
                 let pos2 = node.pos.add( offset )
-                if ( !isValid( pos2 ) )
+                if ( !world.isWalkable( pos2 ) )
                     continue
                 let key = pos2.toString()
                 if ( visited.has( key ) )
@@ -60,4 +60,6 @@ export function findPath( world: World, from: Vector, to: Vector ) {
         nextLayer = tmp
         nextLayer.length = 0
     }
+
+    return null
 }

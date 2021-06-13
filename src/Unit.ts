@@ -66,12 +66,22 @@ export default class Unit {
     render( cv: Canvas, offset = Vector.zero ) {
         cv.c.drawImage( baseUnitImg, offset.x, offset.y )
 
-        const fontSize = 4
-        cv.c.font = fontSize + "px pixel";
-        let metrics = cv.c.measureText( this.name )
-        let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
-        let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )
-        cv.drawRect( textOffset, textDims, "grey" )
-        cv.drawText( textOffset, fontSize, this.name, "black" )
+        //  Nametag
+        {
+            cv.c.shadowBlur = 0
+            const fontSize = 3.5
+            cv.c.font = fontSize + "px pixel";
+
+            let name = this.name
+            const maxLength = 8
+            if ( name.length > maxLength )
+                name = name.slice( 0, maxLength - 3 ) + "..."
+
+            let metrics = cv.c.measureText( name )
+            let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
+            let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )
+            cv.drawRect( textOffset, textDims, "grey" )
+            cv.drawText( textOffset, fontSize, name, "black" )
+        }
     }
 }

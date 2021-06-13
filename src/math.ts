@@ -1,3 +1,9 @@
+const epsilon = 0.00001
+
+function equals( a: number, b: number ) {
+    return Math.abs( a - b ) < epsilon
+}
+
 export class Vector {
     x: number
     y: number
@@ -9,17 +15,28 @@ export class Vector {
         this.x = x
         this.y = y
     }
-    subtract( that: Vector ) {
-        return new Vector( this.x - that.x, this.y - that.y )
+    subtract( other: Vector ) {
+        return new Vector( this.x - other.x, this.y - other.y )
     }
-    add( that: Vector ) {
-        return new Vector( this.x + that.x, this.y + that.y )
+    add( other: Vector ) {
+        return new Vector( this.x + other.x, this.y + other.y )
     }
-    product( that: Vector ) {
-        return new Vector( this.x * that.x, this.y * that.y )
+    product( other: Vector ) {
+        return new Vector( this.x * other.x, this.y * other.y )
     }
-    scale( that: number ) {
-        return new Vector( this.x * that, this.y * that )
+    scale( other: number ) {
+        return new Vector( this.x * other, this.y * other )
+    }
+    equals( other: Vector | null ) {
+        if ( other == null ) return false
+        return equals( this.x, other.x ) && equals( this.y, other.y )
+    }
+    floor() {
+        return new Vector( Math.floor( this.x ), Math.floor( this.y ) )
+    }
+    lerp( other: Vector, alpha: number ) {
+        let beta = 1 - alpha
+        return new Vector( this.x * beta + other.x * alpha, this.y * beta + other.y * alpha )
     }
     get length() {
         let dist = Math.sqrt( this.x ** 2 + this.y ** 2 )
@@ -31,4 +48,12 @@ export class Vector {
 }
 export function randomFloor( upperLimit: number ) {
     return Math.floor( Math.random() * upperLimit );
+}
+export class AABB {
+    pos: Vector
+    dims: Vector
+    constructor( pos: Vector, dims: Vector ) {
+        this.pos = pos
+        this.dims = dims
+    }
 }

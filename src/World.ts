@@ -3,6 +3,7 @@ import Grid from "./Grid";
 import Canvas from "./Canvas";
 import { Vector } from "./math";
 import { findPath } from "./pathfinding";
+import Game from "./Game";
 
 export default class World {
 
@@ -10,12 +11,21 @@ export default class World {
     units: Unit[]
 
     static tileSize = 32;
+    static tileDimensions = new Vector( World.tileSize, World.tileSize )
 
     constructor() {
         this.map = new Grid( 10, 10 )
+        // this.units = [
+        //     new Unit( new Vector( 0, 0 ) ),
+        //     new Unit( new Vector( 1, 1 ) ),
+        //     new Unit( new Vector( 2, 0 ) ),
+        //     new Unit( new Vector( 3, 1 ) ),
+        // ]
         this.units = [
             new Unit( new Vector( 0, 0 ) ),
-            new Unit( new Vector( 1, 1 ) )
+            new Unit( new Vector( 1, 1 ) ),
+            new Unit( new Vector( 0, 9 ) ),
+            new Unit( new Vector( 9, 9 ) ),
         ]
 
         let randomTerrain = false;
@@ -27,37 +37,58 @@ export default class World {
         }
     }
 
-    render( c: Canvas ) {
-        let tileSize = World.tileSize
-        // let path = findPath( this, new Vector( 0, 0 ), new Vector( 6, 5 ) )
-        // let tileDims = new Vector( tileSize, tileSize )
-        // if ( path )
-        //     for ( let step of path )
-        //         c.drawRect( step.scale( tileSize ), tileDims, "red" )
+    isWalkable( pos: Vector ) {
+        for ( let unit of this.units )
+            if ( unit.pos.equals( pos ) )
+                return false
+        return this.map.contains( pos ) && this.map.isEmpty( pos )
+    }
 
-        this.drawGrid( c, this.map )
+    render( cv: Canvas, game: Game ) {
+        let tileSize = World.tileSize
+
+        let cursor = game.worldCursor().floor()
+        let selectedUnit = game.ui.getSelectedUnit( this )
+        let cursorWalkable = this.isWalkable( cursor )
+
+        if ( cursorWalkable && selectedUnit ) {
+            let path = findPath( this, selectedUnit.pos, cursor )
+            let tileDims = new Vector( tileSize, tileSize )
+            if ( path )
+                for ( let step of path )
+                    cv.drawRect( step.scale( tileSize ), tileDims, "orange" )
+        }
+        this.drawMap( cv )
+        if ( cursorWalkable ) {
+            cv.strokeRect( cursor.scale( tileSize ), World.tileDimensions, "blue" )
+        }
+
         for ( let unit of this.units ) {
             let pos = unit.pos
-            c.c.save()
-            unit.render( c, unit.pos.scale( tileSize ) )
-            c.c.restore()
+            cv.c.save()
+            if ( unit == selectedUnit ) {
+                cv.c.shadowBlur = 5
+                cv.c.shadowColor = "black"
+            }
+            unit.render( cv, unit.pos.scale( tileSize ) )
+            cv.c.restore()
         }
     }
 
-    drawGrid( c: Canvas, grid: Grid, numbered: boolean = true ) {
+    drawMap( cv: Canvas, numbered: boolean = true ) {
+        let map = this.map
         let tileSize = World.tileSize
-        let tileDimensions = new Vector( tileSize, tileSize )
-        grid.content.forEach( ( row, indexR ) => {
+        let tileDimensions = World.tileDimensions
+        map.content.forEach( ( row, indexR ) => {
             row.forEach( ( tile, indexC ) => {
                 let currentPos = new Vector( indexC * tileSize, indexR * tileSize );
-                if ( tile.content == grid.wall ) {
-                    c.drawRect( currentPos, tileDimensions, "grey" );
-                }
-                c.strokeRect( currentPos, tileDimensions );
+                if ( tile.content == map.wall )
+                    cv.drawRect( currentPos, tileDimensions, "grey" );
+                cv.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
                     let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 );
                     let currentText = indexC.toString() + ", " + indexR.toString();
-                    c.drawText( textPos, ( tileSize / 8 ) | 0, currentText );
+                    cv.drawText( textPos, ( tileSize / 8 ) | 0, currentText );
                 }
             } );
         } );
