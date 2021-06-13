@@ -32,14 +32,14 @@ export class Deck {
             this.addCard(card);
         });
     }
-    removeCards(desired) {
-        let count = desired > this.length ? this.length : desired;
-        let cards = [];
-        for (let i = 0; i < count; i++) {
-            cards.push(this.cards.pop());
-        }
-        return cards;
-    }
+    // removeCards(desired) {
+    //     let count = desired > this.length ? this.length : desired;
+    //     let cards = [];
+    //     for (let i = 0; i < count; i++) {
+    //         cards.push(this.cards.pop());
+    //     }
+    //     return cards;
+    // }
     emptyInto(deck) {
         this.cards.forEach(card => {
             deck.addCard(card);
@@ -47,16 +47,16 @@ export class Deck {
         this.cards = [];
 
     }
-    shuffle() {
-        //shuffles cards
-        let shuffled = [];
-        for (let i = this.cards.length; i > 0; i--) {
-            let index = randomFloor(this.cards.length);
-            shuffled.splice(index, 0, this.cards[i - 1]);
-            this.cards.pop();
-        }
-        this.cards = shuffled;
-    }
+    // shuffle() {
+    //     //shuffles cards
+    //     let shuffled = [];
+    //     for (let i = this.cards.length; i > 0; i--) {
+    //         let index = randomFloor(this.cards.length);
+    //         shuffled.splice(index, 0, this.cards[i - 1]);
+    //         this.cards.pop();
+    //     }
+    //     this.cards = shuffled;
+    // }
     contains(point) {
         let size = this.offset.scale(this.cards.length - 1).add(this.cardSize);
         let far = this.pos.add(size);
@@ -79,10 +79,10 @@ export class Deck {
             });
         }
     }
-    render(pos: Vector = new Vector(0, 0)) {
-        this.cards.forEach((card, index) => {
-            card.pos = this.pos.add(this.offset.scale(index));
-            card.render(pos);
-        });
-    }
+    // render(pos: Vector = new Vector(0, 0)) {
+    //     this.cards.forEach((card, index) => {
+    //         card.pos = this.pos.add(this.offset.scale(index));
+    //         card.render(pos);
+    //     });
+    // }
 }

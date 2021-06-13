@@ -9,8 +9,8 @@ const offsets = [
 ]
 
 export function findPath( world: World, from: Vector, to: Vector, maxDepth = 4 ) {
-    type Node = { pos: Vector, parent: Node }
-    function makeNode( pos: Vector, parent: Node ): Node {
+    type Node = { pos: Vector, parent: Node | null }
+    function makeNode( pos: Vector, parent: Node | null): Node {
         return { pos, parent }
     }
 

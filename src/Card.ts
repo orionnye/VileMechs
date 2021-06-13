@@ -11,6 +11,7 @@ export class Card {
     onApply : any;
 
     constructor(red = 0, green = 0, blue = 0, pos = new Vector(0, 0)) {
+        this.cost = 1;
         this.pos = pos;
         this.size = new Vector(45, 60);
         this.r = red;
@@ -42,8 +43,8 @@ export class Card {
             this.pos = this.pos.add(fix)
         }
     }
-    render(pos = new Vector(0, 0)) {
-        let color = `rgb(${this.r}, ${this.g}, ${this.b})`
-        drawRect(this.pos.add(pos), this.size, color);
-    }
+    // render(pos = new Vector(0, 0)) {
+    //     let color = `rgb(${this.r}, ${this.g}, ${this.b})`
+    //     drawRect(this.pos.add(pos), this.size, color);
+    // }
 }
