@@ -28,7 +28,8 @@ export default class Canvas {
 
     drawText( pos: Vector, size: number, text: string, color: string = "black" ) {
         this.c.fillStyle = color;
-        this.c.font = size + "px Times New Roman";
+        // this.c.font = size + "px Times New Roman";
+        this.c.font = size + "px pixel";
         let metrics = this.c.measureText( text )
         this.c.fillText( text, pos.x, pos.y + metrics.actualBoundingBoxAscent );
     }

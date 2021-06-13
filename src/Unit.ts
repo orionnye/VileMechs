@@ -66,8 +66,8 @@ export default class Unit {
     render( cv: Canvas, offset = Vector.zero ) {
         cv.c.drawImage( baseUnitImg, offset.x, offset.y )
 
-        const fontSize = 8
-        cv.c.font = fontSize + "px Times New Roman";
+        const fontSize = 4
+        cv.c.font = fontSize + "px pixel";
         let metrics = cv.c.measureText( this.name )
         let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
         let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )

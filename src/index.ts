@@ -6,7 +6,6 @@ import Canvas from "./canvas";
 import "./GlobalTypes";
 import UI from './UI';
 
-
 // DOM
 let canvas = new Canvas()
 const grunitSize = 4
@@ -28,6 +27,10 @@ function centerCamera( pos: Vector ) {
     camPos = pos.subtract( canvas.size.scale( 0.5 / grunitSize ) )
 }
 centerCamera( new Vector( World.tileSize, World.tileSize ).scale( 5 ) )
+
+function pixelSpaceToWorldSpace( pixel: Vector ) {
+    return pixel.scale( 1 / grunitSize ).add( camPos ).scale( 1 / World.tileSize )
+}
 
 // Game logic
 function update() {
@@ -67,6 +70,10 @@ function render() {
 function reload() {
     update()
     render()
+
+    let pixelCursor = input.cursor
+    let worldCursor = pixelSpaceToWorldSpace( pixelCursor )
+
     window.requestAnimationFrame( reload )
 }
 reload();

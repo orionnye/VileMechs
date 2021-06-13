@@ -50,16 +50,14 @@ export default class World {
         grid.content.forEach( ( row, indexR ) => {
             row.forEach( ( tile, indexC ) => {
                 let currentPos = new Vector( indexC * tileSize, indexR * tileSize );
-                c.strokeRect( currentPos, tileDimensions );
-                //type definition
-                if ( tile.content == 1 ) {
+                if ( tile.content == grid.wall ) {
                     c.drawRect( currentPos, tileDimensions, "grey" );
                 }
-                //numbers
+                c.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
                     let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 );
                     let currentText = indexC.toString() + ", " + indexR.toString();
-                    c.drawText( textPos, tileSize / 3.3, currentText );
+                    c.drawText( textPos, tileSize / 8, currentText );
                 }
             } );
         } );
