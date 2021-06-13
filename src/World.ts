@@ -57,7 +57,7 @@ export default class World {
                 if ( numbered ) {
                     let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 );
                     let currentText = indexC.toString() + ", " + indexR.toString();
-                    c.drawText( textPos, tileSize / 8, currentText );
+                    c.drawText( textPos, ( tileSize / 8 ) | 0, currentText );
                 }
             } );
         } );
