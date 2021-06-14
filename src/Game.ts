@@ -26,6 +26,14 @@ export default class Game {
     constructor() {
         window.addEventListener( "click", ( ev ) => this.onClick() )
         Game.instance = this
+        window.addEventListener( "keyup", ( ev ) => {
+            if (ev.key == "Enter") {
+                console.log("PUSHED ENTER")
+                if (this.ui.cardIndex !== undefined) {
+                    this.world.units[this.ui.unitIndex].hand.cards[this.ui.cardIndex].apply()
+                }
+            }
+        })
     }
 
     setCameraTarget( pos: Vector ) {

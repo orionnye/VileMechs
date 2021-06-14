@@ -6,6 +6,8 @@ import { randomFloor, Vector } from "./math";
 import Input from "./Input";
 import Canvas from "./Canvas";
 import names from "./names";
+import Card from "./Card";
+import Deck from "./Deck";
 
 export default class Unit {
     name: string;
@@ -14,6 +16,7 @@ export default class Unit {
     energy: number;
     color: string;
     health: number;
+    hand: Deck;
 
     constructor( pos ) {
         // this.name = "Igor Von Hefty Jhonson";
@@ -23,6 +26,22 @@ export default class Unit {
         this.energy = 2;
         this.color = "red";
         this.health = 10;
+        this.hand = new Deck();
+        this.hand.pos = new Vector(150, 300);
+        this.hand.offset = new Vector(60, 0);
+        
+        //TEMP DECK STORE
+        for (let i = 0; i < 4; i++) {
+            let card = new Card();
+            // card.cost = Math.floor(Math.random()*5);
+            card.cost = i;
+            this.hand.cards.push(card);
+        }
+        //TEMP CARDTYPE DATA STORE
+        //sqrt both characters
+        this.hand.cards[0].onApply = (player: Unit, enemy : Unit) => {
+            console.log("CUSTOM CARD AFFECT!!!!!!!!")
+        }
         //card stats test
     }
     validMove( index ) {

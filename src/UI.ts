@@ -15,6 +15,7 @@ const unitTrayStride = 33
 export default class UI {
 
     unitIndex = 0
+    cardIndex : undefined | number
     retarget = false
 
     constructor() {
@@ -22,6 +23,21 @@ export default class UI {
             if ( ev.key == "Tab" ) {
                 ev.preventDefault()
                 this.cycleUnits()
+                this.cardIndex = undefined
+            }
+        } )
+        window.addEventListener( "keyup", ( ev ) => {
+            if ( ev.key == "1" ) {
+                this.cardIndex = 0;
+            }
+            if ( ev.key == "2" ) {
+                this.cardIndex = 1;
+            }
+            if ( ev.key == "3" ) {
+                this.cardIndex = 2;
+            }
+            if ( ev.key == "4" ) {
+                this.cardIndex = 3;
             }
         } )
     }
@@ -58,8 +74,8 @@ export default class UI {
     }
 
     render( cv: Canvas, world: World ) {
-        cv.c.drawImage( UIImg, 0, 0 )
-
+        // cv.c.drawImage( UIImg, 0, 0 )
+        cv.drawRect(new Vector(1, 36), new Vector(32, 130), "gray")
         // Unit Tray
         {
             // Units
@@ -67,8 +83,16 @@ export default class UI {
             for ( let unit of world.units ) {
                 unit.render( cv, this.trayCellPosition( index ) )
                 index++
-                // cv.drawRect(new Vector(100, 230), new Vector(75, 100), "red")
             }
+            let selected = this.getSelectedUnit(world)
+            selected.hand.cards.forEach((card, index) => {
+                let { offset, pos } = selected.hand
+                let selectedBump = new Vector(0, 0)
+                if (index == this.cardIndex) {
+                    selectedBump = new Vector(0, -30)
+                }
+                cv.drawRect( pos.add(offset.scale(index)).add(selectedBump), card.dimensions, card.color)
+            })
 
             // Highlight
             let highlightPos = this.trayCellPosition( this.unitIndex )
