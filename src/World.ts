@@ -5,6 +5,14 @@ import { Vector } from "./math";
 import { findPath } from "./pathfinding";
 import Game from "./Game";
 
+import ashyTileSrc from "../www/images/AshyTileV2.png";
+const ashyTileImg = new Image();
+ashyTileImg.src = ashyTileSrc;
+
+import mountainTileSrc from "../www/images/Mountain1.png";
+const mountainTileImg = new Image();
+mountainTileImg.src = mountainTileSrc;
+
 export default class World {
 
     map: Grid
@@ -18,15 +26,9 @@ export default class World {
         this.units = [
             new Unit( new Vector( 0, 0 ) ),
             new Unit( new Vector( 1, 1 ) ),
-            new Unit( new Vector( 2, 0 ) ),
-            new Unit( new Vector( 3, 1 ) ),
+            new Unit( new Vector( 8, 9 ) ),
+            new Unit( new Vector( 7, 8 ) ),
         ]
-        // this.units = [
-        //     new Unit( new Vector( 0, 0 ) ),
-        //     new Unit( new Vector( 1, 1 ) ),
-        //     new Unit( new Vector( 0, 9 ) ),
-        //     new Unit( new Vector( 9, 9 ) ),
-        // ]
 
         let randomTerrain = false;
         if ( randomTerrain ) {
@@ -100,8 +102,12 @@ export default class World {
         map.content.forEach( ( row, indexR ) => {
             row.forEach( ( tile, indexC ) => {
                 let currentPos = new Vector( indexC * tileSize, indexR * tileSize );
-                if ( tile.content == map.wall )
+                //default square
+                if ( tile.content == map.wall ) {
                     cv.drawRect( currentPos, tileDimensions, "grey" );
+                    cv.c.drawImage( mountainTileImg, currentPos.x, currentPos.y );
+                    // cv.c.drawImage( ashyTileImg, currentPos.x, currentPos.y );
+                }
                 cv.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
                     let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 );

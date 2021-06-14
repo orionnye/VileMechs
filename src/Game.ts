@@ -51,7 +51,6 @@ export default class Game {
     onClick() {
         this.world.onClick( this.worldCursor(), this )
     }
-
     update() {
         let { input, camVelocity, camPos } = this
 

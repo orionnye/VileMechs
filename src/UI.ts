@@ -67,6 +67,7 @@ export default class UI {
             for ( let unit of world.units ) {
                 unit.render( cv, this.trayCellPosition( index ) )
                 index++
+                // cv.drawRect(new Vector(100, 230), new Vector(75, 100), "red")
             }
 
             // Highlight

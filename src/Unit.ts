@@ -4,7 +4,6 @@ baseUnitImg.src = baseUnitSrc
 
 import { randomFloor, Vector } from "./math";
 import Input from "./Input";
-import { Deck } from "./Deck";
 import Canvas from "./Canvas";
 import names from "./names";
 
@@ -15,9 +14,6 @@ export default class Unit {
     energy: number;
     color: string;
     health: number;
-    hand: Deck;
-    draw: Deck;
-    discard: Deck;
 
     constructor( pos ) {
         // this.name = "Igor Von Hefty Jhonson";
@@ -28,25 +24,6 @@ export default class Unit {
         this.color = "red";
         this.health = 10;
         //card stats test
-        this.draw = new Deck( new Vector( 10, 470 ), new Vector( 1, 1 ) );
-        this.hand = new Deck( new Vector( 300, 430 ), new Vector( 70, 0 ) );
-        this.discard = new Deck( new Vector( 800, 470 ), new Vector( 2, 1 ) );
-        this.draw.getRandomCards( 10 );
-        this.hand.max = 3;
-    }
-    endTurn() {
-        let { draw, hand, discard } = this;
-        hand.emptyInto( discard );
-        //draw
-        hand.addCards( draw.removeCards( hand.max ) );
-        if ( draw.cards.length == 0 ) {
-            discard.emptyInto( draw );
-            draw.shuffle();
-            if ( hand.cards.length < hand.max ) {
-                let missing = hand.max - hand.cards.length;
-                hand.addCards( draw.removeCards( missing ) );
-            }
-        }
     }
     validMove( index ) {
         let { pos, speed } = this;
@@ -57,11 +34,6 @@ export default class Unit {
     move( index ) {
         if ( this.validMove( index ) )
             this.pos = new Vector( index.x, index.y );
-    }
-    renderCards( pos: Vector = Vector.zero ) {
-        this.draw.render( pos );
-        this.hand.render( pos );
-        this.discard.render( pos );
     }
     render( cv: Canvas, offset = Vector.zero ) {
         cv.c.drawImage( baseUnitImg, offset.x, offset.y )
@@ -82,6 +54,8 @@ export default class Unit {
             let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )
             cv.drawRect( textOffset, textDims, "grey" )
             cv.drawText( textOffset, fontSize, name, "black" )
+            // cv.drawRect(new Vector(200, 200), new Vector(100, 100), this.hand.cards[0].color)
+            // this.renderCards( cv )
         }
     }
 }
