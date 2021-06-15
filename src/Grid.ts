@@ -2,52 +2,55 @@ import { Vector } from "./math"
 import Tile from "./tile"
 
 export default class Grid {
-    content: Tile[][]
+    private content: Tile[]
     width: number
     height: number
-    wall: number
-    empty: number
+    wall: number = 1
+    empty: number = 0
     constructor( width, height ) {
         this.width = width
         this.height = height
         this.content = []
-        //temporary fixed numbers
-        this.wall = 1
-        this.empty = 0
-        for ( let r = 0; r < this.height; r++ ) {
-            this.content.push( [] )
-            for ( let c = 0; c < this.width; c++ ) {
-                this.content[ r ].push( new Tile( this.empty ) )
+        for ( let i = 0; i < width * height; i++ )
+            this.content.push( new Tile( this.empty ) )
+    }
+    randomize( blockChance: number ) {
+        for ( let y = 0; y < this.height; y++ ) {
+            for ( let x = 0; x < this.width; x++ ) {
+                let isBlock = Math.random() < blockChance
+                if ( isBlock )
+                    this.setFromXY( x, y, this.wall )
             }
         }
     }
-    randomize( blockChance: number ) {
-        //TEMPORARY PLACEHOLDER NUMBER
-        this.content.forEach( ( row, IRow ) => {
-            row.forEach( ( tile, ICol ) => {
-                let currentPos = new Vector( ICol, IRow )
-                let isBlock = Math.random() < blockChance
-                if ( isBlock )
-                    this.set( currentPos, this.wall )
-            } )
-        } )
-    }
     set( pos: Vector, value ) {
-        if ( pos.y >= this.height || pos.x >= this.width )
+        this.setFromXY( pos.x, pos.y, value )
+    }
+    setFromXY( x: number, y: number, value ) {
+        if ( y >= this.height || x >= this.width ) {
             console.error( "tried setting value on grid that does not exist" )
-        this.content[ pos.y ][ pos.x ].content = value
+            return
+        }
+        this.content[ y * this.width + x ].content = value
     }
     get( pos: Vector ) {
-        return this.content[ pos.y ][ pos.x ]
+        return this.getFromXY( pos.x, pos.y )
+    }
+    getFromXY( x: number, y: number ) {
+        return this.content[ y * this.width + x ]
     }
     setBlock( pos: Vector, size: Vector, value ) {
-        if ( pos.y >= this.height || pos.x >= this.width )
+        if (
+            pos.y < 0 || pos.x < 0 ||
+            pos.y >= this.height || pos.x >= this.width ||
+            pos.y + size.y >= this.height || pos.x + size.x >= this.width
+        ) {
             console.error( "tried setting value on grid that does not exist" )
-        if ( pos.y + size.y >= this.height || pos.x + size.x >= this.width )
-            console.error( "tried setting value on grid that does not exist" )
-        for ( let r = pos.y; r < pos.y + size.y; r++ ) {
-            for ( let c = pos.x; c < pos.x + size.x; c++ ) {
-                this.content[ r ][ c ].content = value
+            return
+        }
+        for ( let y = pos.y; y < pos.y + size.y; y++ ) {
+            for ( let x = pos.x; x < pos.x + size.x; x++ ) {
+                this.setFromXY( x, y, value )
             }
         }
     }

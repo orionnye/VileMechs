@@ -112,9 +112,10 @@ export default class World {
         let map = this.map
         let tileSize = World.tileSize
         let tileDimensions = World.tileDimensions
-        map.content.forEach( ( row, indexR ) => {
-            row.forEach( ( tile, indexC ) => {
-                let currentPos = new Vector( indexC * tileSize, indexR * tileSize )
+        for ( let y = 0; y < map.height; y++ ) {
+            for ( let x = 0; x < map.width; x++ ) {
+                let currentPos = new Vector( x * tileSize, y * tileSize )
+                let tile = map.getFromXY( x, y )
                 //default square
                 if ( tile.content == map.wall ) {
                     // cv.drawRect( currentPos, tileDimensions, "grey" );
@@ -124,11 +125,11 @@ export default class World {
                 }
                 // cv.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
-                    let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 )
-                    let currentText = indexC.toString() + ", " + indexR.toString()
+                    let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
+                    let currentText = x.toString() + ", " + y.toString()
                     cv.drawText( textPos, ( tileSize / 8 ) | 0, currentText )
                 }
-            } );
-        } );
+            }
+        }
     }
 }
