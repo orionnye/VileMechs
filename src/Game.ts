@@ -21,7 +21,7 @@ export default class Game {
 
     camTarget: Vector | null = null
 
-    static minSeekDistance = World.tileSize * 12 / Game.uiScale
+    static minSeekDistance = World.tileSize * 18 / Game.uiScale
 
     constructor() {
         Game.instance = this
@@ -92,8 +92,8 @@ export default class Game {
 
         if ( this.camTarget ) {
             this.camVelocity = this.camPos.lerp( this.camTarget, 0.075 ).subtract( this.camPos )
-            // if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
-            //     this.camTarget = null
+            if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
+                this.camTarget = null
         }
 
     }

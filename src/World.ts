@@ -79,25 +79,27 @@ export default class World {
         let cursorWalkable = this.isWalkable( cursor )
 
         this.drawMap( cv )
-        if ( cursorWalkable ) {
-            // cv.strokeRect( cursor.scale( tileSize ), World.tileDimensions, "#c2eaff" )
-            if ( selectedUnit ) {
-                let path = findPath( this, selectedUnit.pos, cursor )
-                if ( path ) {
-                    cv.c.save()
-                    cv.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                    cv.c.strokeStyle = "#c2eaff"
-                    cv.c.lineJoin = "round"
-                    cv.c.lineCap = "round"
-                    cv.c.lineWidth = 2
-                    cv.c.stroke()
-                    cv.c.restore()
-                }
+        if ( cursorWalkable && selectedUnit != undefined ) {
+            let path = findPath( this, selectedUnit.pos, cursor )
+            if ( path ) {
+                cv.c.save()
+                cv.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                cv.c.strokeStyle = "#c2eaff"
+                cv.c.lineJoin = "round"
+                cv.c.lineWidth = 2
+                cv.c.stroke()
+
+                cv.c.beginPath()
+                let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                cv.c.arc( endpoint.x, endpoint.y, 2, 0, Math.PI * 2 )
+                cv.c.fillStyle = "#c2eaff"
+                cv.c.fill()
+
+                cv.c.restore()
             }
         }
 
         for ( let unit of this.units ) {
-            let pos = unit.pos
             cv.c.save()
             if ( unit == selectedUnit ) {
                 cv.c.shadowBlur = 10
