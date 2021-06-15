@@ -25,15 +25,18 @@ export default class Game {
 
     constructor() {
         window.addEventListener( "click", ( ev ) => this.onClick() )
+        window.addEventListener( "resize", ( ev ) => this.canvas.onResize() )
+
+
         Game.instance = this
         window.addEventListener( "keyup", ( ev ) => {
-            if (ev.key == "Enter") {
-                console.log("PUSHED ENTER")
-                if (this.ui.cardIndex !== undefined) {
-                    this.world.units[this.ui.unitIndex].hand.cards[this.ui.cardIndex].apply()
+            if ( ev.key == "Enter" ) {
+                console.log( "PUSHED ENTER" )
+                if ( this.ui.cardIndex !== undefined ) {
+                    this.world.units[ this.ui.unitIndex ].hand.cards[ this.ui.cardIndex ].apply()
                 }
             }
-        })
+        } )
     }
 
     setCameraTarget( pos: Vector ) {
@@ -91,8 +94,8 @@ export default class Game {
 
         if ( this.camTarget ) {
             this.camVelocity = this.camPos.lerp( this.camTarget, 0.075 ).subtract( this.camPos )
-            if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
-                this.camTarget = null
+            // if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
+            //     this.camTarget = null
         }
 
     }
@@ -101,7 +104,11 @@ export default class Game {
         let grunitSize = Game.uiScale
         let { canvas, camPos, world, ui } = this
         let { c } = canvas
-        canvas.clear();
+
+        c.fillStyle = "#5fb2de"
+        c.beginPath()
+        c.fillRect( 0, 0, canvas.size.x, canvas.size.y )
+
         c.save()
         c.scale( grunitSize, grunitSize )
         c.imageSmoothingEnabled = false

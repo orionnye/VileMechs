@@ -77,13 +77,19 @@ export default class World {
 
         this.drawMap( cv )
         if ( cursorWalkable ) {
-            cv.strokeRect( cursor.scale( tileSize ), World.tileDimensions, "blue" )
+            // cv.strokeRect( cursor.scale( tileSize ), World.tileDimensions, "#c2eaff" )
             if ( selectedUnit ) {
                 let path = findPath( this, selectedUnit.pos, cursor )
-                let tileDims = new Vector( tileSize, tileSize )
-                if ( path )
-                    for ( let step of path )
-                        cv.drawRect( step.scale( tileSize ), tileDims, "cyan" )
+                if ( path ) {
+                    cv.c.save()
+                    cv.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                    cv.c.strokeStyle = "#c2eaff"
+                    cv.c.lineJoin = "round"
+                    cv.c.lineCap = "round"
+                    cv.c.lineWidth = 2
+                    cv.c.stroke()
+                    cv.c.restore()
+                }
             }
         }
 
@@ -91,7 +97,7 @@ export default class World {
             let pos = unit.pos
             cv.c.save()
             if ( unit == selectedUnit ) {
-                cv.c.shadowBlur = 5
+                cv.c.shadowBlur = 10
                 cv.c.shadowColor = "black"
             }
             unit.render( cv, unit.pos.scale( tileSize ) )

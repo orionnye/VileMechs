@@ -27,20 +27,20 @@ export default class Unit {
         this.color = "red";
         this.health = 10;
         this.hand = new Deck();
-        this.hand.pos = new Vector(150, 300);
-        this.hand.offset = new Vector(60, 0);
-        
+        this.hand.pos = new Vector( 150, 300 );
+        this.hand.offset = new Vector( 60, 0 );
+
         //TEMP DECK STORE
-        for (let i = 0; i < 4; i++) {
+        for ( let i = 0; i < 4; i++ ) {
             let card = new Card();
             // card.cost = Math.floor(Math.random()*5);
             card.cost = i;
-            this.hand.cards.push(card);
+            this.hand.cards.push( card );
         }
         //TEMP CARDTYPE DATA STORE
         //sqrt both characters
-        this.hand.cards[0].onApply = (player: Unit, enemy : Unit) => {
-            console.log("CUSTOM CARD AFFECT!!!!!!!!")
+        this.hand.cards[ 0 ].onApply = ( player: Unit, enemy: Unit ) => {
+            console.log( "CUSTOM CARD AFFECT!!!!!!!!" )
         }
         //card stats test
     }
