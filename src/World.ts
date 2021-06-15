@@ -34,9 +34,11 @@ export default class World {
             new Unit( new Vector( 7, 8 ) ),
         ]
 
-        let randomTerrain = false;
+        let randomTerrain = true;
         if ( randomTerrain ) {
-            this.map.randomize( 0.3 );
+            this.map.randomize( 0.3 )
+            for ( let unit of this.units )
+                this.map.set( unit.pos, 0 )
         } else {
             //custom map
             this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 );

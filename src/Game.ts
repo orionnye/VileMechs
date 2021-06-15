@@ -118,5 +118,10 @@ export default class Game {
         c.restore()
         ui.render( canvas, world )
         c.restore()
+
+        // let center = canvas.size.scale( 0.5 )
+        // c.arc( center.x, center.y, 10, 0, Math.PI * 2 )
+        // c.fillStyle = "red"
+        // c.fill()
     }
 }
