@@ -24,16 +24,14 @@ export default class Game {
     static minSeekDistance = World.tileSize * 12 / Game.uiScale
 
     constructor() {
+        Game.instance = this
         window.addEventListener( "click", ( ev ) => this.onClick() )
         window.addEventListener( "resize", ( ev ) => this.canvas.onResize() )
-
-
-        Game.instance = this
         window.addEventListener( "keyup", ( ev ) => {
             if ( ev.key == "Enter" ) {
                 console.log( "PUSHED ENTER" )
                 if ( this.ui.cardIndex !== undefined ) {
-                    this.world.units[ this.ui.unitIndex ].hand.cards[ this.ui.cardIndex ].apply()
+                    this.ui.getSelectedUnit( this.world )?.hand.cards[ this.ui.cardIndex ].apply()
                 }
             }
         } )

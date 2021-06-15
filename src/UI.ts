@@ -15,48 +15,54 @@ const unitTrayStride = 33
 export default class UI {
 
     static numberOfUnits = 4
-    unitIndex = UI.numberOfUnits
-    get hasUnitSelected() { return this.unitIndex !== UI.numberOfUnits }
+    private unitIndex = UI.numberOfUnits
+    private get hasUnitSelected() { return this.unitIndex !== UI.numberOfUnits }
 
-    cardIndex: undefined | number
-    retarget = false
+    cardIndex: undefined | number // Should be private!
+    private retarget = false
 
     constructor() {
         window.addEventListener( "keydown", ( ev ) => {
             if ( ev.key == "Tab" ) {
                 ev.preventDefault()
                 this.cycleUnits()
-                this.cardIndex = undefined
             }
             if ( ev.key == "Escape" ) {
-                this.unitIndex = UI.numberOfUnits
+                this.deselectUnit()
             }
             if ( ev.key == "1" ) {
-                this.cardIndex = 0;
+                this.cardIndex = 0
             }
             if ( ev.key == "2" ) {
-                this.cardIndex = 1;
+                this.cardIndex = 1
             }
             if ( ev.key == "3" ) {
-                this.cardIndex = 2;
+                this.cardIndex = 2
             }
             if ( ev.key == "4" ) {
-                this.cardIndex = 3;
+                this.cardIndex = 3
             }
         } )
     }
 
-    cycleUnits() {
-        this.unitIndex++
-        this.unitIndex %= ( UI.numberOfUnits + 1 )
+    private setUnitIndex( index: number ) {
+        this.unitIndex = index
         this.retarget = true
+        this.cardIndex = undefined
+    }
+
+    deselectUnit() {
+        this.setUnitIndex( UI.numberOfUnits )
+    }
+
+    private cycleUnits() {
+        this.setUnitIndex( ( this.unitIndex + 1 ) % ( UI.numberOfUnits + 1 ) )
     }
 
     selectUnit( world: World, unit: Unit ) {
         let index = world.units.indexOf( unit )
         if ( index > -1 ) {
-            this.unitIndex = index
-            this.retarget = true
+            this.setUnitIndex( index )
         }
     }
 
@@ -65,7 +71,7 @@ export default class UI {
         return world.units[ this.unitIndex ]
     }
 
-    trayCellPosition( index: number ) {
+    private trayCellPosition( index: number ) {
         return unitTrayBase.add( new Vector( 0, unitTrayStride * index ) )
     }
 

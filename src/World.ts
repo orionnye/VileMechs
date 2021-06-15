@@ -46,14 +46,17 @@ export default class World {
 
     onClick( cursor: Vector, game: Game ) {
         let cell = cursor.floor()
+        let selectedUnit = game.ui.getSelectedUnit( this )
         for ( let unit of this.units ) {
             if ( unit.pos.equals( cell ) ) {
                 console.log( unit )
-                game.ui.selectUnit( this, unit )
+                if ( unit == selectedUnit )
+                    game.ui.deselectUnit()
+                else
+                    game.ui.selectUnit( this, unit )
                 return
             }
         }
-        let selectedUnit = game.ui.getSelectedUnit( this )
         if ( selectedUnit ) {
             let path = findPath( this, selectedUnit.pos, cell )
             if ( path )
