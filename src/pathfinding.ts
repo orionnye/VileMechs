@@ -1,16 +1,26 @@
 import { Vector } from "./math";
 import World from "./World"
 
-const offsets = [
-    new Vector( 1, 0 ),
-    new Vector( -1, 0 ),
-    new Vector( 0, 1 ),
-    new Vector( 0, -1 )
+const offsetOrderings = [
+    //  Horizontal-first ordering
+    [
+        new Vector( 1, 0 ),
+        new Vector( -1, 0 ),
+        new Vector( 0, 1 ),
+        new Vector( 0, -1 ),
+    ],
+    //  Vertical first ordering
+    [
+        new Vector( 0, 1 ),
+        new Vector( 0, -1 ),
+        new Vector( 1, 0 ),
+        new Vector( -1, 0 ),
+    ],
 ]
 
-export function findPath( world: World, from: Vector, to: Vector, maxDepth = 4 ) {
+export function findPath( world: World, origin: Vector, destination: Vector, maxDepth = 4 ) {
     type Node = { pos: Vector, parent: Node | null }
-    function makeNode( pos: Vector, parent: Node | null): Node {
+    function makeNode( pos: Vector, parent: Node | null ): Node {
         return { pos, parent }
     }
 
@@ -23,20 +33,25 @@ export function findPath( world: World, from: Vector, to: Vector, maxDepth = 4 )
         return steps.reverse()
     }
 
-    if ( from.equals( to ) )
-        return [ from ]
-    if ( !world.isWalkable( to ) ) // || !world.isWalkable( from ) )
+    if ( origin.equals( destination ) )
+        return [ origin ]
+    if ( !world.isWalkable( destination ) ) // || !world.isWalkable( from ) )
         return null
 
-    let destKey = to.toString()
+    let destKey = destination.toString()
 
-    let currLayer = [ makeNode( from, null ) ]
+    let currLayer = [ makeNode( origin, null ) ]
     let nextLayer = [] as Node[]
     let visited = new Set<string>()
-    visited.add( from.toString() )
+    visited.add( origin.toString() )
 
     for ( let i = 0; i < maxDepth; i++ ) {
         for ( let node of currLayer ) {
+
+            //  Alternating between vertical-first and horizontal-first leads
+            //  to a preference for zigzagging paths over large L-shaped paths.
+            let pairity = ( node.pos.x + node.pos.y ) % 2
+            let offsets = offsetOrderings[ pairity ]
 
             for ( let offset of offsets ) {
                 let pos2 = node.pos.add( offset )
@@ -54,6 +69,7 @@ export function findPath( world: World, from: Vector, to: Vector, maxDepth = 4 )
                 nextLayer.push( node2 )
             }
         }
+
         let tmp = currLayer
         currLayer = nextLayer
         nextLayer = tmp

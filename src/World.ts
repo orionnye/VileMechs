@@ -40,7 +40,9 @@ export default class World {
         } else {
             //custom map
             this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 );
-            this.map.set( new Vector( 2, 2 ), 0 )
+            this.map.setBlock( new Vector( 3, 3 ), new Vector( 2, 2 ), 0 );
+            this.map.set( new Vector( 3, 2 ), 0 )
+            this.map.set( new Vector( 4, 5 ), 0 )
         }
     }
 
@@ -58,7 +60,7 @@ export default class World {
             }
         }
         if ( selectedUnit ) {
-            let path = findPath( this, selectedUnit.pos, cell )
+            let path = findPath( this, selectedUnit.pos, cell, 100 )
             if ( path )
                 selectedUnit.pos = cell
         }
@@ -80,7 +82,7 @@ export default class World {
 
         this.drawMap( cv )
         if ( cursorWalkable && selectedUnit != undefined ) {
-            let path = findPath( this, selectedUnit.pos, cursor )
+            let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path ) {
                 cv.c.save()
                 cv.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
