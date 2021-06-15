@@ -9,9 +9,13 @@ import ashyTileSrc from "../www/images/AshyTileV2.png";
 const ashyTileImg = new Image();
 ashyTileImg.src = ashyTileSrc;
 
-import mountainTileSrc from "../www/images/Mountain1.png";
-const mountainTileImg = new Image();
-mountainTileImg.src = mountainTileSrc;
+import hillTileSrc from "../www/images/tiles/flat/hill5.png";
+const hillTileImg = new Image();
+hillTileImg.src = hillTileSrc;
+
+import grassTileSrc from "../www/images/tiles/flat/grass.png"
+const grassTileImg = new Image();
+grassTileImg.src = grassTileSrc;
 
 export default class World {
 
@@ -71,16 +75,16 @@ export default class World {
         let selectedUnit = game.ui.getSelectedUnit( this )
         let cursorWalkable = this.isWalkable( cursor )
 
-        if ( cursorWalkable && selectedUnit ) {
-            let path = findPath( this, selectedUnit.pos, cursor )
-            let tileDims = new Vector( tileSize, tileSize )
-            if ( path )
-                for ( let step of path )
-                    cv.drawRect( step.scale( tileSize ), tileDims, "cyan" )
-        }
         this.drawMap( cv )
         if ( cursorWalkable ) {
             cv.strokeRect( cursor.scale( tileSize ), World.tileDimensions, "blue" )
+            if ( selectedUnit ) {
+                let path = findPath( this, selectedUnit.pos, cursor )
+                let tileDims = new Vector( tileSize, tileSize )
+                if ( path )
+                    for ( let step of path )
+                        cv.drawRect( step.scale( tileSize ), tileDims, "cyan" )
+            }
         }
 
         for ( let unit of this.units ) {
@@ -95,24 +99,26 @@ export default class World {
         }
     }
 
-    drawMap( cv: Canvas, numbered: boolean = true ) {
+    drawMap( cv: Canvas, numbered: boolean = false ) {
         let map = this.map
         let tileSize = World.tileSize
         let tileDimensions = World.tileDimensions
         map.content.forEach( ( row, indexR ) => {
             row.forEach( ( tile, indexC ) => {
-                let currentPos = new Vector( indexC * tileSize, indexR * tileSize );
+                let currentPos = new Vector( indexC * tileSize, indexR * tileSize )
                 //default square
                 if ( tile.content == map.wall ) {
-                    cv.drawRect( currentPos, tileDimensions, "grey" );
-                    cv.c.drawImage( mountainTileImg, currentPos.x, currentPos.y );
+                    // cv.drawRect( currentPos, tileDimensions, "grey" );
+                    cv.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
                     // cv.c.drawImage( ashyTileImg, currentPos.x, currentPos.y );
+                } else {
+                    cv.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
                 }
-                cv.strokeRect( currentPos, tileDimensions );
+                // cv.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
-                    let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 );
-                    let currentText = indexC.toString() + ", " + indexR.toString();
-                    cv.drawText( textPos, ( tileSize / 8 ) | 0, currentText );
+                    let textPos = new Vector( indexC * tileSize + 1, indexR * tileSize + 1 )
+                    let currentText = indexC.toString() + ", " + indexR.toString()
+                    cv.drawText( textPos, ( tileSize / 8 ) | 0, currentText )
                 }
             } );
         } );
