@@ -110,7 +110,6 @@ export default class World {
                 if ( tile.content == map.wall ) {
                     // cv.drawRect( currentPos, tileDimensions, "grey" );
                     cv.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
-                    // cv.c.drawImage( ashyTileImg, currentPos.x, currentPos.y );
                 } else {
                     cv.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
                 }
