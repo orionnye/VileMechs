@@ -54,7 +54,8 @@ export default class Unit {
         if ( this.validMove( index ) )
             this.pos = new Vector( index.x, index.y );
     }
-    render( g: Graphics, offset = Vector.zero ) {
+    render( offset = Vector.zero ) {
+        let g = Graphics.instance
         g.c.drawImage( baseUnitImg, offset.x, offset.y )
 
         //  Nametag

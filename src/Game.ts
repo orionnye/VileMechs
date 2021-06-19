@@ -3,7 +3,7 @@ import World from './World';
 import Input from "./input";
 import Graphics from "./Graphics";
 import "./GlobalTypes";
-import UI from './UI';
+import UnitTray from './UnitTray';
 
 export default class Game {
     static instance: Game
@@ -14,7 +14,7 @@ export default class Game {
     input = new Input()
 
     world = new World()
-    ui = new UI()
+    unitTray = new UnitTray()
 
     camPos = new Vector( 0, 0 ) // in ui space
     camVelocity = new Vector( 0, 0 )
@@ -27,14 +27,6 @@ export default class Game {
         Game.instance = this
         window.addEventListener( "click", ( ev ) => this.onClick() )
         window.addEventListener( "resize", ( ev ) => this.canvas.onResize() )
-        window.addEventListener( "keyup", ( ev ) => {
-            if ( ev.key == "Enter" ) {
-                console.log( "PUSHED ENTER" )
-                if ( this.ui.cardIndex !== undefined ) {
-                    this.ui.getSelectedUnit( this.world )?.hand.cards[ this.ui.cardIndex ].apply()
-                }
-            }
-        } )
     }
 
     setCameraTarget( pos: Vector ) {
@@ -58,12 +50,10 @@ export default class Game {
     }
 
     onClick() {
-        this.world.onClick( this.worldCursor(), this )
+        this.world.onClick( this.worldCursor() )
     }
     update() {
         let { input, camVelocity, camPos } = this
-
-        this.ui.update( this )
 
         if ( input.keys.get( "w" ) ) {
             camVelocity.y += -1
@@ -100,7 +90,7 @@ export default class Game {
 
     render() {
         let grunitSize = Game.uiScale
-        let { canvas, camPos, world, ui } = this
+        let { canvas, camPos, world, unitTray: ui } = this
         let { c } = canvas
 
         c.fillStyle = "#5fb2de"
@@ -113,15 +103,10 @@ export default class Game {
         c.save()
         {
             c.translate( -camPos.x, -camPos.y )
-            world.render( canvas, this )
+            world.render()
         }
         c.restore()
-        ui.render( canvas, world )
+        ui.render()
         c.restore()
-
-        // let center = canvas.size.scale( 0.5 )
-        // c.arc( center.x, center.y, 10, 0, Math.PI * 2 )
-        // c.fillStyle = "red"
-        // c.fill()
     }
 }

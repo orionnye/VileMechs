@@ -1,10 +1,12 @@
 import { Vector } from "./math";
 
 export default class Graphics {
+    static instance: Graphics
     canvas: HTMLCanvasElement
     c: CanvasRenderingContext2D
     size!: Vector
     constructor() {
+        Graphics.instance = this
         this.canvas = <HTMLCanvasElement>document.getElementById( "canvas1" )
         this.c = this.canvas.getContext( "2d" ) as CanvasRenderingContext2D
         this.onResize()

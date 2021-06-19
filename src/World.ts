@@ -48,16 +48,16 @@ export default class World {
         }
     }
 
-    onClick( cursor: Vector, game: Game ) {
+    onClick( cursor: Vector ) {
         let cell = cursor.floor()
-        let selectedUnit = game.ui.getSelectedUnit( this )
+        let selectedUnit = Game.instance.unitTray.getSelectedUnit()
         for ( let unit of this.units ) {
             if ( unit.pos.equals( cell ) ) {
                 console.log( unit )
                 if ( unit == selectedUnit )
-                    game.ui.deselectUnit()
+                    Game.instance.unitTray.deselectUnit()
                 else
-                    game.ui.selectUnit( this, unit )
+                    Game.instance.unitTray.selectUnit( unit )
                 return
             }
         }
@@ -75,14 +75,15 @@ export default class World {
         return this.map.contains( pos ) && this.map.isEmpty( pos )
     }
 
-    render( g: Graphics, game: Game ) {
+    render() {
+        let g = Graphics.instance
         let tileSize = World.tileSize
 
-        let cursor = game.worldCursor().floor()
-        let selectedUnit = game.ui.getSelectedUnit( this )
+        let cursor = Game.instance.worldCursor().floor()
+        let selectedUnit = Game.instance.unitTray.getSelectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
 
-        this.drawMap( g )
+        this.drawMap()
 
         //  Draw unit path
         if ( cursorWalkable && selectedUnit != undefined ) {
@@ -108,12 +109,13 @@ export default class World {
                 g.c.shadowBlur = 10
                 g.c.shadowColor = "black"
             }
-            unit.render( g, unit.pos.scale( tileSize ) )
+            unit.render( unit.pos.scale( tileSize ) )
             g.c.restore()
         }
     }
 
-    drawMap( g: Graphics, numbered: boolean = false ) {
+    drawMap( numbered: boolean = false ) {
+        let g = Graphics.instance
         let map = this.map
         let tileSize = World.tileSize
         let tileDimensions = World.tileDimensions

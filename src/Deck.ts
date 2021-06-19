@@ -12,7 +12,8 @@ export default class Deck {
         this.pos = new Vector( 0, 0 )
         this.offset = new Vector( 0, 0 )
     }
-    render( g: Graphics ) {
+    render() {
+        let g = Graphics.instance
         this.cards.forEach( ( card, index ) => {
             g.drawRect( this.pos.add( this.offset.scale( index ) ), card.dimensions, card.color )
         } )
