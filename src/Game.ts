@@ -5,6 +5,7 @@ import Graphics from "./Graphics";
 import "./GlobalTypes";
 import UnitTray from './UnitTray';
 import { getImg } from "./utils";
+import Card from './Card';
 
 const UIImg = getImg( require( "../www/images/UI.png" ) )
 
@@ -110,16 +111,22 @@ export default class Game {
         c.fillRect( 0, 0, graphics.size.x, graphics.size.y )
 
         c.save()
+
         c.scale( grunitSize, grunitSize )
         c.imageSmoothingEnabled = false
+
         c.save()
-        {
-            c.translate( -camPos.x, -camPos.y )
-            world.render()
-        }
+        c.translate( -camPos.x, -camPos.y )
+        world.render()
         c.restore()
+
         graphics.c.drawImage( UIImg, 0, 0 )
         unitTray.render()
+
+        let selectedUnit = unitTray.getSelectedUnit()
+        if ( selectedUnit )
+            selectedUnit.renderCards()
+
         c.restore()
     }
 }
