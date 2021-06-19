@@ -10,7 +10,7 @@ export default class Game {
 
     static uiScale = 3 // Size of one grunit in pixels.
 
-    canvas = new Graphics()
+    graphics = new Graphics()
     input = new Input()
 
     world = new World()
@@ -26,11 +26,11 @@ export default class Game {
     constructor() {
         Game.instance = this
         window.addEventListener( "click", ( ev ) => this.onClick() )
-        window.addEventListener( "resize", ( ev ) => this.canvas.onResize() )
+        window.addEventListener( "resize", ( ev ) => this.graphics.onResize() )
     }
 
     setCameraTarget( pos: Vector ) {
-        let halfScreenDims = this.canvas.size.scale( 0.5 / Game.uiScale ) // in ui space
+        let halfScreenDims = this.graphics.size.scale( 0.5 / Game.uiScale ) // in ui space
         let adjustedTarget = pos.subtract( halfScreenDims )
         if ( adjustedTarget.distance( this.camPos ) < Game.minSeekDistance )
             return
@@ -52,6 +52,7 @@ export default class Game {
     onClick() {
         this.world.onClick( this.worldCursor() )
     }
+
     update() {
         let { input, camVelocity, camPos } = this
 
@@ -85,17 +86,16 @@ export default class Game {
             if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
                 this.camTarget = null
         }
-
     }
 
     render() {
         let grunitSize = Game.uiScale
-        let { canvas, camPos, world, unitTray: ui } = this
-        let { c } = canvas
+        let { graphics, camPos, world, unitTray } = this
+        let { c } = graphics
 
         c.fillStyle = "#5fb2de"
         c.beginPath()
-        c.fillRect( 0, 0, canvas.size.x, canvas.size.y )
+        c.fillRect( 0, 0, graphics.size.x, graphics.size.y )
 
         c.save()
         c.scale( grunitSize, grunitSize )
@@ -106,7 +106,7 @@ export default class Game {
             world.render()
         }
         c.restore()
-        ui.render()
+        unitTray.render()
         c.restore()
     }
 }

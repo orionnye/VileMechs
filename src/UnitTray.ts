@@ -17,8 +17,6 @@ export default class UnitTray {
     private unitIndex = UnitTray.numberOfUnits
     private get hasUnitSelected() { return this.unitIndex !== UnitTray.numberOfUnits }
 
-    private retarget = false
-
     constructor() {
         window.addEventListener( "keydown", ( ev ) => {
             if ( ev.key == "Tab" ) {
