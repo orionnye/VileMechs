@@ -2,7 +2,7 @@ import UISrc from "../www/images/UI.png";
 const UIImg = new Image()
 UIImg.src = UISrc
 
-import Canvas from "./Canvas";
+import Graphics from "./Graphics";
 import Game from "./Game";
 import Input from "./Input";
 import { Vector } from "./math";
@@ -84,26 +84,26 @@ export default class UI {
         }
     }
 
-    render( cv: Canvas, world: World ) {
-        cv.c.drawImage( UIImg, 0, 0 )
-        // cv.drawRect(new Vector(1, 36), new Vector(32, 130), "gray")
+    render( g: Graphics, world: World ) {
+        g.c.drawImage( UIImg, 0, 0 )
+        // g.drawRect(new Vector(1, 36), new Vector(32, 130), "gray")
 
         // Unit Tray
         {
             // Units
             let index = 0
             for ( let unit of world.units ) {
-                unit.render( cv, this.trayCellPosition( index ) )
+                unit.render( g, this.trayCellPosition( index ) )
                 index++
             }
 
             // Highlight
             if ( this.hasUnitSelected ) {
                 let highlightPos = this.trayCellPosition( this.unitIndex )
-                cv.c.lineWidth = 1
-                cv.c.strokeStyle = "red"
-                cv.c.strokeRect( highlightPos.x + .5, highlightPos.y + .5, 31, 31 )
-                cv.c.stroke()
+                g.c.lineWidth = 1
+                g.c.strokeStyle = "red"
+                g.c.strokeRect( highlightPos.x + .5, highlightPos.y + .5, 31, 31 )
+                g.c.stroke()
             }
         }
 
@@ -116,7 +116,7 @@ export default class UI {
                 if ( index == this.cardIndex ) {
                     selectedBump = new Vector( 0, -30 )
                 }
-                cv.drawRect( pos.add( offset.scale( index ) ).add( selectedBump ), card.dimensions, card.color )
+                g.drawRect( pos.add( offset.scale( index ) ).add( selectedBump ), card.dimensions, card.color )
             } )
         }
     }

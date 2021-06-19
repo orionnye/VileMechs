@@ -1,4 +1,4 @@
-import Canvas from "./Canvas";
+import Graphics from "./Graphics";
 import Card from "./Card";
 import { Vector } from "./math";
 
@@ -9,12 +9,12 @@ export default class Deck {
     offset: Vector
     constructor() {
         this.cards = []
-        this.pos = new Vector(0, 0)
-        this.offset = new Vector(0, 0)
+        this.pos = new Vector( 0, 0 )
+        this.offset = new Vector( 0, 0 )
     }
-    render(cv: Canvas) {
-        this.cards.forEach((card, index) => {
-            cv.drawRect( this.pos.add(this.offset.scale(index)), card.dimensions, card.color)
-        })
+    render( g: Graphics ) {
+        this.cards.forEach( ( card, index ) => {
+            g.drawRect( this.pos.add( this.offset.scale( index ) ), card.dimensions, card.color )
+        } )
     }
 }

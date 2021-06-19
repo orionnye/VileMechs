@@ -1,7 +1,7 @@
 import { Vector } from './math';
 import World from './World';
 import Input from "./input";
-import Canvas from "./canvas";
+import Graphics from "./Graphics";
 import "./GlobalTypes";
 import UI from './UI';
 
@@ -10,7 +10,7 @@ export default class Game {
 
     static uiScale = 3 // Size of one grunit in pixels.
 
-    canvas = new Canvas()
+    canvas = new Graphics()
     input = new Input()
 
     world = new World()

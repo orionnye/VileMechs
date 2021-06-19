@@ -1,6 +1,6 @@
 import { Vector } from "./math";
 
-export default class Canvas {
+export default class Graphics {
     canvas: HTMLCanvasElement
     c: CanvasRenderingContext2D
     size!: Vector

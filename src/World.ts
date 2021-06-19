@@ -1,6 +1,6 @@
 import Unit from "./Unit";
 import Grid from "./Grid";
-import Canvas from "./Canvas";
+import Graphics from "./Graphics";
 import { Vector } from "./math";
 import { findPath } from "./pathfinding";
 import Game from "./Game";
@@ -75,45 +75,45 @@ export default class World {
         return this.map.contains( pos ) && this.map.isEmpty( pos )
     }
 
-    render( cv: Canvas, game: Game ) {
+    render( g: Graphics, game: Game ) {
         let tileSize = World.tileSize
 
         let cursor = game.worldCursor().floor()
         let selectedUnit = game.ui.getSelectedUnit( this )
         let cursorWalkable = this.isWalkable( cursor )
 
-        this.drawMap( cv )
+        this.drawMap( g )
 
         //  Draw unit path
         if ( cursorWalkable && selectedUnit != undefined ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path ) {
                 let radius = 3
-                cv.c.save()
-                cv.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                cv.c.strokeStyle = "#f0ead8"
-                cv.c.lineWidth = radius
-                cv.c.stroke()
-                cv.c.beginPath()
+                g.c.save()
+                g.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                g.c.strokeStyle = "#f0ead8"
+                g.c.lineWidth = radius
+                g.c.stroke()
+                g.c.beginPath()
                 let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                cv.c.fillStyle = "#f0ead8"
-                cv.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
-                cv.c.restore()
+                g.c.fillStyle = "#f0ead8"
+                g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                g.c.restore()
             }
         }
 
         for ( let unit of this.units ) {
-            cv.c.save()
+            g.c.save()
             if ( unit == selectedUnit ) {
-                cv.c.shadowBlur = 10
-                cv.c.shadowColor = "black"
+                g.c.shadowBlur = 10
+                g.c.shadowColor = "black"
             }
-            unit.render( cv, unit.pos.scale( tileSize ) )
-            cv.c.restore()
+            unit.render( g, unit.pos.scale( tileSize ) )
+            g.c.restore()
         }
     }
 
-    drawMap( cv: Canvas, numbered: boolean = false ) {
+    drawMap( g: Graphics, numbered: boolean = false ) {
         let map = this.map
         let tileSize = World.tileSize
         let tileDimensions = World.tileDimensions
@@ -124,15 +124,15 @@ export default class World {
                 //default square
                 if ( tile.content == map.wall ) {
                     // cv.drawRect( currentPos, tileDimensions, "grey" );
-                    cv.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
+                    g.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
                 } else {
-                    cv.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
+                    g.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
                 }
                 // cv.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
                     let currentText = x.toString() + ", " + y.toString()
-                    cv.drawText( textPos, ( tileSize / 8 ) | 0, currentText )
+                    g.drawText( textPos, ( tileSize / 8 ) | 0, currentText )
                 }
             }
         }

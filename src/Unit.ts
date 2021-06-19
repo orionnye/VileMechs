@@ -4,7 +4,7 @@ baseUnitImg.src = baseUnitSrc
 
 import { randomFloor, Vector } from "./math";
 import Input from "./Input";
-import Canvas from "./Canvas";
+import Graphics from "./Graphics";
 import names from "./names";
 import Card from "./Card";
 import Deck from "./Deck";
@@ -54,27 +54,27 @@ export default class Unit {
         if ( this.validMove( index ) )
             this.pos = new Vector( index.x, index.y );
     }
-    render( cv: Canvas, offset = Vector.zero ) {
-        cv.c.drawImage( baseUnitImg, offset.x, offset.y )
+    render( g: Graphics, offset = Vector.zero ) {
+        g.c.drawImage( baseUnitImg, offset.x, offset.y )
 
         //  Nametag
         {
-            cv.c.shadowBlur = 0
+            g.c.shadowBlur = 0
             const fontSize = 3.5
-            cv.c.font = fontSize + "px pixel";
+            g.c.font = fontSize + "px pixel";
 
             let name = this.name
             const maxLength = 8
             if ( name.length > maxLength )
                 name = name.slice( 0, maxLength - 3 ) + "..."
 
-            let metrics = cv.c.measureText( name )
+            let metrics = g.c.measureText( name )
             let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
             let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )
-            cv.drawRect( textOffset, textDims, "grey" )
-            cv.drawText( textOffset, fontSize, name, "black" )
-            // cv.drawRect(new Vector(200, 200), new Vector(100, 100), this.hand.cards[0].color)
-            // this.renderCards( cv )
+            g.drawRect( textOffset, textDims, "grey" )
+            g.drawText( textOffset, fontSize, name, "black" )
+            // g.drawRect(new Vector(200, 200), new Vector(100, 100), this.hand.cards[0].color)
+            // this.renderCards( g )
         }
     }
 }
