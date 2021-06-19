@@ -67,6 +67,10 @@ export class AABB {
         this.maxy = maxy
     }
 
+    static fromDimensions( pos: Vector, dimensions: Vector ) {
+        return new AABB( pos.x, pos.y, pos.x + dimensions.x, pos.y + dimensions.y )
+    }
+
     hull( a: AABB, b: AABB ) {
         function min( x, y ) { return Math.min( x, y ) }
         function max( x, y ) { return Math.max( x, y ) }
@@ -77,4 +81,13 @@ export class AABB {
             max( a.maxy, b.maxy ),
         )
     }
+
+    contains( p: Vector ) {
+        let { minx, miny, maxx, maxy } = this
+        return p.x >= minx && p.x <= maxx && p.y >= miny && p.y <= maxy
+    }
+}
+
+export function contains( min: number, max: number, x: number ) {
+    return min >= x && max >= x
 }
