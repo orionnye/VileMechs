@@ -1,7 +1,3 @@
-import UISrc from "../www/images/UI.png";
-const UIImg = new Image()
-UIImg.src = UISrc
-
 import Graphics from "./Graphics";
 import Game from "./Game";
 import { Vector } from "./math";
@@ -64,9 +60,8 @@ export default class UnitTray {
 
     render() {
         let g = Graphics.instance
-        let units = Game.instance.world.units
-        g.c.drawImage( UIImg, 0, 0 )
         // Units
+        let units = Game.instance.world.units
         let index = 0
         for ( let unit of units ) {
             unit.render( this.trayCellPosition( index ) )

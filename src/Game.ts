@@ -1,3 +1,7 @@
+import UISrc from "../www/images/UI.png";
+const UIImg = new Image()
+UIImg.src = UISrc
+
 import { Vector } from './math';
 import World from './World';
 import Input from "./input";
@@ -106,6 +110,7 @@ export default class Game {
             world.render()
         }
         c.restore()
+        graphics.c.drawImage( UIImg, 0, 0 )
         unitTray.render()
         c.restore()
     }
