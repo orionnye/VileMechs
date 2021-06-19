@@ -1,6 +1,6 @@
 import Graphics from "./Graphics";
 import Game from "./Game";
-import { Vector } from "./math";
+import { contains2D, Vector } from "./math";
 import Unit from "./Unit";
 import World from "./World";
 
@@ -75,5 +75,20 @@ export default class UnitTray {
             g.c.strokeRect( highlightPos.x + .5, highlightPos.y + .5, 31, 31 )
             g.c.stroke()
         }
+    }
+
+    onClick( cursor: Vector ) {
+        let numberOfUnits = Game.instance.world.units.length
+        for ( let i = 0; i < numberOfUnits; i++ ) {
+            let pos = this.trayCellPosition( i )
+            if ( contains2D( pos, 32, 32, cursor ) ) {
+                if ( i == this.unitIndex )
+                    this.deselectUnit()
+                else
+                    this.setUnitIndex( i )
+                return true
+            }
+        }
+        return false
     }
 }

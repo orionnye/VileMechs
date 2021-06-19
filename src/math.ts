@@ -89,5 +89,9 @@ export class AABB {
 }
 
 export function contains( min: number, max: number, x: number ) {
-    return min >= x && max >= x
+    return x >= min && x <= max
+}
+
+export function contains2D( pos: Vector, width: number, height: number, pt: Vector ) {
+    return contains( pos.x, pos.x + width, pt.x ) && contains( pos.y, pos.y + height, pt.y )
 }

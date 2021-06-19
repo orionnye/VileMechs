@@ -44,6 +44,10 @@ export default class Game {
         return pos.scale( 1 / Game.uiScale ).add( this.camPos ).scale( 1 / World.tileSize )
     }
 
+    pixelSpaceToUISpace( pos: Vector ) {
+        return pos.scale( 1 / Game.uiScale )
+    }
+
     worldSpaceToUISpace( pos: Vector ) {
         return pos.scale( World.tileSize ).subtract( this.camPos )
     }
@@ -52,8 +56,13 @@ export default class Game {
         return this.pixelSpaceToWorldSpace( this.input.cursor )
     }
 
+    UICursor() {
+        return this.pixelSpaceToUISpace( this.input.cursor )
+    }
+
     onClick() {
-        this.world.onClick( this.worldCursor() )
+        if ( !this.unitTray.onClick( this.UICursor() ) )
+            this.world.onClick( this.worldCursor() )
     }
 
     update() {
