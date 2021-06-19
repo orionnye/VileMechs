@@ -4,18 +4,11 @@ import Graphics from "./Graphics";
 import { Vector } from "./math";
 import { findPath } from "./pathfinding";
 import Game from "./Game";
+import { getImg } from "./utils";
 
-import ashyTileSrc from "../www/images/AshyTileV2.png";
-const ashyTileImg = new Image();
-ashyTileImg.src = ashyTileSrc;
-
-import hillTileSrc from "../www/images/tiles/flat/hill5.png";
-const hillTileImg = new Image();
-hillTileImg.src = hillTileSrc;
-
-import grassTileSrc from "../www/images/tiles/flat/grass.png"
-const grassTileImg = new Image();
-grassTileImg.src = grassTileSrc;
+const ashyTileImg = getImg( require( "../www/images/AshyTileV2.png" ) )
+const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
+const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) );
 
 export default class World {
 

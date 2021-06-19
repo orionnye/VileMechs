@@ -1,13 +1,12 @@
-import UISrc from "../www/images/UI.png";
-const UIImg = new Image()
-UIImg.src = UISrc
-
 import { Vector } from './math';
 import World from './World';
 import Input from "./input";
 import Graphics from "./Graphics";
 import "./GlobalTypes";
 import UnitTray from './UnitTray';
+import { getImg } from "./utils";
+
+const UIImg = getImg( require( "../www/images/UI.png" ) )
 
 export default class Game {
     static instance: Game

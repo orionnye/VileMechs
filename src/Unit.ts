@@ -1,13 +1,12 @@
-import baseUnitSrc from "../www/images/BaseEnemy.png";
-const baseUnitImg = new Image()
-baseUnitImg.src = baseUnitSrc
-
 import { randomFloor, Vector } from "./math";
 import Input from "./Input";
 import Graphics from "./Graphics";
 import names from "./names";
 import Card from "./Card";
 import Deck from "./Deck";
+import { getImg } from "./utils";
+
+const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 
 export default class Unit {
     name: string;
