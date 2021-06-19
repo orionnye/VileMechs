@@ -111,7 +111,7 @@ export default class UI {
         let selected = this.getSelectedUnit( world )
         if ( selected ) {
             selected.hand.cards.forEach( ( card, index ) => {
-                let { offset, pos } = selected.hand
+                let { offset, pos } = ( selected as Unit ).hand
                 let selectedBump = new Vector( 0, 0 )
                 if ( index == this.cardIndex ) {
                     selectedBump = new Vector( 0, -30 )

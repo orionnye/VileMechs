@@ -83,22 +83,21 @@ export default class World {
         let cursorWalkable = this.isWalkable( cursor )
 
         this.drawMap( cv )
+
+        //  Draw unit path
         if ( cursorWalkable && selectedUnit != undefined ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path ) {
+                let radius = 3
                 cv.c.save()
                 cv.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                cv.c.strokeStyle = "#c2eaff"
-                cv.c.lineJoin = "round"
-                cv.c.lineWidth = 2
+                cv.c.strokeStyle = "#f0ead8"
+                cv.c.lineWidth = radius
                 cv.c.stroke()
-
                 cv.c.beginPath()
                 let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                cv.c.arc( endpoint.x, endpoint.y, 2, 0, Math.PI * 2 )
-                cv.c.fillStyle = "#c2eaff"
-                cv.c.fill()
-
+                cv.c.fillStyle = "#f0ead8"
+                cv.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
                 cv.c.restore()
             }
         }
