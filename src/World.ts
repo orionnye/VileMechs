@@ -5,13 +5,14 @@ import { Vector } from "./math/Vector";
 import { findPath } from "./pathfinding";
 import Game from "./Game";
 import { getImg } from "./utils";
+import Matrix from "./math/Matrix";
+import { SceneNode } from "./scene/Scene";
 
 const ashyTileImg = getImg( require( "../www/images/AshyTileV2.png" ) )
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) );
 
 export default class World {
-
     map: Grid
     units: Unit[]
 
@@ -41,25 +42,25 @@ export default class World {
         }
     }
 
-    onClick( cursor: Vector ) {
-        let cell = cursor.floor()
-        let selectedUnit = Game.instance.unitTray.getSelectedUnit()
-        for ( let unit of this.units ) {
-            if ( unit.pos.equals( cell ) ) {
-                console.log( unit )
-                if ( unit == selectedUnit )
-                    Game.instance.unitTray.deselectUnit()
-                else
-                    Game.instance.unitTray.selectUnit( unit )
-                return
-            }
-        }
-        if ( selectedUnit ) {
-            let path = findPath( this, selectedUnit.pos, cell, 100 )
-            if ( path )
-                selectedUnit.pos = cell
-        }
-    }
+    // onClick( cursor: Vector ) {
+    //     let cell = cursor.floor()
+    //     let selectedUnit = Game.instance.unitTray.getSelectedUnit()
+    //     for ( let unit of this.units ) {
+    //         if ( unit.pos.equals( cell ) ) {
+    //             console.log( unit )
+    //             if ( unit == selectedUnit )
+    //                 Game.instance.unitTray.deselectUnit()
+    //             else
+    //                 Game.instance.unitTray.selectUnit( unit )
+    //             return
+    //         }
+    //     }
+    //     if ( selectedUnit ) {
+    //         let path = findPath( this, selectedUnit.pos, cell, 100 )
+    //         if ( path )
+    //             selectedUnit.pos = cell
+    //     }
+    // }
 
     isWalkable( pos: Vector ) {
         for ( let unit of this.units )
@@ -111,19 +112,15 @@ export default class World {
         let g = Graphics.instance
         let map = this.map
         let tileSize = World.tileSize
-        let tileDimensions = World.tileDimensions
         for ( let y = 0; y < map.height; y++ ) {
             for ( let x = 0; x < map.width; x++ ) {
                 let currentPos = new Vector( x * tileSize, y * tileSize )
                 let tile = map.getFromXY( x, y )
-                //default square
                 if ( tile.content == map.wall ) {
-                    // cv.drawRect( currentPos, tileDimensions, "grey" );
                     g.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
                 } else {
                     g.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
                 }
-                // cv.strokeRect( currentPos, tileDimensions );
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
                     let currentText = x.toString() + ", " + y.toString()
@@ -131,5 +128,24 @@ export default class World {
                 }
             }
         }
+    }
+
+    addSceneNodes( scene: any ) {
+        let game = Game.instance
+        let { camPos } = game
+        let { units } = this
+        scene.children.push( {
+            mat: Matrix.vTranslation( camPos.scale( -1 ) ),
+            children: units.map(
+                ( unit, i ) => {
+                    return {
+                        mat: Matrix.vTranslation( unit.pos.scale( World.tileSize ) ),
+                        rect: { width: World.tileSize, height: World.tileSize },
+                        onClick: ( node: SceneNode ) => game.unitTray.toggleSelectIndex( i ),
+                        color: "red"
+                    }
+                }
+            )
+        } )
     }
 }

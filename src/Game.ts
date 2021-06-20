@@ -1,4 +1,5 @@
 import { Vector } from "./math/Vector";
+import Matrix from "./math/Matrix";
 import World from './World';
 import Input from "./input";
 import Graphics from "./Graphics";
@@ -6,31 +7,42 @@ import "./GlobalTypes";
 import UnitTray from './UnitTray';
 import { getImg } from "./utils";
 import Card from './Card';
+import { ParentSceneNode } from "./scene/Scene";
+import Scene from "./scene/Scene";
 
 const UIImg = getImg( require( "../www/images/UI.png" ) )
 
 export default class Game {
     static instance: Game
 
-    static uiScale = 3 // Size of one grunit in pixels.
+    static uiScale = 3 // Size of one "pixel" in screen pixels.
 
     graphics = new Graphics()
     input = new Input()
+
+    scene: ParentSceneNode = {
+        mat: Matrix.scale( Game.uiScale, Game.uiScale ),
+        children: []
+    }
 
     world = new World()
     unitTray = new UnitTray()
 
     camPos = new Vector( 0, 0 ) // in ui space
     camVelocity = new Vector( 0, 0 )
-
     camTarget: Vector | null = null
-
     static minSeekDistance = World.tileSize * 18 / Game.uiScale
+
+    debug = false
 
     constructor() {
         Game.instance = this
         window.addEventListener( "click", ( ev ) => this.onClick() )
         window.addEventListener( "resize", ( ev ) => this.graphics.onResize() )
+        window.addEventListener( "keydown", ( ev ) => {
+            if ( ev.key == "`" )
+                this.debug = !this.debug
+        } )
     }
 
     setCameraTarget( pos: Vector ) {
@@ -62,8 +74,11 @@ export default class Game {
     }
 
     onClick() {
-        if ( !this.unitTray.onClick( this.UICursor() ) )
-            this.world.onClick( this.worldCursor() )
+        let picked = Scene.pick( this.scene, this.input.cursor )
+        if ( picked ) {
+            if ( picked.onClick )
+                picked.onClick( picked )
+        }
     }
 
     update() {
@@ -99,6 +114,8 @@ export default class Game {
             if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
                 this.camTarget = null
         }
+
+        this.buildScene()
     }
 
     render() {
@@ -128,5 +145,19 @@ export default class Game {
             selectedUnit.renderCards()
 
         c.restore()
+
+        if ( this.debug ) {
+            c.globalAlpha = 0.25
+            let picked = Scene.pick( this.scene, this.input.cursor )
+            if ( picked ) picked.color = "white"
+            Scene.render( c, this.scene )
+            c.globalAlpha = 1
+        }
+    }
+
+    buildScene() {
+        this.scene.children.length = 0
+        this.world.addSceneNodes( this.scene )
+        this.unitTray.addSceneNodes( this.scene )
     }
 }

@@ -4,12 +4,13 @@ import { contains2D } from "./math/math";
 import { Vector } from "./math/Vector";
 import Unit from "./Unit";
 import World from "./World";
+import Matrix from "./math/Matrix";
+import { SceneNode } from "./scene/Scene";
 
 const unitTrayBase = new Vector( 1, 36 )
 const unitTrayStride = 33
 
 export default class UnitTray {
-
     static numberOfUnits = 4
     private unitIndex = UnitTray.numberOfUnits
     private get hasUnitSelected() { return this.unitIndex !== UnitTray.numberOfUnits }
@@ -26,11 +27,18 @@ export default class UnitTray {
         } )
     }
 
-    private setUnitIndex( index: number ) {
+    setUnitIndex( index: number ) {
         this.unitIndex = index
         let selectedUnit = this.getSelectedUnit()
         if ( selectedUnit )
             Game.instance.setCameraTarget( selectedUnit.pos.scale( World.tileSize ) )
+    }
+
+    toggleSelectIndex( index: number ) {
+        if ( index == this.unitIndex )
+            this.deselectUnit()
+        else
+            this.setUnitIndex( index )
     }
 
     deselectUnit() {
@@ -78,18 +86,18 @@ export default class UnitTray {
         }
     }
 
-    onClick( cursor: Vector ) {
-        let numberOfUnits = Game.instance.world.units.length
-        for ( let i = 0; i < numberOfUnits; i++ ) {
+    addSceneNodes( scene: any ) {
+        let game = Game.instance
+        let units = game.world.units
+        for ( let i = 0; i < units.length; i++ ) {
             let pos = this.trayCellPosition( i )
-            if ( contains2D( pos, 32, 32, cursor ) ) {
-                if ( i == this.unitIndex )
-                    this.deselectUnit()
-                else
-                    this.setUnitIndex( i )
-                return true
-            }
+            scene.children.push( {
+                mat: Matrix.translation( pos.x, pos.y ),
+                rect: { width: World.tileSize, height: World.tileSize },
+                onClick: ( node: SceneNode ) => this.toggleSelectIndex( i ),
+                color: "blue"
+            } )
         }
-        return false
     }
+
 }
