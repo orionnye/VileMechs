@@ -21,7 +21,7 @@ export default class Game {
     input = new Input()
 
     scene: ParentSceneNode = {
-        mat: Matrix.scale( Game.uiScale, Game.uiScale ),
+        transform: Matrix.scale( Game.uiScale, Game.uiScale ),
         children: []
     }
 
@@ -74,10 +74,10 @@ export default class Game {
     }
 
     onClick() {
-        let picked = Scene.pick( this.scene, this.input.cursor )
-        if ( picked ) {
-            if ( picked.onClick )
-                picked.onClick( picked )
+        let { node, point } = Scene.pick( this.scene, this.input.cursor )
+        if ( node ) {
+            if ( node.onClick )
+                node.onClick( point )
         }
     }
 
@@ -148,7 +148,7 @@ export default class Game {
 
         if ( this.debug ) {
             c.globalAlpha = 0.25
-            let picked = Scene.pick( this.scene, this.input.cursor )
+            let picked = Scene.pickNode( this.scene, this.input.cursor )
             if ( picked ) picked.color = "white"
             Scene.render( c, this.scene )
             c.globalAlpha = 1

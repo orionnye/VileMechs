@@ -92,9 +92,9 @@ export default class UnitTray {
         for ( let i = 0; i < units.length; i++ ) {
             let pos = this.trayCellPosition( i )
             scene.children.push( {
-                mat: Matrix.translation( pos.x, pos.y ),
+                transform: Matrix.translation( pos.x, pos.y ),
                 rect: { width: World.tileSize, height: World.tileSize },
-                onClick: ( node: SceneNode ) => this.toggleSelectIndex( i ),
+                onClick: () => this.toggleSelectIndex( i ),
                 color: "blue"
             } )
         }
