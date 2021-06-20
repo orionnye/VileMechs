@@ -67,37 +67,30 @@ export default class UnitTray {
         return unitTrayBase.add( new Vector( 0, unitTrayStride * index ) )
     }
 
-    render() {
-        let g = Graphics.instance
-        // Units
-        let units = Game.instance.world.units
-        let index = 0
-        for ( let unit of units ) {
-            unit.render( this.trayCellPosition( index ) )
-            index++
-        }
-        // Highlight
-        if ( this.hasUnitSelected ) {
-            let highlightPos = this.trayCellPosition( this.unitIndex )
-            g.c.lineWidth = 1
-            g.c.strokeStyle = "red"
-            g.c.strokeRect( highlightPos.x + .5, highlightPos.y + .5, 31, 31 )
-            g.c.stroke()
-        }
-    }
-
     addSceneNodes( scene: any ) {
         let game = Game.instance
         let units = game.world.units
-        for ( let i = 0; i < units.length; i++ ) {
+        let selectedUnit = this.getSelectedUnit()
+        let g = Graphics.instance
+        units.forEach( ( unit, i ) => {
             let pos = this.trayCellPosition( i )
             scene.children.push( {
+                description: "tray_unit",
                 transform: Matrix.translation( pos.x, pos.y ),
                 rect: { width: World.tileSize, height: World.tileSize },
+                color: "blue",
                 onClick: () => this.toggleSelectIndex( i ),
-                color: "blue"
+                onRender: () => {
+                    unit.render( Vector.zero )
+                    if ( selectedUnit == unit ) {
+                        g.c.lineWidth = 1
+                        g.c.strokeStyle = "red"
+                        g.c.strokeRect( .5, .5, 31, 31 )
+                        g.c.stroke()
+                    }
+                }
             } )
-        }
+        } )
     }
 
 }

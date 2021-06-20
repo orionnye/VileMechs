@@ -119,45 +119,32 @@ export default class Game {
     }
 
     render() {
-        let grunitSize = Game.uiScale
-        let { graphics, camPos, world, unitTray } = this
-        let { c } = graphics
+        let g = this.graphics
 
-        c.fillStyle = "#5fb2de"
-        c.beginPath()
-        c.fillRect( 0, 0, graphics.size.x, graphics.size.y )
+        g.c.fillStyle = "#5fb2de"
+        g.c.fillRect( 0, 0, g.size.x, g.size.y )
 
-        c.save()
-
-        c.scale( grunitSize, grunitSize )
-        c.imageSmoothingEnabled = false
-
-        c.save()
-        c.translate( -camPos.x, -camPos.y )
-        world.render()
-        c.restore()
-
-        graphics.c.drawImage( UIImg, 0, 0 )
-        unitTray.render()
-
-        let selectedUnit = unitTray.getSelectedUnit()
-        if ( selectedUnit )
-            selectedUnit.renderCards()
-
-        c.restore()
+        g.c.imageSmoothingEnabled = false
+        Scene.render( g.c, this.scene )
 
         if ( this.debug ) {
-            c.globalAlpha = 0.25
+            g.c.globalAlpha = 0.25
             let picked = Scene.pickNode( this.scene, this.input.cursor )
             if ( picked ) picked.color = "white"
-            Scene.render( c, this.scene )
-            c.globalAlpha = 1
+            Scene.render( g.c, this.scene, true )
+            g.c.globalAlpha = 1
         }
     }
 
     buildScene() {
+        let g = Graphics.instance
         this.scene.children.length = 0
         this.world.addSceneNodes( this.scene )
+        this.scene.children.push( {
+            description: "static UI layer",
+            transform: Matrix.identity,
+            onRender: () => g.c.drawImage( UIImg, 0, 0 )
+        } )
         this.unitTray.addSceneNodes( this.scene )
     }
 }

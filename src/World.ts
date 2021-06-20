@@ -76,16 +76,6 @@ export default class World {
                 g.c.restore()
             }
         }
-
-        for ( let unit of this.units ) {
-            g.c.save()
-            if ( unit == selectedUnit ) {
-                g.c.shadowBlur = 10
-                g.c.shadowColor = "black"
-            }
-            unit.render( unit.pos.scale( tileSize ) )
-            g.c.restore()
-        }
     }
 
     drawMap( numbered: boolean = false ) {
@@ -112,34 +102,46 @@ export default class World {
 
     addSceneNodes( scene: any ) {
         let game = Game.instance
+        let g = Graphics.instance
         let { camPos } = game
         let { units } = this
-
         let { width, height } = this.map
+        let selectedUnit = Game.instance.unitTray.getSelectedUnit()
+        let tileSize = World.tileSize
+
         scene.children.push( {
+            description: "world layer",
             transform: Matrix.vTranslation( camPos.scale( -1 ) ),
             rect: {
-                width: width * World.tileSize,
-                height: height * World.tileSize,
+                width: width * tileSize,
+                height: height * tileSize,
             },
             color: "yellow",
             onClick: ( pos: Vector ) => {
-                let cell = pos.scale( 1 / World.tileSize ).floor()
+                let cell = pos.scale( 1 / tileSize ).floor()
                 console.log( cell )
-                let selectedUnit = Game.instance.unitTray.getSelectedUnit()
                 if ( selectedUnit ) {
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path )
                         selectedUnit.pos = cell
                 }
             },
+            onRender: () => this.render(),
             children: units.map(
                 ( unit, i ) => {
                     return {
-                        transform: Matrix.vTranslation( unit.pos.scale( World.tileSize ) ),
-                        rect: { width: World.tileSize, height: World.tileSize },
+                        description: "unit",
+                        transform: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
+                        rect: { width: tileSize, height: tileSize },
+                        color: "red",
                         onClick: () => game.unitTray.toggleSelectIndex( i ),
-                        color: "red"
+                        onRender: () => {
+                            if ( unit == selectedUnit ) {
+                                g.c.shadowBlur = 10
+                                g.c.shadowColor = "black"
+                            }
+                            unit.render( Vector.zero )
+                        }
                     }
                 }
             )

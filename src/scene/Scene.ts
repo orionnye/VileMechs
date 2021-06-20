@@ -8,7 +8,9 @@ export type SceneNode = {
     rect?: Rect
     color?: string
     data?: any
+    description?: string
     onClick?: ( pos: Vector ) => void
+    onRender?: ( node: SceneNode ) => void
 }
 
 export type ParentSceneNode = SceneNode & { children: SceneNode[] }
@@ -21,17 +23,22 @@ export type Rect = {
 
 export default class Scene {
 
-    static render( c: CanvasRenderingContext2D, node: SceneNode ) {
+    static render( c: CanvasRenderingContext2D, node: SceneNode, debug = false ) {
         let { m11, m12, m13, m21, m22, m23 } = node.transform
         c.save()
         c.transform( m11, m21, m12, m22, m13, m23 )
-        if ( node.rect != null && node.color != null ) {
-            c.fillStyle = node.color
-            c.fillRect( 0, 0, node.rect.width, node.rect.height )
+        if ( debug ) {
+            if ( node.rect != null && node.color != null ) {
+                c.fillStyle = node.color
+                c.fillRect( 0, 0, node.rect.width, node.rect.height )
+            }
+        } else {
+            if ( node.onRender )
+                node.onRender( node )
         }
         if ( node.children )
             for ( let child of node.children )
-                Scene.render( c, child )
+                Scene.render( c, child, debug )
         c.restore()
     }
 

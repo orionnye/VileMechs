@@ -1,0 +1,2 @@
+- Preprocess the scene graph to add parent references and maybe global transform matrices.
+- Replace code handling the responsibilities of the scene graph like the Game.pixelToWorldSpace
