@@ -1,4 +1,4 @@
-import { Vector } from "./math";
+import { Vector } from "./math/Vector";
 
 export default class Graphics {
     static instance: Graphics

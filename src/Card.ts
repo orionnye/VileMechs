@@ -1,5 +1,5 @@
 import Graphics from "./Graphics";
-import { Vector } from "./math";
+import { Vector } from "./math/Vector";
 import { randomColor } from "./utils";
 
 export default class Card {

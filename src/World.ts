@@ -1,7 +1,7 @@
 import Unit from "./Unit";
 import Grid from "./Grid";
 import Graphics from "./Graphics";
-import { Vector } from "./math";
+import { Vector } from "./math/Vector";
 import { findPath } from "./pathfinding";
 import Game from "./Game";
 import { getImg } from "./utils";

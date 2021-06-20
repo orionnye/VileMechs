@@ -1,4 +1,4 @@
-import { Vector } from "./math";
+import { Vector } from "./math/Vector";
 import World from "./World"
 
 const offsetOrderings = [

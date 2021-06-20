@@ -1,4 +1,5 @@
-import { randomFloor, Vector } from "./math";
+import { randomFloor } from "./math/math";
+import { Vector } from "./math/Vector";
 import Input from "./Input";
 import Graphics from "./Graphics";
 import names from "./names";

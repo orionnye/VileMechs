@@ -1,6 +1,7 @@
 import Graphics from "./Graphics";
 import Game from "./Game";
-import { contains2D, Vector } from "./math";
+import { contains2D } from "./math/math";
+import { Vector } from "./math/Vector";
 import Unit from "./Unit";
 import World from "./World";
 
