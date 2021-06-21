@@ -7,7 +7,7 @@ import "./GlobalTypes";
 import UnitTray from './UnitTray';
 import { getImg } from "./utils";
 import Card from './Card';
-import { ParentSceneNode } from "./scene/Scene";
+import { ParentSceneNode, PickingResult, SceneNode } from "./scene/Scene";
 import Scene from "./scene/Scene";
 
 const UIImg = getImg( require( "../www/images/UI.png" ) )
@@ -16,24 +16,17 @@ export default class Game {
     static instance: Game
 
     static uiScale = 3 // Size of one "pixel" in screen pixels.
-
     graphics = new Graphics()
     input = new Input()
-
-    scene: ParentSceneNode = {
-        transform: Matrix.scale( Game.uiScale, Game.uiScale ),
-        children: []
-    }
-
+    debug = false
+    scene: ParentSceneNode = { transform: Matrix.scale( Game.uiScale, Game.uiScale ), children: [] }
+    mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
     world = new World()
     unitTray = new UnitTray()
-
     camPos = new Vector( 0, 0 ) // in ui space
     camVelocity = new Vector( 0, 0 )
-    camTarget: Vector | null = null
+    camTarget?: Vector = undefined
     static minSeekDistance = World.tileSize * 18 / Game.uiScale
-
-    debug = false
 
     constructor() {
         Game.instance = this
@@ -86,19 +79,19 @@ export default class Game {
 
         if ( input.keys.get( "w" ) ) {
             camVelocity.y += -1
-            this.camTarget = null
+            this.camTarget = undefined
         }
         if ( input.keys.get( "s" ) ) {
             camVelocity.y += 1
-            this.camTarget = null
+            this.camTarget = undefined
         }
         if ( input.keys.get( "a" ) ) {
             camVelocity.x += -1
-            this.camTarget = null
+            this.camTarget = undefined
         }
         if ( input.keys.get( "d" ) ) {
             camVelocity.x += 1
-            this.camTarget = null
+            this.camTarget = undefined
         }
 
         this.camPos = camPos.add( camVelocity )
@@ -112,28 +105,24 @@ export default class Game {
         if ( this.camTarget ) {
             this.camVelocity = this.camPos.lerp( this.camTarget, 0.075 ).subtract( this.camPos )
             if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
-                this.camTarget = null
+                this.camTarget = undefined
         }
 
         this.buildScene()
+        this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
     }
 
     render() {
         let g = this.graphics
-
         g.c.fillStyle = "#5fb2de"
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
-
         g.c.imageSmoothingEnabled = false
-        Scene.render( g.c, this.scene )
-
-        if ( this.debug ) {
-            g.c.globalAlpha = 0.25
-            let picked = Scene.pickNode( this.scene, this.input.cursor )
-            if ( picked ) picked.color = "white"
-            Scene.render( g.c, this.scene, true )
-            g.c.globalAlpha = 1
-        }
+        let picked = Scene.pickNode( this.scene, this.input.cursor )
+        if ( this.debug && picked !== undefined )
+            picked.color = "white"
+        Scene.render( g.c, this.scene, this.debug )
+        if ( this.debug && picked !== undefined )
+            g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), 12, picked.description ?? "a", "white" )
     }
 
     buildScene() {
@@ -146,5 +135,9 @@ export default class Game {
             onRender: () => g.c.drawImage( UIImg, 0, 0 )
         } )
         this.unitTray.addSceneNodes( this.scene )
+        let selectedUnit = this.unitTray.getSelectedUnit()
+        if ( selectedUnit ) {
+            this.scene.children.push( selectedUnit.cardsSceneNode() )
+        }
     }
 }

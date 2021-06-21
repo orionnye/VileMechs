@@ -49,6 +49,10 @@ export default class World {
         return this.map.contains( pos ) && this.map.isEmpty( pos )
     }
 
+    hasFocus() {
+        return Game.instance.mouseOverData.node?.description == "world"
+    }
+
     render() {
         let g = Graphics.instance
         let tileSize = World.tileSize
@@ -60,7 +64,7 @@ export default class World {
         this.drawMap()
 
         //  Draw unit path
-        if ( cursorWalkable && selectedUnit != undefined ) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path ) {
                 let radius = 3
@@ -110,7 +114,7 @@ export default class World {
         let tileSize = World.tileSize
 
         scene.children.push( {
-            description: "world layer",
+            description: "world",
             transform: Matrix.vTranslation( camPos.scale( -1 ) ),
             rect: {
                 width: width * tileSize,
@@ -119,7 +123,6 @@ export default class World {
             color: "yellow",
             onClick: ( pos: Vector ) => {
                 let cell = pos.scale( 1 / tileSize ).floor()
-                console.log( cell )
                 if ( selectedUnit ) {
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path )

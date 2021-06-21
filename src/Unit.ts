@@ -1,11 +1,13 @@
 import { randomFloor } from "./math/math";
 import { Vector } from "./math/Vector";
+import Matrix from "./math/Matrix";
 import Input from "./Input";
 import Graphics from "./Graphics";
 import names from "./names";
 import { getImg } from "./utils";
 import Card from "./Card";
 import Game from "./Game";
+import { SceneNode } from "./scene/Scene";
 
 const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 
@@ -64,8 +66,35 @@ export default class Unit {
         let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - heightAboveBottom )
 
         this.cards.forEach( ( card, i ) => {
-            card.render( offset.add( Vector.right.scale( stride * i ) ) 
+            card.render( offset.add( Vector.right.scale( stride * i ) ) )
         } )
+    }
 
+    cardsSceneNode(): SceneNode {
+        let g = Graphics.instance
+
+        const marigin = 10
+        let stride = Card.dimensions.x + marigin
+        let width = stride * this.cards.length - marigin
+        const heightAboveBottom = 20
+
+        let screenSize = g.size.scale( 1 / Game.uiScale )
+        let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - heightAboveBottom )
+
+        return {
+            description: "card-tray",
+            transform: Matrix.vTranslation( offset ),
+            children: this.cards.map(
+                ( card, i ) => {
+                    return {
+                        description: "card",
+                        color: "orange",
+                        transform: Matrix.vTranslation( Vector.right.scale( stride * i ) ),
+                        rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                        onRender: () => card.render( Vector.zero )
+                    }
+                }
+            )
+        }
     }
 }

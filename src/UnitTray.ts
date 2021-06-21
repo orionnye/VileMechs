@@ -75,7 +75,7 @@ export default class UnitTray {
         units.forEach( ( unit, i ) => {
             let pos = this.trayCellPosition( i )
             scene.children.push( {
-                description: "tray_unit",
+                description: "tray-unit",
                 transform: Matrix.translation( pos.x, pos.y ),
                 rect: { width: World.tileSize, height: World.tileSize },
                 color: "blue",
