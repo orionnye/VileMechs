@@ -31,8 +31,10 @@ export default class World {
         let randomTerrain = true
         if ( randomTerrain ) {
             this.map.randomize( 0.3 )
-            for ( let unit of this.units )
+            for ( let unit of this.units ) {
                 this.map.set( unit.pos, 0 )
+                // this.map.setBlock( unit.pos.subtract( Vector.one ), new Vector( 3, 3 ), 0 )
+            }
         } else {
             //custom map
             this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 )
@@ -98,7 +100,7 @@ export default class World {
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
                     let currentText = x.toString() + ", " + y.toString()
-                    g.drawText( textPos, ( tileSize / 8 ) | 0, currentText )
+                    g.drawText( textPos, ( tileSize / 8 ) | 0, currentText, "#f0ead8" )
                 }
             }
         }

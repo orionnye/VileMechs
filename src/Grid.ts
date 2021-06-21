@@ -40,16 +40,12 @@ export default class Grid {
         return this.content[ y * this.width + x ]
     }
     setBlock( pos: Vector, size: Vector, value ) {
-        if (
-            pos.y < 0 || pos.x < 0 ||
-            pos.y >= this.height || pos.x >= this.width ||
-            pos.y + size.y >= this.height || pos.x + size.x >= this.width
-        ) {
-            console.error( "tried setting value on grid that does not exist" )
-            return
-        }
-        for ( let y = pos.y; y < pos.y + size.y; y++ ) {
-            for ( let x = pos.x; x < pos.x + size.x; x++ ) {
+        let startX = Math.max( 0, pos.x )
+        let startY = Math.max( 0, pos.y )
+        let endX = Math.min( pos.x + size.x, this.width )
+        let endY = Math.min( pos.y + size.y, this.height )
+        for ( let y = startY; y < endY; y++ ) {
+            for ( let x = startX; x < endX; x++ ) {
                 this.setFromXY( x, y, value )
             }
         }
