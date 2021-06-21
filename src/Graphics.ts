@@ -1,4 +1,4 @@
-import { Vector } from "./math/Vector";
+import { Vector } from "./math/Vector"
 
 export default class Graphics {
     static instance: Graphics
@@ -44,7 +44,7 @@ export default class Graphics {
     drawText( pos: Vector, size: number, text: string, color: string = "black" ) {
         this.c.fillStyle = color
         // this.c.font = size + "px Times New Roman"
-        this.c.font = size + "px pixel";
+        this.c.font = size + "px pixel"
         let metrics = this.c.measureText( text )
         this.c.fillText( text, pos.x, pos.y + metrics.actualBoundingBoxAscent )
     }

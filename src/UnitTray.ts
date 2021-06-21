@@ -1,11 +1,11 @@
-import Graphics from "./Graphics";
-import Game from "./Game";
-import { contains2D } from "./math/math";
-import { Vector } from "./math/Vector";
-import Unit from "./Unit";
-import World from "./World";
-import Matrix from "./math/Matrix";
-import { SceneNode } from "./scene/Scene";
+import Graphics from "./Graphics"
+import Game from "./Game"
+import { contains2D } from "./math/math"
+import { Vector } from "./math/Vector"
+import Unit from "./Unit"
+import World from "./World"
+import Matrix from "./math/Matrix"
+import { SceneNode } from "./scene/Scene"
 
 const unitTrayBase = new Vector( 1, 36 )
 const unitTrayStride = 33

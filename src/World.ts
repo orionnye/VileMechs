@@ -1,22 +1,22 @@
-import Unit from "./Unit";
-import Grid from "./Grid";
-import Graphics from "./Graphics";
-import { Vector } from "./math/Vector";
-import { findPath } from "./pathfinding";
-import Game from "./Game";
-import { getImg } from "./utils";
-import Matrix from "./math/Matrix";
-import { SceneNode } from "./scene/Scene";
+import Unit from "./Unit"
+import Grid from "./Grid"
+import Graphics from "./Graphics"
+import { Vector } from "./math/Vector"
+import { findPath } from "./pathfinding"
+import Game from "./Game"
+import { getImg } from "./utils"
+import Matrix from "./math/Matrix"
+import { SceneNode } from "./scene/Scene"
 
 const ashyTileImg = getImg( require( "../www/images/AshyTileV2.png" ) )
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
-const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) );
+const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
 
 export default class World {
     map: Grid
     units: Unit[]
 
-    static tileSize = 32;
+    static tileSize = 32
     static tileDimensions = new Vector( World.tileSize, World.tileSize )
 
     constructor() {
@@ -28,15 +28,15 @@ export default class World {
             new Unit( new Vector( 7, 8 ) ),
         ]
 
-        let randomTerrain = true;
+        let randomTerrain = true
         if ( randomTerrain ) {
             this.map.randomize( 0.3 )
             for ( let unit of this.units )
                 this.map.set( unit.pos, 0 )
         } else {
             //custom map
-            this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 );
-            this.map.setBlock( new Vector( 3, 3 ), new Vector( 2, 2 ), 0 );
+            this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 )
+            this.map.setBlock( new Vector( 3, 3 ), new Vector( 2, 2 ), 0 )
             this.map.set( new Vector( 3, 2 ), 0 )
             this.map.set( new Vector( 4, 5 ), 0 )
         }
@@ -121,7 +121,7 @@ export default class World {
                 height: height * tileSize,
             },
             color: "yellow",
-            onClick: ( pos: Vector ) => {
+            onClick: ( node, pos: Vector ) => {
                 let cell = pos.scale( 1 / tileSize ).floor()
                 if ( selectedUnit ) {
                     let path = findPath( this, selectedUnit.pos, cell, 100 )

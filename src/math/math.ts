@@ -7,7 +7,7 @@ export function equals( a: number, b: number ) {
 }
 
 export function randomFloor( upperLimit: number ) {
-    return Math.floor( Math.random() * upperLimit );
+    return Math.floor( Math.random() * upperLimit )
 }
 
 export class AABB {

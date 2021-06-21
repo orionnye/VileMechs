@@ -1,33 +1,33 @@
-import { randomFloor } from "./math/math";
-import { Vector } from "./math/Vector";
-import Matrix from "./math/Matrix";
-import Input from "./Input";
-import Graphics from "./Graphics";
-import names from "./names";
-import { getImg } from "./utils";
-import Card from "./Card";
-import Game from "./Game";
-import { SceneNode } from "./scene/Scene";
+import { randomFloor } from "./math/math"
+import { Vector } from "./math/Vector"
+import Matrix from "./math/Matrix"
+import Input from "./Input"
+import Graphics from "./Graphics"
+import names from "./names"
+import { getImg } from "./utils"
+import Card from "./Card"
+import Game from "./Game"
+import { SceneNode } from "./scene/Scene"
 
 const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 
 export default class Unit {
-    name: string;
-    pos: Vector;
-    speed: number;
-    energy: number;
-    color: string;
-    health: number;
+    name: string
+    pos: Vector
+    speed: number
+    energy: number
+    color: string
+    health: number
 
     cards: Card[] = []
 
     constructor( pos ) {
         this.name = names[ randomFloor( names.length ) ]
-        this.pos = pos;
-        this.speed = 4;
-        this.energy = 2;
-        this.color = "red";
-        this.health = 10;
+        this.pos = pos
+        this.speed = 4
+        this.energy = 2
+        this.color = "red"
+        this.health = 10
 
         for ( let i = 0; i < 4; i++ )
             this.cards.push( new Card() )
@@ -40,7 +40,7 @@ export default class Unit {
         //  Nametag
         g.c.shadowBlur = 0
         const fontSize = 3.5
-        g.c.font = fontSize + "px pixel";
+        g.c.font = fontSize + "px pixel"
 
         let name = this.name
         const maxLength = 8
@@ -54,29 +54,13 @@ export default class Unit {
         g.drawText( textOffset, fontSize, name, "black" )
     }
 
-    renderCards() {
-        let g = Graphics.instance
-
-        const marigin = 10
-        let stride = Card.dimensions.x + marigin
-        let width = stride * this.cards.length - marigin
-        const heightAboveBottom = 20
-
-        let screenSize = g.size.scale( 1 / Game.uiScale )
-        let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - heightAboveBottom )
-
-        this.cards.forEach( ( card, i ) => {
-            card.render( offset.add( Vector.right.scale( stride * i ) ) )
-        } )
-    }
-
     cardsSceneNode(): SceneNode {
         let g = Graphics.instance
 
-        const marigin = 10
+        const marigin = 5
         let stride = Card.dimensions.x + marigin
         let width = stride * this.cards.length - marigin
-        const heightAboveBottom = 20
+        const heightAboveBottom = 30
 
         let screenSize = g.size.scale( 1 / Game.uiScale )
         let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - heightAboveBottom )
@@ -89,9 +73,10 @@ export default class Unit {
                     return {
                         description: "card",
                         color: "orange",
-                        transform: Matrix.vTranslation( Vector.right.scale( stride * i ) ),
+                        transform: Matrix.translation( stride * i, 0 ),
                         rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-                        onRender: () => card.render( Vector.zero )
+                        onRender: () => card.render( Vector.zero ),
+                        onHover: () => console.log( "!!!" )
                     }
                 }
             )

@@ -1,14 +1,14 @@
-import { Vector } from "./math/Vector";
-import Matrix from "./math/Matrix";
-import World from './World';
-import Input from "./input";
-import Graphics from "./Graphics";
-import "./GlobalTypes";
-import UnitTray from './UnitTray';
-import { getImg } from "./utils";
-import Card from './Card';
-import { ParentSceneNode, PickingResult, SceneNode } from "./scene/Scene";
-import Scene from "./scene/Scene";
+import { Vector } from "./math/Vector"
+import Matrix from "./math/Matrix"
+import World from './World'
+import Input from "./input"
+import Graphics from "./Graphics"
+import "./GlobalTypes"
+import UnitTray from './UnitTray'
+import { getImg } from "./utils"
+import Card from './Card'
+import { ParentSceneNode, PickingResult, SceneNode } from "./scene/Scene"
+import Scene from "./scene/Scene"
 
 const UIImg = getImg( require( "../www/images/UI.png" ) )
 
@@ -70,7 +70,7 @@ export default class Game {
         let { node, point } = Scene.pick( this.scene, this.input.cursor )
         if ( node ) {
             if ( node.onClick )
-                node.onClick( point )
+                node.onClick( node, point )
         }
     }
 
@@ -108,8 +108,13 @@ export default class Game {
                 this.camTarget = undefined
         }
 
-        this.buildScene()
-        this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
+        {
+            this.buildScene()
+            this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
+            let { node, point } = this.mouseOverData
+            if ( node?.onHover )
+                node.onHover( node, point )
+        }
     }
 
     render() {

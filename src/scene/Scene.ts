@@ -9,7 +9,8 @@ export type SceneNode = {
     color?: string
     data?: any
     description?: string
-    onClick?: ( pos: Vector ) => void
+    onClick?: ( node: SceneNode, pos: Vector ) => void
+    onHover?: ( node: SceneNode, pos: Vector ) => void
     onRender?: ( node: SceneNode ) => void
 }
 
