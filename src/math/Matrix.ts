@@ -156,7 +156,7 @@ function determinant3( args: string[] ) {
         a21, a22, a23,
         a31, a32, a33
     ] = args
-    return `(${ a11 } * ${ determinant2( a22, a23, a32, a33 ) } +
+    return `(${ a11 } * ${ determinant2( a22, a23, a32, a33 ) } -
     ${ a12 } * ${ determinant2( a21, a23, a31, a33 ) } +
     ${ a13 } * ${ determinant2( a21, a22, a31, a32 ) })`
 }
