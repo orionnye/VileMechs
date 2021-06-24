@@ -63,34 +63,36 @@ export default class UnitTray {
         return units[ this.index ]
     }
 
-    private trayCellPosition( index: number ) {
-        return unitTrayBase.add( new Vector( 0, unitTrayStride * index ) )
-    }
-
-    addSceneNodes( scene: any ) {
+    sceneNode(): SceneNode {
         let game = Game.instance
         let units = game.world.units
         let selectedUnit = this.getSelectedUnit()
         let g = Graphics.instance
-        units.forEach( ( unit, i ) => {
-            let pos = this.trayCellPosition( i )
-            scene.children.push( {
-                description: "tray-unit",
-                transform: Matrix.translation( pos.x, pos.y ),
-                rect: { width: World.tileSize, height: World.tileSize },
-                color: "blue",
-                onClick: () => this.toggleSelectIndex( i ),
-                onRender: () => {
-                    unit.render( Vector.zero )
-                    if ( selectedUnit == unit ) {
-                        g.c.lineWidth = 1
-                        g.c.strokeStyle = "red"
-                        g.c.strokeRect( .5, .5, 31, 31 )
-                        g.c.stroke()
+        return {
+            description: "unit-tray",
+            transform: Matrix.vTranslation( unitTrayBase ),
+            rect: { width: World.tileSize, height: unitTrayStride * 4 },
+            children: units.map(
+                ( unit, i ) => {
+                    return {
+                        description: "tray-unit",
+                        transform: Matrix.translation( 0, unitTrayStride * i ),
+                        rect: { width: World.tileSize, height: World.tileSize },
+                        color: "blue",
+                        onClick: () => this.toggleSelectIndex( i ),
+                        onRender: () => {
+                            unit.render( Vector.zero )
+                            if ( selectedUnit == unit ) {
+                                g.c.lineWidth = 1
+                                g.c.strokeStyle = "red"
+                                g.c.strokeRect( .5, .5, 31, 31 )
+                                g.c.stroke()
+                            }
+                        }
                     }
                 }
-            } )
-        } )
+            )
+        }
     }
 
 }

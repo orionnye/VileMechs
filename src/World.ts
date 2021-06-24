@@ -106,7 +106,7 @@ export default class World {
         }
     }
 
-    addSceneNodes( scene: any ) {
+    sceneNode() {
         let game = Game.instance
         let g = Graphics.instance
         let { camPos } = game
@@ -115,7 +115,7 @@ export default class World {
         let selectedUnit = Game.instance.unitTray.getSelectedUnit()
         let tileSize = World.tileSize
 
-        scene.children.push( {
+        return {
             description: "world",
             transform: Matrix.vTranslation( camPos.scale( -1 ) ),
             rect: {
@@ -150,6 +150,6 @@ export default class World {
                     }
                 }
             )
-        } )
+        }
     }
 }

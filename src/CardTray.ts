@@ -48,7 +48,7 @@ export default class CardTray {
     sceneNode( cards: Card[] ): SceneNode {
         let g = Graphics.instance
 
-        const marigin = 5
+        const marigin = 3
         let stride = Card.dimensions.x + marigin
         let width = stride * cards.length - marigin
 
@@ -58,6 +58,7 @@ export default class CardTray {
         return {
             description: "card-tray",
             transform: Matrix.vTranslation( offset ),
+            rect: { width, height: Card.dimensions.y },
             children: cards.map(
                 ( card, i ) => {
                     return {
@@ -65,7 +66,7 @@ export default class CardTray {
                         color: "orange",
                         transform: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
                         rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-                        onRender: ( node ) => card.render( Vector.zero ),
+                        onRender: () => card.render( Vector.zero ),
                         onHover: () => { this.index = i }
                     }
                 }

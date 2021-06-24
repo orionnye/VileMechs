@@ -56,10 +56,6 @@ export default class Game {
         return pos.scale( 1 / Game.uiScale )
     }
 
-    worldSpaceToUISpace( pos: Vector ) {
-        return pos.scale( World.tileSize ).subtract( this.camPos )
-    }
-
     worldCursor() {
         return this.pixelSpaceToWorldSpace( this.input.cursor )
     }
@@ -127,25 +123,31 @@ export default class Game {
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
         g.c.imageSmoothingEnabled = false
         let picked = Scene.pickNode( this.scene, this.input.cursor )
-        if ( this.debug && picked !== undefined )
+        if ( this.debug && picked !== undefined ) {
             picked.color = "white"
-        Scene.render( g.c, this.scene, this.debug )
-        if ( this.debug && picked !== undefined )
+            Scene.render( g.c, this.scene, true )
             g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), 12, picked.description ?? "a", "white" )
+        } else {
+            Scene.render( g.c, this.scene, false )
+        }
+    }
+
+
+    static UIBackgroundNode = {
+        description: "UI-static",
+        transform: Matrix.identity,
+        onRender: () => Graphics.instance.c.drawImage( UIImg, 0, 0 )
     }
 
     buildScene() {
-        let g = Graphics.instance
-        this.scene.children.length = 0
-        this.world.addSceneNodes( this.scene )
-        this.scene.children.push( {
-            description: "UI-static",
-            transform: Matrix.identity,
-            onRender: () => g.c.drawImage( UIImg, 0, 0 )
-        } )
-        this.unitTray.addSceneNodes( this.scene )
+        let { scene, world, unitTray, cardTray } = this
+        let { children } = scene
+        children.length = 0
+        children.push( world.sceneNode() )
+        children.push( Game.UIBackgroundNode )
+        children.push( unitTray.sceneNode() )
         let selectedUnit = this.unitTray.getSelectedUnit()
         if ( selectedUnit )
-            this.scene.children.push( this.cardTray.sceneNode( selectedUnit.cards ) )
+            children.push( cardTray.sceneNode( selectedUnit.cards ) )
     }
 }
