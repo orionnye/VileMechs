@@ -63,7 +63,7 @@ export default class UnitTray {
         return units[ this.index ]
     }
 
-    sceneNode(): SceneNode {
+    makeSceneNode(): SceneNode {
         let game = Game.instance
         let units = game.world.units
         let selectedUnit = this.getSelectedUnit()

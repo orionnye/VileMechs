@@ -130,11 +130,11 @@ export default class Game {
             children: [
                 world.makeSceneNode(),
                 Game.UIBackgroundNode,
-                unitTray.sceneNode(),
-                selectedUnit ? cardTray.sceneNode( selectedUnit.cards ) : []
+                unitTray.makeSceneNode(),
+                selectedUnit ? cardTray.makeSceneNode( selectedUnit.cards ) : []
             ].flat()
         }
-        Scene.addParentReferences(this.scene)
+        Scene.addParentReferences( this.scene )
         return this.scene
     }
 }

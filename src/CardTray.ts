@@ -45,7 +45,7 @@ export default class CardTray {
         }
     }
 
-    sceneNode( cards: Card[] ): SceneNode {
+    makeSceneNode( cards: Card[] ): SceneNode {
         let g = Graphics.instance
 
         const marigin = 3
