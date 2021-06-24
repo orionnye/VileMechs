@@ -39,7 +39,7 @@ export default class Grid {
     getFromXY( x: number, y: number ) {
         return this.content[ y * this.width + x ]
     }
-    setBlock( pos: Vector, size: Vector, value ) {
+    fillRect( pos: Vector, size: Vector, value ) {
         let startX = Math.max( 0, pos.x )
         let startY = Math.max( 0, pos.y )
         let endX = Math.min( pos.x + size.x, this.width )

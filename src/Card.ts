@@ -1,10 +1,9 @@
-import { off } from "process"
 import Graphics from "./Graphics"
 import { Vector } from "./math/Vector"
 import { randomColor } from "./utils"
 
 export default class Card {
-    static dimensions = new Vector( 64, 96 )
+    static dimensions = new Vector( 48, 64 )
 
     color: string = randomColor()
 

@@ -33,12 +33,12 @@ export default class World {
             this.map.randomize( 0.3 )
             for ( let unit of this.units ) {
                 this.map.set( unit.pos, 0 )
-                // this.map.setBlock( unit.pos.subtract( Vector.one ), new Vector( 3, 3 ), 0 )
+                // this.map.fillRect( unit.pos.subtract( Vector.one ), new Vector( 3, 3 ), 0 )
             }
         } else {
             //custom map
-            this.map.setBlock( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 )
-            this.map.setBlock( new Vector( 3, 3 ), new Vector( 2, 2 ), 0 )
+            this.map.fillRect( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 )
+            this.map.fillRect( new Vector( 3, 3 ), new Vector( 2, 2 ), 0 )
             this.map.set( new Vector( 3, 2 ), 0 )
             this.map.set( new Vector( 4, 5 ), 0 )
         }

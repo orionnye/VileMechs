@@ -51,3 +51,7 @@ export function contains( min: number, max: number, x: number ) {
 export function contains2D( pos: Vector, width: number, height: number, pt: Vector ) {
     return contains( pos.x, pos.x + width, pt.x ) && contains( pos.y, pos.y + height, pt.y )
 }
+
+export function clamp( min: number, max: number, x: number ) {
+    return ( x < min ) ? min : ( ( x > max ) ? max : x )
+}

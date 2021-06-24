@@ -12,8 +12,8 @@ const unitTrayStride = 33
 
 export default class UnitTray {
     static numberOfUnits = 4
-    private unitIndex = UnitTray.numberOfUnits
-    private get hasUnitSelected() { return this.unitIndex !== UnitTray.numberOfUnits }
+    private index = UnitTray.numberOfUnits
+    private get hasUnitSelected() { return this.index !== UnitTray.numberOfUnits }
 
     constructor() {
         window.addEventListener( "keydown", ( ev ) => {
@@ -28,14 +28,14 @@ export default class UnitTray {
     }
 
     setUnitIndex( index: number ) {
-        this.unitIndex = index
+        this.index = index
         let selectedUnit = this.getSelectedUnit()
         if ( selectedUnit )
             Game.instance.setCameraTarget( selectedUnit.pos.scale( World.tileSize ) )
     }
 
     toggleSelectIndex( index: number ) {
-        if ( index == this.unitIndex )
+        if ( index == this.index )
             this.deselectUnit()
         else
             this.setUnitIndex( index )
@@ -46,7 +46,7 @@ export default class UnitTray {
     }
 
     private cycleUnits() {
-        this.setUnitIndex( ( this.unitIndex + 1 ) % ( UnitTray.numberOfUnits + 1 ) )
+        this.setUnitIndex( ( this.index + 1 ) % ( UnitTray.numberOfUnits + 1 ) )
     }
 
     selectUnit( unit: Unit ) {
@@ -60,7 +60,7 @@ export default class UnitTray {
     getSelectedUnit() {
         let units = Game.instance.world.units
         if ( !this.hasUnitSelected ) return null
-        return units[ this.unitIndex ]
+        return units[ this.index ]
     }
 
     private trayCellPosition( index: number ) {

@@ -9,6 +9,7 @@ import { getImg } from "./utils"
 import Card from './Card'
 import { ParentSceneNode, PickingResult, SceneNode } from "./scene/Scene"
 import Scene from "./scene/Scene"
+import CardTray from "./CardTray"
 
 const UIImg = getImg( require( "../www/images/UI.png" ) )
 
@@ -23,6 +24,7 @@ export default class Game {
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
     world = new World()
     unitTray = new UnitTray()
+    cardTray = new CardTray()
     camPos = new Vector( 0, 0 ) // in ui space
     camVelocity = new Vector( 0, 0 )
     camTarget?: Vector = undefined
@@ -108,6 +110,8 @@ export default class Game {
                 this.camTarget = undefined
         }
 
+        this.cardTray.update()
+
         {
             this.buildScene()
             this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
@@ -135,14 +139,13 @@ export default class Game {
         this.scene.children.length = 0
         this.world.addSceneNodes( this.scene )
         this.scene.children.push( {
-            description: "static UI layer",
+            description: "UI-static",
             transform: Matrix.identity,
             onRender: () => g.c.drawImage( UIImg, 0, 0 )
         } )
         this.unitTray.addSceneNodes( this.scene )
         let selectedUnit = this.unitTray.getSelectedUnit()
-        if ( selectedUnit ) {
-            this.scene.children.push( selectedUnit.cardsSceneNode() )
-        }
+        if ( selectedUnit )
+            this.scene.children.push( this.cardTray.sceneNode( selectedUnit.cards ) )
     }
 }
