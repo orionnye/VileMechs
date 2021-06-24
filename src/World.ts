@@ -8,18 +8,14 @@ import { getImg } from "./utils"
 import Matrix from "./math/Matrix"
 import Scene, { SceneNode } from "./scene/Scene"
 
-const ashyTileImg = getImg( require( "../www/images/AshyTileV2.png" ) )
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
 
 export default class World {
+    static tileSize = 32
     map: Grid
     units: Unit[]
-
     scene: SceneNode = { localMatrix: Matrix.identity }
-
-    static tileSize = 32
-    static tileDimensions = new Vector( World.tileSize, World.tileSize )
 
     constructor() {
         this.map = new Grid( 10, 10 )
@@ -35,7 +31,6 @@ export default class World {
             this.map.randomize( 0.3 )
             for ( let unit of this.units ) {
                 this.map.set( unit.pos, 0 )
-                // this.map.fillRect( unit.pos.subtract( Vector.one ), new Vector( 3, 3 ), 0 )
             }
         } else {
             //custom map
@@ -124,12 +119,12 @@ export default class World {
 
         this.scene = {
             description: "world",
+            color: "yellow",
             localMatrix: Matrix.vTranslation( camPos.scale( -1 ) ),
             rect: {
                 width: width * tileSize,
                 height: height * tileSize,
             },
-            color: "yellow",
             onClick: ( node, pos: Vector ) => {
                 let cell = pos.scale( 1 / tileSize ).floor()
                 if ( selectedUnit ) {
@@ -143,9 +138,9 @@ export default class World {
                 ( unit, i ) => {
                     return {
                         description: "unit",
+                        color: "red",
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
-                        color: "red",
                         onClick: () => game.unitTray.toggleSelectIndex( i ),
                         onRender: () => {
                             if ( unit == selectedUnit ) {

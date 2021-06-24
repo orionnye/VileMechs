@@ -1,18 +1,13 @@
 import Graphics from "./Graphics"
 import Game from "./Game"
-import { contains2D } from "./math/math"
 import { Vector } from "./math/Vector"
 import Unit from "./Unit"
 import World from "./World"
 import Matrix from "./math/Matrix"
 import { SceneNode } from "./scene/Scene"
 
-const unitTrayBase = new Vector( 1, 36 )
-const unitTrayStride = 33
-
 export default class UnitTray {
-    static numberOfUnits = 4
-    private index = UnitTray.numberOfUnits
+    private index = 0
     private hasUnitSelected = false
 
     constructor() {
@@ -36,7 +31,7 @@ export default class UnitTray {
     }
 
     toggleSelectIndex( index: number ) {
-        if ( index == this.index )
+        if ( this.hasUnitSelected && index == this.index )
             this.deselectUnit()
         else
             this.setUnitIndex( index )
@@ -46,11 +41,15 @@ export default class UnitTray {
         this.hasUnitSelected = false
     }
 
+    numberOfUnits() {
+        return Game.instance.playerUnits().length
+    }
+
     private cycleUnits() {
         if (!this.hasUnitSelected)
             this.setUnitIndex(0)
         else
-            this.setUnitIndex( ( this.index + 1 ) % UnitTray.numberOfUnits )
+            this.setUnitIndex( ( this.index + 1 ) % this.numberOfUnits() )
     }
 
     selectUnit( unit: Unit ) {
@@ -72,10 +71,14 @@ export default class UnitTray {
         let units = game.playerUnits()
         let selectedUnit = this.getSelectedUnit()
         let g = Graphics.instance
+        const unitTrayStride = World.tileSize + 1
+        let width = World.tileSize
+        let height = unitTrayStride * this.numberOfUnits()
         return {
             description: "unit-tray",
-            localMatrix: Matrix.vTranslation( unitTrayBase ),
-            rect: { width: World.tileSize, height: unitTrayStride * 4 },
+            localMatrix: Matrix.translation(0, 32),
+            rect: { width, height },
+            onRender: () => g.drawRect(new Vector(-1, -1), new Vector(width + 2, height + 1), "#595959"),
             children: units.map(
                 ( unit, i ) => {
                     return {

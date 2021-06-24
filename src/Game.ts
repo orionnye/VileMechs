@@ -10,8 +10,6 @@ import { PickingResult, SceneNode } from "./scene/Scene"
 import Scene from "./scene/Scene"
 import CardTray from "./CardTray"
 
-const UIImg = getImg( require( "../www/images/UI.png" ) )
-
 export default class Game {
     static instance: Game
 
@@ -130,18 +128,11 @@ export default class Game {
         }
     }
 
-    static UIBackgroundNode = {
-        description: "UI-static",
-        localMatrix: Matrix.identity,
-        onRender: () => Graphics.instance.c.drawImage( UIImg, 0, 0 )
-    }
-
     makeSceneNode(): SceneNode {
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.unitTray.getSelectedUnit()
         this.scene.children = [
             world.makeSceneNode(),
-            Game.UIBackgroundNode,
             unitTray.makeSceneNode(),
             selectedUnit ? cardTray.makeSceneNode( selectedUnit.cards ) : []
         ].flat()
