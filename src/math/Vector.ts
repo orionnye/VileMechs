@@ -17,6 +17,9 @@ export class Vector {
     add( other: Vector ) {
         return new Vector( this.x + other.x, this.y + other.y )
     }
+    addXY(x: number, y: number) {
+        return new Vector(this.x + x, this.y + y)
+    }
     product( other: Vector ) {
         return new Vector( this.x * other.x, this.y * other.y )
     }

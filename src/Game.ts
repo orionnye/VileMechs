@@ -18,7 +18,7 @@ export default class Game {
     static uiScale = 3 // Size of one "pixel" in screen pixels.
     graphics = new Graphics()
     input = new Input()
-    scene: SceneNode = { localMatrix: Matrix.identity }
+    scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     debug = false
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
     world: World
@@ -27,7 +27,7 @@ export default class Game {
     camPos = new Vector( 0, 0 ) // in ui space
     camVelocity = new Vector( 0, 0 )
     camTarget?: Vector = undefined
-    static minSeekDistance = World.tileSize * 18 / Game.uiScale
+    static minSeekDistance = World.tileSize * 15 / Game.uiScale
 
     constructor() {
         Game.instance = this
@@ -40,12 +40,24 @@ export default class Game {
         this.world = new World()
     }
 
+    playerUnits() {
+        return this.world.units
+    }
+
+    screenDimensions() {  return this.graphics.size.scale( 1 / Game.uiScale ) }
+    screenCenter() {  return this.graphics.size.scale( 0.5 / Game.uiScale ) }
+    distFromViewport(pos: Vector) {
+        let center = this.screenCenter()
+        let diff = pos.subtract(center)
+        diff.x = Math.abs(diff.x) - center.x
+        diff.y = Math.abs(diff.y) - center.y
+        return Math.max(diff.x, diff.y)
+    }
+    isInFocusArea(pos: Vector) { return this.distFromViewport(pos.subtract(this.camPos)) < -World.tileSize * 2 }
     setCameraTarget( pos: Vector ) {
-        let halfScreenDims = this.graphics.size.scale( 0.5 / Game.uiScale ) // in ui space
-        let adjustedTarget = pos.subtract( halfScreenDims )
-        if ( adjustedTarget.distance( this.camPos ) < Game.minSeekDistance )
+        if (this.isInFocusArea(pos))
             return
-        this.camTarget = pos.subtract( halfScreenDims )
+        this.camTarget = pos
     }
 
     onClick() {
@@ -85,8 +97,10 @@ export default class Game {
         }
 
         if ( this.camTarget ) {
-            this.camVelocity = this.camPos.lerp( this.camTarget, 0.075 ).subtract( this.camPos )
-            if ( camPos.subtract( this.camTarget ).length < Game.minSeekDistance )
+            let targetCamPos = this.camTarget.subtract(this.screenCenter())
+            let lerpTarget = this.camPos.lerp(targetCamPos , 0.075 )
+            this.camVelocity = lerpTarget.subtract( this.camPos )
+            if (this.isInFocusArea(this.camTarget))
                 this.camTarget = undefined
         }
 
@@ -125,15 +139,12 @@ export default class Game {
     makeSceneNode(): SceneNode {
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.unitTray.getSelectedUnit()
-        this.scene = {
-            localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
-            children: [
-                world.makeSceneNode(),
-                Game.UIBackgroundNode,
-                unitTray.makeSceneNode(),
-                selectedUnit ? cardTray.makeSceneNode( selectedUnit.cards ) : []
-            ].flat()
-        }
+        this.scene.children = [
+            world.makeSceneNode(),
+            Game.UIBackgroundNode,
+            unitTray.makeSceneNode(),
+            selectedUnit ? cardTray.makeSceneNode( selectedUnit.cards ) : []
+        ].flat()
         Scene.addParentReferences( this.scene )
         return this.scene
     }

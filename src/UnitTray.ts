@@ -13,7 +13,7 @@ const unitTrayStride = 33
 export default class UnitTray {
     static numberOfUnits = 4
     private index = UnitTray.numberOfUnits
-    private get hasUnitSelected() { return this.index !== UnitTray.numberOfUnits }
+    private hasUnitSelected = false
 
     constructor() {
         window.addEventListener( "keydown", ( ev ) => {
@@ -28,10 +28,11 @@ export default class UnitTray {
     }
 
     setUnitIndex( index: number ) {
+        this.hasUnitSelected = true
         this.index = index
         let selectedUnit = this.getSelectedUnit()
         if ( selectedUnit )
-            Game.instance.setCameraTarget( selectedUnit.pos.scale( World.tileSize ) )
+            Game.instance.setCameraTarget( selectedUnit.pos.addXY(.5, .5).scale( World.tileSize ) )
     }
 
     toggleSelectIndex( index: number ) {
@@ -42,15 +43,18 @@ export default class UnitTray {
     }
 
     deselectUnit() {
-        this.setUnitIndex( UnitTray.numberOfUnits )
+        this.hasUnitSelected = false
     }
 
     private cycleUnits() {
-        this.setUnitIndex( ( this.index + 1 ) % ( UnitTray.numberOfUnits + 1 ) )
+        if (!this.hasUnitSelected)
+            this.setUnitIndex(0)
+        else
+            this.setUnitIndex( ( this.index + 1 ) % UnitTray.numberOfUnits )
     }
 
     selectUnit( unit: Unit ) {
-        let units = Game.instance.world.units
+        let units = Game.instance.playerUnits()
         let index = units.indexOf( unit )
         if ( index > -1 ) {
             this.setUnitIndex( index )
@@ -58,14 +62,14 @@ export default class UnitTray {
     }
 
     getSelectedUnit() {
-        let units = Game.instance.world.units
+        let units = Game.instance.playerUnits()
         if ( !this.hasUnitSelected ) return null
         return units[ this.index ]
     }
 
     makeSceneNode(): SceneNode {
         let game = Game.instance
-        let units = game.world.units
+        let units = game.playerUnits()
         let selectedUnit = this.getSelectedUnit()
         let g = Graphics.instance
         return {
