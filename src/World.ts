@@ -117,7 +117,7 @@ export default class World {
 
         return {
             description: "world",
-            transform: Matrix.vTranslation( camPos.scale( -1 ) ),
+            localMatrix: Matrix.vTranslation( camPos.scale( -1 ) ),
             rect: {
                 width: width * tileSize,
                 height: height * tileSize,
@@ -136,7 +136,7 @@ export default class World {
                 ( unit, i ) => {
                     return {
                         description: "unit",
-                        transform: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
+                        localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
                         color: "red",
                         onClick: () => game.unitTray.toggleSelectIndex( i ),

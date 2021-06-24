@@ -57,14 +57,14 @@ export default class CardTray {
 
         return {
             description: "card-tray",
-            transform: Matrix.vTranslation( offset ),
+            localMatrix: Matrix.vTranslation( offset ),
             rect: { width, height: Card.dimensions.y },
             children: cards.map(
                 ( card, i ) => {
                     return {
                         description: "card",
                         color: "orange",
-                        transform: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
+                        localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
                         rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                         onRender: () => card.render( Vector.zero ),
                         onHover: () => { this.index = i }

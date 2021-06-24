@@ -67,13 +67,13 @@ export default class Unit {
 
         return {
             description: "card-tray",
-            transform: Matrix.vTranslation( offset ),
+            localMatrix: Matrix.vTranslation( offset ),
             children: this.cards.map(
                 ( card, i ) => {
                     return {
                         description: "card",
                         color: "orange",
-                        transform: Matrix.translation( stride * i, 0 ),
+                        localMatrix: Matrix.translation( stride * i, 0 ),
                         rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                         onRender: () => card.render( Vector.zero ),
                         onHover: () => console.log( "!!!" )

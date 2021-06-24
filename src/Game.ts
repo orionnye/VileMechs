@@ -20,7 +20,7 @@ export default class Game {
     graphics = new Graphics()
     input = new Input()
     debug = false
-    scene: ParentSceneNode = { transform: Matrix.scale( Game.uiScale, Game.uiScale ), children: [] }
+    scene: ParentSceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ), children: [] }
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
     world = new World()
     unitTray = new UnitTray()
@@ -132,10 +132,9 @@ export default class Game {
         }
     }
 
-
     static UIBackgroundNode = {
         description: "UI-static",
-        transform: Matrix.identity,
+        localMatrix: Matrix.identity,
         onRender: () => Graphics.instance.c.drawImage( UIImg, 0, 0 )
     }
 
@@ -149,5 +148,6 @@ export default class Game {
         let selectedUnit = this.unitTray.getSelectedUnit()
         if ( selectedUnit )
             children.push( cardTray.sceneNode( selectedUnit.cards ) )
+        Scene.addParentReferences(this.scene)
     }
 }

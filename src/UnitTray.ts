@@ -70,13 +70,13 @@ export default class UnitTray {
         let g = Graphics.instance
         return {
             description: "unit-tray",
-            transform: Matrix.vTranslation( unitTrayBase ),
+            localMatrix: Matrix.vTranslation( unitTrayBase ),
             rect: { width: World.tileSize, height: unitTrayStride * 4 },
             children: units.map(
                 ( unit, i ) => {
                     return {
                         description: "tray-unit",
-                        transform: Matrix.translation( 0, unitTrayStride * i ),
+                        localMatrix: Matrix.translation( 0, unitTrayStride * i ),
                         rect: { width: World.tileSize, height: World.tileSize },
                         color: "blue",
                         onClick: () => this.toggleSelectIndex( i ),
