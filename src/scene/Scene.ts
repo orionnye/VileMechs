@@ -4,7 +4,7 @@ import { Vector } from "../math/Vector"
 
 export interface SceneNode {
     localMatrix: Matrix
-    children?: SceneNode[]
+    children?: Iterable<SceneNode>
     parent?: SceneNode
     rect?: Rect
     // Events
@@ -15,8 +15,6 @@ export interface SceneNode {
     color?: string
     description?: string
 }
-
-export type ParentSceneNode = SceneNode & { children: SceneNode[] }
 
 //  Pickable geometry. Might generalize geometry and add z-sorting.
 export type Rect = {
@@ -57,7 +55,7 @@ export default class Scene {
         let result: SceneNode | undefined
         let point = p
         function visitNode( node: SceneNode, p: Vector ) {
-            let p2 = node.localMatrix.inverse().multiplyVec2( p )
+            let p2 = node.localMatrix.inverse().multiplyVec( p )
             if ( node.rect ) {
                 let rect = node.rect
                 if ( contains( 0, rect.width, p2.x ) && contains( 0, rect.height, p2.y ) ) {
@@ -78,6 +76,24 @@ export default class Scene {
         if (node.children)
             for (let child of node.children)
                 Scene.addParentReferences(child, node)
+    }
+
+    static relativeMatrix(node: SceneNode, ancestor?: SceneNode) {
+        let result = node.localMatrix
+        while (node.parent && node != ancestor) {
+            result = node.parent.localMatrix.multiply(result)
+            node = node.parent
+        }
+        return result
+    }
+
+    static globalMatrix(node: SceneNode) {
+        return Scene.relativeMatrix(node)
+    }
+
+    static toLocalSpace(vector: Vector, node: SceneNode, ancestor?: SceneNode) {
+        let matrix = Scene.relativeMatrix(node, ancestor)
+        return matrix.inverse().multiplyVec(vector)
     }
 
 }

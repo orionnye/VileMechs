@@ -6,8 +6,7 @@ import Graphics from "./Graphics"
 import "./GlobalTypes"
 import UnitTray from './UnitTray'
 import { getImg } from "./utils"
-import Card from './Card'
-import { ParentSceneNode, PickingResult, SceneNode } from "./scene/Scene"
+import { PickingResult, SceneNode } from "./scene/Scene"
 import Scene from "./scene/Scene"
 import CardTray from "./CardTray"
 
@@ -19,10 +18,10 @@ export default class Game {
     static uiScale = 3 // Size of one "pixel" in screen pixels.
     graphics = new Graphics()
     input = new Input()
+    scene: SceneNode = { localMatrix: Matrix.identity }
     debug = false
-    scene: ParentSceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ), children: [] }
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
-    world = new World()
+    world: World
     unitTray = new UnitTray()
     cardTray = new CardTray()
     camPos = new Vector( 0, 0 ) // in ui space
@@ -38,6 +37,7 @@ export default class Game {
             if ( ev.key == "`" )
                 this.debug = !this.debug
         } )
+        this.world = new World()
     }
 
     setCameraTarget( pos: Vector ) {
@@ -46,22 +46,6 @@ export default class Game {
         if ( adjustedTarget.distance( this.camPos ) < Game.minSeekDistance )
             return
         this.camTarget = pos.subtract( halfScreenDims )
-    }
-
-    pixelSpaceToWorldSpace( pos: Vector ) {
-        return pos.scale( 1 / Game.uiScale ).add( this.camPos ).scale( 1 / World.tileSize )
-    }
-
-    pixelSpaceToUISpace( pos: Vector ) {
-        return pos.scale( 1 / Game.uiScale )
-    }
-
-    worldCursor() {
-        return this.pixelSpaceToWorldSpace( this.input.cursor )
-    }
-
-    UICursor() {
-        return this.pixelSpaceToUISpace( this.input.cursor )
     }
 
     onClick() {
@@ -109,7 +93,7 @@ export default class Game {
         this.cardTray.update()
 
         {
-            this.buildScene()
+            this.scene = this.makeSceneNode()
             this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
             let { node, point } = this.mouseOverData
             if ( node?.onHover )
@@ -138,16 +122,19 @@ export default class Game {
         onRender: () => Graphics.instance.c.drawImage( UIImg, 0, 0 )
     }
 
-    buildScene() {
-        let { scene, world, unitTray, cardTray } = this
-        let { children } = scene
-        children.length = 0
-        children.push( world.sceneNode() )
-        children.push( Game.UIBackgroundNode )
-        children.push( unitTray.sceneNode() )
+    makeSceneNode(): SceneNode {
+        let { world, unitTray, cardTray } = this
         let selectedUnit = this.unitTray.getSelectedUnit()
-        if ( selectedUnit )
-            children.push( cardTray.sceneNode( selectedUnit.cards ) )
+        this.scene = {
+            localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
+            children: [
+                world.makeSceneNode(),
+                Game.UIBackgroundNode,
+                unitTray.sceneNode(),
+                selectedUnit ? cardTray.sceneNode( selectedUnit.cards ) : []
+            ].flat()
+        }
         Scene.addParentReferences(this.scene)
+        return this.scene
     }
 }

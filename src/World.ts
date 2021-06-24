@@ -6,7 +6,7 @@ import { findPath } from "./pathfinding"
 import Game from "./Game"
 import { getImg } from "./utils"
 import Matrix from "./math/Matrix"
-import { SceneNode } from "./scene/Scene"
+import Scene, { SceneNode } from "./scene/Scene"
 
 const ashyTileImg = getImg( require( "../www/images/AshyTileV2.png" ) )
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
@@ -15,6 +15,8 @@ const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
 export default class World {
     map: Grid
     units: Unit[]
+
+    scene: SceneNode = { localMatrix: Matrix.identity }
 
     static tileSize = 32
     static tileDimensions = new Vector( World.tileSize, World.tileSize )
@@ -55,11 +57,16 @@ export default class World {
         return Game.instance.mouseOverData.node?.description == "world"
     }
 
+    tileSpaceCursor() {
+        let cursor = Game.instance.input.cursor
+        return Scene.toLocalSpace(cursor, this.scene).scale(1 / World.tileSize).floor()
+    }
+
     render() {
         let g = Graphics.instance
         let tileSize = World.tileSize
 
-        let cursor = Game.instance.worldCursor().floor()
+        let cursor = this.tileSpaceCursor()
         let selectedUnit = Game.instance.unitTray.getSelectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
 
@@ -106,7 +113,7 @@ export default class World {
         }
     }
 
-    sceneNode() {
+    makeSceneNode(): SceneNode {
         let game = Game.instance
         let g = Graphics.instance
         let { camPos } = game
@@ -115,7 +122,7 @@ export default class World {
         let selectedUnit = Game.instance.unitTray.getSelectedUnit()
         let tileSize = World.tileSize
 
-        return {
+        this.scene = {
             description: "world",
             localMatrix: Matrix.vTranslation( camPos.scale( -1 ) ),
             rect: {
@@ -151,5 +158,6 @@ export default class World {
                 }
             )
         }
+        return this.scene
     }
 }

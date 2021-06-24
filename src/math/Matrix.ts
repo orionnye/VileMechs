@@ -28,7 +28,7 @@ export default class Matrix {
     determinant(): number { return determinant( this, Matrix ) }
     equals( other: Matrix ): boolean { return equals( this, other, epsilon, Matrix ) }
 
-    multiplyVec2( v: Vector, z: number = 1 ) {
+    multiplyVec( v: Vector, z: number = 1 ) {
         let {
             m11, m12, m13,
             m21, m22, m23,
