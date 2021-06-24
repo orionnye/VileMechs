@@ -22,10 +22,10 @@ export default class World {
     constructor() {
         this.map = new Grid( 10, 10 )
         this.units = [
-            new Unit( new Vector( 0, 0 ) ),
             new Unit( new Vector( 1, 1 ) ),
-            new Unit( new Vector( 8, 9 ) ),
-            new Unit( new Vector( 7, 8 ) ),
+            new Unit( new Vector( 2, 2 ) ),
+            new Unit( new Vector( 7, 7 ) ),
+            new Unit( new Vector( 8, 8 ) ),
         ]
 
         let randomTerrain = true
@@ -37,10 +37,10 @@ export default class World {
             }
         } else {
             //custom map
-            this.map.fillRect( new Vector( 2, 2 ), new Vector( 4, 4 ), 1 )
-            this.map.fillRect( new Vector( 3, 3 ), new Vector( 2, 2 ), 0 )
-            this.map.set( new Vector( 3, 2 ), 0 )
-            this.map.set( new Vector( 4, 5 ), 0 )
+            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), 1 )
+            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), 0 )
+            this.map.set( new Vector( 4, 3 ), 0 )
+            this.map.set( new Vector( 5, 6 ), 0 )
         }
     }
 
