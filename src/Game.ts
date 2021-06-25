@@ -13,8 +13,8 @@ import { lerp } from "./math/math"
 
 export default class Game {
     static instance: Game
-
     static uiScale = 3 // Size of one "pixel" in screen pixels.
+    static camVelocityDecay = 0.85
     graphics = new Graphics()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
@@ -35,9 +35,9 @@ export default class Game {
 
     constructor() {
         Game.instance = this
-        window.addEventListener( "click", ev => this.onClick() )
-        window.addEventListener( "mousedown", ev => this.onMousedown() )
-        window.addEventListener( "mouseup", ev => this.onMouseup() )
+        window.addEventListener( "click", ev => this.onClick(ev) )
+        window.addEventListener( "mousedown", ev => this.onMousedown(ev) )
+        window.addEventListener( "mouseup", ev => this.onMouseup(ev) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keydown", ev => {
             if ( ev.key == "`" )
@@ -68,37 +68,41 @@ export default class Game {
         this.camTarget = pos
     }
 
-    onClick() {
+    onClick(ev: MouseEvent) {
         let cursor = this.input.cursor
         let { node, point } = Scene.pick( this.scene, cursor)
         if ( node ) {
             if ( node.onClick )
-                node.onClick( node, point )
+            node.onClick( node, point )
+        }
+    }
+    
+    onMousedown(ev: MouseEvent) {
+        let button = ev.button
+        if (button == 0) {
+            let cursor = this.input.cursor
+            let node = Scene.pickNode( this.scene, cursor)        
+            let worldClicked = node == this.world.scene
+            let nothingClicked = node == undefined
+            let unitSelected = this.unitTray.getSelectedUnit() !== undefined
+            if ((worldClicked || nothingClicked) && !unitSelected)
+                this.lastDragPosition = this.input.cursor
+        } else if (button == 2) {
+            this.unitTray.deselectUnit()
         }
     }
 
-    onMousedown() {
-        console.log("!!!")
-        let cursor = this.input.cursor
-        let node = Scene.pickNode( this.scene, cursor)        
-        let worldClicked = node == this.world.scene
-        let nothingClicked = node == undefined
-        let unitSelected = this.unitTray.getSelectedUnit() !== undefined
-        if ((worldClicked || nothingClicked) && !unitSelected)
-            this.lastDragPosition = this.input.cursor
-    }
-
-    onMouseup() {
+    onMouseup(ev: MouseEvent) {
         this.lastDragPosition = undefined
     }
 
     updateDrag() {
         if (this.lastDragPosition) {
             let cursor = this.input.cursor
-            let diff = cursor.subtract(this.lastDragPosition)
+            let diff = this.lastDragPosition.subtract(cursor)
             let mat = Scene.relativeMatrix(this.world.scene)
             let diffPrime = mat.inverse().multiplyVec(diff, 0)
-            this.camPos = this.camPos.subtract(diffPrime)
+            this.camVelocity = diffPrime
             this.lastDragPosition = cursor
         }
     }
@@ -113,7 +117,7 @@ export default class Game {
         this.lastFrame = time
     }
 
-    update() {
+    updateCamera() {
         let { input, camVelocity, camPos } = this
 
         if ( input.keys.get( "w" ) ) {
@@ -134,7 +138,7 @@ export default class Game {
         }
 
         this.camPos = camPos.add( camVelocity )
-        this.camVelocity = camVelocity.scale( 0.85 )
+        this.camVelocity = camVelocity.scale( Game.camVelocityDecay )
         if ( camVelocity.length < 0.5 ) {
             camVelocity = new Vector( 0, 0 )
             camPos.x |= 0
@@ -148,16 +152,17 @@ export default class Game {
             if (this.isInFocusArea(this.camTarget))
                 this.camTarget = undefined
         }
+    }
 
+    update() {
         this.cardTray.update()
-
         this.scene = this.makeSceneNode()
+        this.updateDrag()
+       this.updateCamera()
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )
             node.onHover( node, point )
-
-        this.updateDrag()
         this.updateFPS()
     }
 
