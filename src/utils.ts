@@ -10,5 +10,5 @@ export function randomColor() {
         ( Math.random() * 256 ) | 0,
         ( Math.random() * 256 ) | 0,
     ]
-    return "#" + nums.map( x => x.toString( 16 ) ).join( "" )
+    return "#" + nums.map( x => x.toString( 16 ).padStart(2, "0") ).join( "" )
 }

@@ -9,6 +9,7 @@ import { getImg } from "./utils"
 import { PickingResult, SceneNode } from "./scene/Scene"
 import Scene from "./scene/Scene"
 import CardTray from "./CardTray"
+import { lerp } from "./math/math"
 
 export default class Game {
     static instance: Game
@@ -17,8 +18,10 @@ export default class Game {
     graphics = new Graphics()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
-    debug = false
+    showSceneDebug = false
+    showFPS = false
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
+    lastDragPosition?: Vector
     world: World
     unitTray = new UnitTray()
     cardTray = new CardTray()
@@ -27,13 +30,20 @@ export default class Game {
     camTarget?: Vector = undefined
     static minSeekDistance = World.tileSize * 15 / Game.uiScale
 
+    averageFPS = 0
+    lastFrame?: number
+
     constructor() {
         Game.instance = this
-        window.addEventListener( "click", ( ev ) => this.onClick() )
-        window.addEventListener( "resize", ( ev ) => this.graphics.onResize() )
-        window.addEventListener( "keydown", ( ev ) => {
+        window.addEventListener( "click", ev => this.onClick() )
+        window.addEventListener( "mousedown", ev => this.onMousedown() )
+        window.addEventListener( "mouseup", ev => this.onMouseup() )
+        window.addEventListener( "resize", ev => this.graphics.onResize() )
+        window.addEventListener( "keydown", ev => {
             if ( ev.key == "`" )
-                this.debug = !this.debug
+                this.showSceneDebug = !this.showSceneDebug
+            if ( ev.key == "," )
+                this.showFPS = !this.showFPS
         } )
         this.world = new World()
     }
@@ -59,11 +69,48 @@ export default class Game {
     }
 
     onClick() {
-        let { node, point } = Scene.pick( this.scene, this.input.cursor )
+        let cursor = this.input.cursor
+        let { node, point } = Scene.pick( this.scene, cursor)
         if ( node ) {
             if ( node.onClick )
                 node.onClick( node, point )
         }
+    }
+
+    onMousedown() {
+        console.log("!!!")
+        let cursor = this.input.cursor
+        let node = Scene.pickNode( this.scene, cursor)        
+        let worldClicked = node == this.world.scene
+        let nothingClicked = node == undefined
+        let unitSelected = this.unitTray.getSelectedUnit() !== undefined
+        if ((worldClicked || nothingClicked) && !unitSelected)
+            this.lastDragPosition = this.input.cursor
+    }
+
+    onMouseup() {
+        this.lastDragPosition = undefined
+    }
+
+    updateDrag() {
+        if (this.lastDragPosition) {
+            let cursor = this.input.cursor
+            let diff = cursor.subtract(this.lastDragPosition)
+            let mat = Scene.relativeMatrix(this.world.scene)
+            let diffPrime = mat.inverse().multiplyVec(diff, 0)
+            this.camPos = this.camPos.subtract(diffPrime)
+            this.lastDragPosition = cursor
+        }
+    }
+
+    updateFPS() {
+        let time = performance.now()
+        if (this.lastFrame) {
+            let dt = time - this.lastFrame
+            let currFPS = 1000 / dt
+            this.averageFPS = lerp(this.averageFPS, currFPS, 0.01)
+        }
+        this.lastFrame = time
     }
 
     update() {
@@ -104,13 +151,14 @@ export default class Game {
 
         this.cardTray.update()
 
-        {
-            this.scene = this.makeSceneNode()
-            this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
-            let { node, point } = this.mouseOverData
-            if ( node?.onHover )
-                node.onHover( node, point )
-        }
+        this.scene = this.makeSceneNode()
+        this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
+        let { node, point } = this.mouseOverData
+        if ( node?.onHover )
+            node.onHover( node, point )
+
+        this.updateDrag()
+        this.updateFPS()
     }
 
     render() {
@@ -119,12 +167,15 @@ export default class Game {
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
         g.c.imageSmoothingEnabled = false
         let picked = Scene.pickNode( this.scene, this.input.cursor )
-        if ( this.debug && picked !== undefined ) {
+        if ( this.showSceneDebug && picked !== undefined ) {
             picked.color = "white"
             Scene.render( g.c, this.scene, true )
             g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), 12, picked.description ?? "a", "white" )
         } else {
             Scene.render( g.c, this.scene, false )
+        }
+        if (this.showFPS) {
+            g.drawText(Vector.one.scale(10), 12, this.averageFPS.toFixed(2), "red")
         }
     }
 

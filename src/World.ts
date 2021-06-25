@@ -126,8 +126,8 @@ export default class World {
                 height: height * tileSize,
             },
             onClick: ( node, pos: Vector ) => {
-                let cell = pos.scale( 1 / tileSize ).floor()
-                if ( selectedUnit ) {
+                if (selectedUnit) {
+                    let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path )
                         selectedUnit.pos = cell

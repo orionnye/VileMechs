@@ -67,7 +67,8 @@ export default class CardTray {
                         localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
                         rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                         onRender: () => card.render( Vector.zero ),
-                        onHover: () => { this.index = i }
+                        onHover: () => { this.index = i },
+                        onClick: () => console.log(card.color)
                     }
                 }
             )

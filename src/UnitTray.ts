@@ -62,7 +62,7 @@ export default class UnitTray {
 
     getSelectedUnit() {
         let units = Game.instance.playerUnits()
-        if ( !this.hasUnitSelected ) return null
+        if ( !this.hasUnitSelected ) return undefined
         return units[ this.index ]
     }
 
