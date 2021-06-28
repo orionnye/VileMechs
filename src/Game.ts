@@ -35,9 +35,9 @@ export default class Game {
 
     constructor() {
         Game.instance = this
-        window.addEventListener( "click", ev => this.onClick(ev) )
-        window.addEventListener( "mousedown", ev => this.onMousedown(ev) )
-        window.addEventListener( "mouseup", ev => this.onMouseup(ev) )
+        window.addEventListener( "click", ev => this.onClick( ev ) )
+        window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
+        window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keydown", ev => {
             if ( ev.key == "`" )
@@ -52,56 +52,56 @@ export default class Game {
         return this.world.units
     }
 
-    screenDimensions() {  return this.graphics.size.scale( 1 / Game.uiScale ) }
-    screenCenter() {  return this.graphics.size.scale( 0.5 / Game.uiScale ) }
-    distFromViewport(pos: Vector) {
+    screenDimensions() { return this.graphics.size.scale( 1 / Game.uiScale ) }
+    screenCenter() { return this.graphics.size.scale( 0.5 / Game.uiScale ) }
+    distFromViewport( pos: Vector ) {
         let center = this.screenCenter()
-        let diff = pos.subtract(center)
-        diff.x = Math.abs(diff.x) - center.x
-        diff.y = Math.abs(diff.y) - center.y
-        return Math.max(diff.x, diff.y)
+        let diff = pos.subtract( center )
+        diff.x = Math.abs( diff.x ) - center.x
+        diff.y = Math.abs( diff.y ) - center.y
+        return Math.max( diff.x, diff.y )
     }
-    isInFocusArea(pos: Vector) { return this.distFromViewport(pos.subtract(this.camPos)) < -World.tileSize * 2 }
+    isInFocusArea( pos: Vector ) { return this.distFromViewport( pos.subtract( this.camPos ) ) < -World.tileSize * 2 }
     setCameraTarget( pos: Vector ) {
-        if (this.isInFocusArea(pos))
+        if ( this.isInFocusArea( pos ) )
             return
         this.camTarget = pos
     }
 
-    onClick(ev: MouseEvent) {
+    onClick( ev: MouseEvent ) {
         let cursor = this.input.cursor
-        let { node, point } = Scene.pick( this.scene, cursor)
+        let { node, point } = Scene.pick( this.scene, cursor )
         if ( node ) {
             if ( node.onClick )
-            node.onClick( node, point )
+                node.onClick( node, point )
         }
     }
-    
-    onMousedown(ev: MouseEvent) {
+
+    onMousedown( ev: MouseEvent ) {
         let button = ev.button
-        if (button == 0) {
+        if ( button == 0 ) {
             let cursor = this.input.cursor
-            let node = Scene.pickNode( this.scene, cursor)        
+            let node = Scene.pickNode( this.scene, cursor )
             let worldClicked = node == this.world.scene
             let nothingClicked = node == undefined
             let unitSelected = this.unitTray.getSelectedUnit() !== undefined
-            if ((worldClicked || nothingClicked) && !unitSelected)
+            if ( ( worldClicked || nothingClicked ) && !unitSelected )
                 this.lastDragPosition = this.input.cursor
-        } else if (button == 2) {
+        } else if ( button == 2 ) {
             this.unitTray.deselectUnit()
         }
     }
 
-    onMouseup(ev: MouseEvent) {
+    onMouseup( ev: MouseEvent ) {
         this.lastDragPosition = undefined
     }
 
     updateDrag() {
-        if (this.lastDragPosition) {
+        if ( this.lastDragPosition ) {
             let cursor = this.input.cursor
-            let diff = this.lastDragPosition.subtract(cursor)
-            let mat = Scene.relativeMatrix(this.world.scene)
-            let diffPrime = mat.inverse().multiplyVec(diff, 0)
+            let diff = this.lastDragPosition.subtract( cursor )
+            let mat = Scene.relativeMatrix( this.world.scene )
+            let diffPrime = mat.inverse().multiplyVec( diff, 0 )
             this.camVelocity = diffPrime
             this.lastDragPosition = cursor
         }
@@ -109,10 +109,10 @@ export default class Game {
 
     updateFPS() {
         let time = performance.now()
-        if (this.lastFrame) {
+        if ( this.lastFrame ) {
             let dt = time - this.lastFrame
             let currFPS = 1000 / dt
-            this.averageFPS = lerp(this.averageFPS, currFPS, 0.01)
+            this.averageFPS = lerp( this.averageFPS, currFPS, 0.05 )
         }
         this.lastFrame = time
     }
@@ -146,10 +146,10 @@ export default class Game {
         }
 
         if ( this.camTarget ) {
-            let targetCamPos = this.camTarget.subtract(this.screenCenter())
-            let lerpTarget = this.camPos.lerp(targetCamPos , 0.075 )
+            let targetCamPos = this.camTarget.subtract( this.screenCenter() )
+            let lerpTarget = this.camPos.lerp( targetCamPos, 0.05 )
             this.camVelocity = lerpTarget.subtract( this.camPos )
-            if (this.isInFocusArea(this.camTarget))
+            if ( this.isInFocusArea( this.camTarget ) )
                 this.camTarget = undefined
         }
     }
@@ -158,7 +158,7 @@ export default class Game {
         this.cardTray.update()
         this.scene = this.makeSceneNode()
         this.updateDrag()
-       this.updateCamera()
+        this.updateCamera()
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )
@@ -179,8 +179,8 @@ export default class Game {
         } else {
             Scene.render( g.c, this.scene, false )
         }
-        if (this.showFPS) {
-            g.drawText(Vector.one.scale(10), 12, this.averageFPS.toFixed(2), "red")
+        if ( this.showFPS ) {
+            g.drawText( Vector.one.scale( 10 ), 12, this.averageFPS.toFixed( 2 ), "red" )
         }
     }
 

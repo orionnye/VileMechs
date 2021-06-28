@@ -56,6 +56,6 @@ export function clamp( min: number, max: number, x: number ) {
     return ( x < min ) ? min : ( ( x > max ) ? max : x )
 }
 
-export function lerp(start: number, end: number, alpha: number) {
-    return (end - start) * alpha + start * (1 - alpha)
+export function lerp( start: number, end: number, alpha: number ) {
+    return ( end - start ) * alpha + start
 }
