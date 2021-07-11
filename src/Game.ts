@@ -44,6 +44,8 @@ export default class Game {
                 this.showSceneDebug = !this.showSceneDebug
             if ( ev.key == "," )
                 this.showFPS = !this.showFPS
+            if ( ev.key == "Escape" )
+                this.goBack()
         } )
         this.world = new World()
     }
@@ -57,6 +59,13 @@ export default class Game {
         let selectedUnit = this.selectedUnit()
         if ( selectedUnit )
             this.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
+    }
+    goBack() {
+        let { unitTray, cardTray } = this
+        if ( cardTray.isPickingTarget )
+            cardTray.deselect()
+        else
+            unitTray.deselect()
     }
 
     update() {
@@ -125,7 +134,7 @@ export default class Game {
             if ( ( worldClicked || nothingClicked ) && !unitSelected )
                 this.lastDragPosition = this.input.cursor
         } else if ( button == 2 ) {
-            this.unitTray.deselectUnit()
+            this.goBack()
         }
     }
 

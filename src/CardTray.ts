@@ -64,28 +64,29 @@ export default class CardTray {
         let screenSize = g.size.scale( 1 / Game.uiScale )
         let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
 
-        let { startNode, endNode } = Scene
+        let { startNode, endNode, terminalNode } = Scene
         startNode( {
             description: "card-tray",
             localMatrix: Matrix.vTranslation( offset ),
             rect: { width, height: Card.dimensions.y }
         } )
-        cards.forEach( ( card, i ) => {
-            startNode( {
-                description: "card",
-                color: "orange",
-                localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
-                rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-                onRender: () => card.render( Vector.zero ),
-                onHover: () => { if ( !this.isPickingTarget ) this.index = i },
-                onClick: () => {
-                    console.log( card.color )
+        cards.forEach( ( card, i ) => terminalNode( {
+            description: "card",
+            color: "orange",
+            localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
+            rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+            onRender: () => card.render( Vector.zero ),
+            onHover: () => { if ( !this.isPickingTarget ) this.index = i },
+            onClick: () => {
+                let isSelectedCard = this.index == i
+                if ( this.isPickingTarget && isSelectedCard ) {
+                    this.deselect()
+                } else {
                     this.index = i
                     this.isPickingTarget = true
                 }
-            } )
-            endNode()
-        } )
+            }
+        } ) )
         endNode()
     }
 }

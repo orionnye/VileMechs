@@ -16,9 +16,6 @@ export default class UnitTray {
                 ev.preventDefault()
                 this.cycleUnits()
             }
-            if ( ev.key == "Escape" ) {
-                this.deselectUnit()
-            }
         } )
     }
 
@@ -28,14 +25,14 @@ export default class UnitTray {
         Game.instance.onSelectUnit()
     }
 
-    deselectUnit() {
+    deselect() {
         this.hasUnitSelected = false
         Game.instance.onSelectUnit()
     }
 
     toggleSelectIndex( index: number ) {
         if ( this.hasUnitSelected && index == this.index )
-            this.deselectUnit()
+            this.deselect()
         else
             this.setUnitIndex( index )
     }
@@ -74,7 +71,7 @@ export default class UnitTray {
         let width = World.tileSize
         let height = unitTrayStride * this.numberOfUnits()
 
-        let { startNode, endNode } = Scene
+        let { startNode, endNode, terminalNode } = Scene
         startNode( {
             description: "unit-tray",
             localMatrix: Matrix.translation( 0, 32 ),
@@ -82,7 +79,7 @@ export default class UnitTray {
             onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width + 2, height + 1 ), "#595959" )
         } )
         units.forEach( ( unit, i ) => {
-            startNode( {
+            terminalNode( {
                 description: "tray-unit",
                 localMatrix: Matrix.translation( 0, unitTrayStride * i ),
                 rect: { width: World.tileSize, height: World.tileSize },
@@ -98,7 +95,6 @@ export default class UnitTray {
                     }
                 }
             } )
-            endNode()
         } )
         endNode()
     }
