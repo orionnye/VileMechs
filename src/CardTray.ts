@@ -7,14 +7,13 @@ import { Vector } from "./math/Vector"
 import Scene, { SceneNode } from "./scene/Scene"
 
 export default class CardTray {
-
+    static selectionTimeout = 500
+    static restingDepth = 32
     index = -1
-    hasCardSelected() { return this.index > -1 }
     cardCount: number
     cardElevations: number[] = []
     lastSelectTime: number = -Infinity
-    static selectionTimeout = 500
-    static restingDepth = 32
+    isPickingTarget = false
 
     constructor( cardCount = 4 ) {
         this.cardCount = cardCount
@@ -22,13 +21,21 @@ export default class CardTray {
             this.cardElevations.push( 0 )
     }
 
-    onSelectUnit() {
-        this.selectIndex( -1 )
+    hasCardSelected() { return this.index > -1 }
+
+    selectedCard() {
+        let unit = Game.instance.selectedUnit()
+        return unit?.cards[ this.index ]
     }
 
     selectIndex( index: number ) {
         this.index = index
         this.lastSelectTime = Date.now()
+    }
+
+    deselect() {
+        this.selectIndex( -1 )
+        this.isPickingTarget = false
     }
 
     update() {
@@ -37,7 +44,7 @@ export default class CardTray {
             let dy = ( i == index ) ? 2 : -2
             cardElevations[ i ] = clamp( 0, CardTray.restingDepth, cardElevations[ i ] + dy )
         }
-        if ( this.hasCardSelected() ) {
+        if ( this.hasCardSelected() && !this.isPickingTarget ) {
             let now = Date.now()
             let dt = now - lastSelectTime
             if ( dt > CardTray.selectionTimeout )
@@ -45,8 +52,10 @@ export default class CardTray {
         }
     }
 
-    makeSceneNode( cards: Card[] ) {
+    makeSceneNode() {
         let g = Graphics.instance
+        let cards = Game.instance.selectedUnit()?.cards
+        if ( !cards ) return
 
         const marigin = 3
         let stride = Card.dimensions.x + marigin
@@ -68,8 +77,12 @@ export default class CardTray {
                 localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
                 rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                 onRender: () => card.render( Vector.zero ),
-                onHover: () => { this.index = i },
-                onClick: () => console.log( card.color )
+                onHover: () => { if ( !this.isPickingTarget ) this.index = i },
+                onClick: () => {
+                    console.log( card.color )
+                    this.index = i
+                    this.isPickingTarget = true
+                }
             } )
             endNode()
         } )

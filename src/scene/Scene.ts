@@ -50,6 +50,12 @@ export default class Scene {
         return node
     }
 
+    static terminalNode( node: SceneNode ) {
+        Scene.startNode( node )
+        Scene.endNode()
+        return node
+    }
+
     static render( c: CanvasRenderingContext2D, node: SceneNode, debug = false ) {
         let { m11, m12, m13, m21, m22, m23 } = node.localMatrix
         c.save()
@@ -62,6 +68,8 @@ export default class Scene {
             c.fillRect( 0, 0, node.rect.width, node.rect.height )
             c.globalAlpha = 1
         }
+        // if ( node.description == "world" )
+        //     debugger
         if ( node.children )
             for ( let child of node.children )
                 Scene.render( c, child, debug )

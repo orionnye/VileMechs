@@ -25,9 +25,12 @@ export default class UnitTray {
     setUnitIndex( index: number ) {
         this.hasUnitSelected = true
         this.index = index
-        let selectedUnit = this.getSelectedUnit()
-        if ( selectedUnit )
-            Game.instance.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
+        Game.instance.onSelectUnit()
+    }
+
+    deselectUnit() {
+        this.hasUnitSelected = false
+        Game.instance.onSelectUnit()
     }
 
     toggleSelectIndex( index: number ) {
@@ -35,10 +38,6 @@ export default class UnitTray {
             this.deselectUnit()
         else
             this.setUnitIndex( index )
-    }
-
-    deselectUnit() {
-        this.hasUnitSelected = false
     }
 
     numberOfUnits() {
@@ -60,7 +59,7 @@ export default class UnitTray {
         }
     }
 
-    getSelectedUnit() {
+    selectedUnit() {
         let units = Game.instance.playerUnits()
         if ( !this.hasUnitSelected ) return undefined
         return units[ this.index ]
@@ -69,7 +68,7 @@ export default class UnitTray {
     makeSceneNode() {
         let game = Game.instance
         let units = game.playerUnits()
-        let selectedUnit = this.getSelectedUnit()
+        let selectedUnit = this.selectedUnit()
         let g = Graphics.instance
         const unitTrayStride = World.tileSize + 1
         let width = World.tileSize

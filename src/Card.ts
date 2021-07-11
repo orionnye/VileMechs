@@ -16,6 +16,11 @@ export default class Card {
     }
 
     getTargets( world: World, user: Unit ) {
-        return [ user.pos.addXY( 0, 1 ) ]
+        return [
+            user.pos.addXY( 1, 0 ),
+            user.pos.addXY( -1, 0 ),
+            user.pos.addXY( 0, 1 ),
+            user.pos.addXY( 0, -1 ),
+        ]
     }
 }

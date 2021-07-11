@@ -59,16 +59,17 @@ export default class World {
 
     render() {
         let g = Graphics.instance
+        let game = Game.instance
         let tileSize = World.tileSize
 
         let cursor = this.tileSpaceCursor()
-        let selectedUnit = Game.instance.unitTray.getSelectedUnit()
+        let selectedUnit = Game.instance.unitTray.selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
 
         this.drawMap()
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined ) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path ) {
                 let radius = 3
@@ -114,10 +115,11 @@ export default class World {
         let { camPos } = game
         let { units } = this
         let { width, height } = this.map
-        let selectedUnit = Game.instance.unitTray.getSelectedUnit()
+        let selectedUnit = game.selectedUnit()
+        let pickingTarget = game.isPickingTarget()
         let tileSize = World.tileSize
 
-        let { startNode, endNode } = Scene
+        let { startNode, endNode, terminalNode } = Scene
         startNode( {
             description: "world",
             color: "yellow",
@@ -127,7 +129,7 @@ export default class World {
                 height: height * tileSize,
             },
             onClick: ( node, pos: Vector ) => {
-                if ( selectedUnit ) {
+                if ( selectedUnit && !pickingTarget ) {
                     let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path )
@@ -137,7 +139,7 @@ export default class World {
             onRender: () => this.render()
         } )
         units.forEach( ( unit, i ) => {
-            startNode( {
+            terminalNode( {
                 description: "unit",
                 color: "red",
                 localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
@@ -151,8 +153,29 @@ export default class World {
                     unit.render( Vector.zero )
                 }
             } )
-            endNode()
         } )
+        if ( pickingTarget ) {
+            let card = game.selectedCard()
+            if ( selectedUnit && card ) {
+                for ( let pos of card?.getTargets( this, selectedUnit ) ) {
+                    terminalNode( {
+                        description: "card-target",
+                        color: "purple",
+                        localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
+                        rect: { width: tileSize, height: tileSize },
+                        onClick: () => { console.log( pos.toString() ) },
+                        onRender: () => {
+                            g.c.fillStyle = "rgb(3, 202, 252, .5)"
+                            g.c.strokeStyle = "rgb(0, 173, 217, .5)"
+                            g.c.beginPath()
+                            g.c.rect( 0, 0, tileSize, tileSize )
+                            g.c.fill()
+                            g.c.stroke()
+                        }
+                    } )
+                }
+            }
+        }
         this.scene = endNode() as SceneNode
     }
 }

@@ -10,6 +10,7 @@ import { PickingResult, SceneNode } from "./scene/Scene"
 import Scene from "./scene/Scene"
 import CardTray from "./CardTray"
 import { lerp } from "./math/math"
+import Card from "./Card"
 
 export default class Game {
     static instance: Game
@@ -47,8 +48,45 @@ export default class Game {
         this.world = new World()
     }
 
-    playerUnits() {
-        return this.world.units
+    playerUnits() { return this.world.units }
+    selectedUnit() { return this.unitTray.selectedUnit() }
+    selectedCard() { return this.cardTray.selectedCard() }
+    isPickingTarget() { return this.cardTray.isPickingTarget }
+    onSelectUnit() {
+        this.cardTray.deselect()
+        let selectedUnit = this.selectedUnit()
+        if ( selectedUnit )
+            this.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
+    }
+
+    update() {
+        this.cardTray.update()
+        this.makeSceneNode()
+        this.updateDrag()
+        this.updateCamera()
+        this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
+        let { node, point } = this.mouseOverData
+        if ( node?.onHover )
+            node.onHover( node, point )
+        this.updateFPS()
+    }
+
+    render() {
+        let g = this.graphics
+        g.c.fillStyle = "#5fb2de"
+        g.c.fillRect( 0, 0, g.size.x, g.size.y )
+        g.c.imageSmoothingEnabled = false
+        let picked = Scene.pickNode( this.scene, this.input.cursor )
+        if ( this.showSceneDebug && picked !== undefined ) {
+            picked.color = "white"
+            Scene.render( g.c, this.scene, true )
+            g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), 12, picked.description ?? "a", "white" )
+        } else {
+            Scene.render( g.c, this.scene, false )
+        }
+        if ( this.showFPS ) {
+            g.drawText( Vector.one.scale( 10 ), 12, this.averageFPS.toFixed( 2 ), "red" )
+        }
     }
 
     screenDimensions() { return this.graphics.size.scale( 1 / Game.uiScale ) }
@@ -83,7 +121,7 @@ export default class Game {
             let node = Scene.pickNode( this.scene, cursor )
             let worldClicked = node == this.world.scene
             let nothingClicked = node == undefined
-            let unitSelected = this.unitTray.getSelectedUnit() !== undefined
+            let unitSelected = this.unitTray.selectedUnit() !== undefined
             if ( ( worldClicked || nothingClicked ) && !unitSelected )
                 this.lastDragPosition = this.input.cursor
         } else if ( button == 2 ) {
@@ -153,45 +191,15 @@ export default class Game {
         }
     }
 
-    update() {
-        this.cardTray.update()
-        this.makeSceneNode()
-        this.updateDrag()
-        this.updateCamera()
-        this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
-        let { node, point } = this.mouseOverData
-        if ( node?.onHover )
-            node.onHover( node, point )
-        this.updateFPS()
-    }
-
-    render() {
-        let g = this.graphics
-        g.c.fillStyle = "#5fb2de"
-        g.c.fillRect( 0, 0, g.size.x, g.size.y )
-        g.c.imageSmoothingEnabled = false
-        let picked = Scene.pickNode( this.scene, this.input.cursor )
-        if ( this.showSceneDebug && picked !== undefined ) {
-            picked.color = "white"
-            Scene.render( g.c, this.scene, true )
-            g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), 12, picked.description ?? "a", "white" )
-        } else {
-            Scene.render( g.c, this.scene, false )
-        }
-        if ( this.showFPS ) {
-            g.drawText( Vector.one.scale( 10 ), 12, this.averageFPS.toFixed( 2 ), "red" )
-        }
-    }
-
     makeSceneNode() {
         let { world, unitTray, cardTray } = this
-        let selectedUnit = this.unitTray.getSelectedUnit()
+        let selectedUnit = this.selectedUnit()
         this.scene = Scene.startNode( { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) } )
         {
             world.makeSceneNode()
             unitTray.makeSceneNode()
             if ( selectedUnit )
-                cardTray.makeSceneNode( selectedUnit.cards )
+                cardTray.makeSceneNode()
         }
         Scene.endNode()
     }
