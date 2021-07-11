@@ -108,7 +108,7 @@ export default class World {
         }
     }
 
-    makeSceneNode(): SceneNode {
+    makeSceneNode() {
         let game = Game.instance
         let g = Graphics.instance
         let { camPos } = game
@@ -154,6 +154,5 @@ export default class World {
             endNode()
         } )
         this.scene = endNode() as SceneNode
-        return this.scene
     }
 }

@@ -183,7 +183,7 @@ export default class Game {
         }
     }
 
-    makeSceneNode(): SceneNode {
+    makeSceneNode() {
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.unitTray.getSelectedUnit()
         this.scene = Scene.startNode( { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) } )
@@ -194,6 +194,5 @@ export default class Game {
                 cardTray.makeSceneNode( selectedUnit.cards )
         }
         Scene.endNode()
-        return this.scene
     }
 }
