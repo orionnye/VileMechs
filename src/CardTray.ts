@@ -4,7 +4,7 @@ import Graphics from "./Graphics"
 import { clamp } from "./math/math"
 import Matrix from "./math/Matrix"
 import { Vector } from "./math/Vector"
-import { SceneNode } from "./scene/Scene"
+import Scene, { SceneNode } from "./scene/Scene"
 
 export default class CardTray {
 
@@ -55,23 +55,24 @@ export default class CardTray {
         let screenSize = g.size.scale( 1 / Game.uiScale )
         let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
 
-        return {
+        let { startNode, endNode } = Scene
+        startNode( {
             description: "card-tray",
             localMatrix: Matrix.vTranslation( offset ),
-            rect: { width, height: Card.dimensions.y },
-            children: cards.map(
-                ( card, i ) => {
-                    return {
-                        description: "card",
-                        color: "orange",
-                        localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
-                        rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-                        onRender: () => card.render( Vector.zero ),
-                        onHover: () => { this.index = i },
-                        onClick: () => console.log(card.color)
-                    }
-                }
-            )
-        }
+            rect: { width, height: Card.dimensions.y }
+        } )
+        cards.forEach( ( card, i ) => {
+            startNode( {
+                description: "card",
+                color: "orange",
+                localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
+                rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                onRender: () => card.render( Vector.zero ),
+                onHover: () => { this.index = i },
+                onClick: () => console.log( card.color )
+            } )
+            endNode()
+        } )
+        return endNode() as SceneNode
     }
 }

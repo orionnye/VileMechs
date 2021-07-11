@@ -54,7 +54,7 @@ export default class World {
 
     tileSpaceCursor() {
         let cursor = Game.instance.input.cursor
-        return Scene.toLocalSpace(cursor, this.scene).scale(1 / World.tileSize).floor()
+        return Scene.toLocalSpace( cursor, this.scene ).scale( 1 / World.tileSize ).floor()
     }
 
     render() {
@@ -117,7 +117,8 @@ export default class World {
         let selectedUnit = Game.instance.unitTray.getSelectedUnit()
         let tileSize = World.tileSize
 
-        this.scene = {
+        let { startNode, endNode } = Scene
+        startNode( {
             description: "world",
             color: "yellow",
             localMatrix: Matrix.vTranslation( camPos.scale( -1 ) ),
@@ -126,33 +127,33 @@ export default class World {
                 height: height * tileSize,
             },
             onClick: ( node, pos: Vector ) => {
-                if (selectedUnit) {
+                if ( selectedUnit ) {
                     let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path )
                         selectedUnit.pos = cell
                 }
             },
-            onRender: () => this.render(),
-            children: units.map(
-                ( unit, i ) => {
-                    return {
-                        description: "unit",
-                        color: "red",
-                        localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
-                        rect: { width: tileSize, height: tileSize },
-                        onClick: () => game.unitTray.toggleSelectIndex( i ),
-                        onRender: () => {
-                            if ( unit == selectedUnit ) {
-                                g.c.shadowBlur = 10
-                                g.c.shadowColor = "black"
-                            }
-                            unit.render( Vector.zero )
-                        }
+            onRender: () => this.render()
+        } )
+        units.forEach( ( unit, i ) => {
+            startNode( {
+                description: "unit",
+                color: "red",
+                localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
+                rect: { width: tileSize, height: tileSize },
+                onClick: () => game.unitTray.toggleSelectIndex( i ),
+                onRender: () => {
+                    if ( unit == selectedUnit ) {
+                        g.c.shadowBlur = 10
+                        g.c.shadowColor = "black"
                     }
+                    unit.render( Vector.zero )
                 }
-            )
-        }
+            } )
+            endNode()
+        } )
+        this.scene = endNode() as SceneNode
         return this.scene
     }
 }

@@ -4,7 +4,7 @@ import { Vector } from "./math/Vector"
 import Unit from "./Unit"
 import World from "./World"
 import Matrix from "./math/Matrix"
-import { SceneNode } from "./scene/Scene"
+import Scene, { SceneNode } from "./scene/Scene"
 
 export default class UnitTray {
     private index = 0
@@ -27,7 +27,7 @@ export default class UnitTray {
         this.index = index
         let selectedUnit = this.getSelectedUnit()
         if ( selectedUnit )
-            Game.instance.setCameraTarget( selectedUnit.pos.addXY(.5, .5).scale( World.tileSize ) )
+            Game.instance.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
     }
 
     toggleSelectIndex( index: number ) {
@@ -46,8 +46,8 @@ export default class UnitTray {
     }
 
     private cycleUnits() {
-        if (!this.hasUnitSelected)
-            this.setUnitIndex(0)
+        if ( !this.hasUnitSelected )
+            this.setUnitIndex( 0 )
         else
             this.setUnitIndex( ( this.index + 1 ) % this.numberOfUnits() )
     }
@@ -74,32 +74,34 @@ export default class UnitTray {
         const unitTrayStride = World.tileSize + 1
         let width = World.tileSize
         let height = unitTrayStride * this.numberOfUnits()
-        return {
+
+        let { startNode, endNode } = Scene
+        startNode( {
             description: "unit-tray",
-            localMatrix: Matrix.translation(0, 32),
+            localMatrix: Matrix.translation( 0, 32 ),
             rect: { width, height },
-            onRender: () => g.drawRect(new Vector(-1, -1), new Vector(width + 2, height + 1), "#595959"),
-            children: units.map(
-                ( unit, i ) => {
-                    return {
-                        description: "tray-unit",
-                        localMatrix: Matrix.translation( 0, unitTrayStride * i ),
-                        rect: { width: World.tileSize, height: World.tileSize },
-                        color: "blue",
-                        onClick: () => this.toggleSelectIndex( i ),
-                        onRender: () => {
-                            unit.render( Vector.zero )
-                            if ( selectedUnit == unit ) {
-                                g.c.lineWidth = 1
-                                g.c.strokeStyle = "red"
-                                g.c.strokeRect( .5, .5, 31, 31 )
-                                g.c.stroke()
-                            }
-                        }
+            onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width + 2, height + 1 ), "#595959" )
+        } )
+        units.forEach( ( unit, i ) => {
+            startNode( {
+                description: "tray-unit",
+                localMatrix: Matrix.translation( 0, unitTrayStride * i ),
+                rect: { width: World.tileSize, height: World.tileSize },
+                color: "blue",
+                onClick: () => this.toggleSelectIndex( i ),
+                onRender: () => {
+                    unit.render( Vector.zero )
+                    if ( selectedUnit == unit ) {
+                        g.c.lineWidth = 1
+                        g.c.strokeStyle = "red"
+                        g.c.strokeRect( .5, .5, 31, 31 )
+                        g.c.stroke()
                     }
                 }
-            )
-        }
+            } )
+            endNode()
+        } )
+        return endNode() as SceneNode
     }
 
 }

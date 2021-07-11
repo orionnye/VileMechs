@@ -13,8 +13,9 @@ import { lerp } from "./math/math"
 
 export default class Game {
     static instance: Game
-    static uiScale = 3 // Size of one "pixel" in screen pixels.
+    static uiScale = 3
     static camVelocityDecay = 0.85
+    static minSeekDistance = World.tileSize * 15 / Game.uiScale
     graphics = new Graphics()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
@@ -25,11 +26,9 @@ export default class Game {
     world: World
     unitTray = new UnitTray()
     cardTray = new CardTray()
-    camPos = new Vector( 0, 0 ) // in ui space
+    camPos = new Vector( 0, 0 )
     camVelocity = new Vector( 0, 0 )
     camTarget?: Vector = undefined
-    static minSeekDistance = World.tileSize * 15 / Game.uiScale
-
     averageFPS = 0
     lastFrame?: number
 
@@ -156,7 +155,7 @@ export default class Game {
 
     update() {
         this.cardTray.update()
-        this.scene = this.makeSceneNode()
+        this.makeSceneNode()
         this.updateDrag()
         this.updateCamera()
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
@@ -187,12 +186,14 @@ export default class Game {
     makeSceneNode(): SceneNode {
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.unitTray.getSelectedUnit()
-        this.scene.children = [
-            world.makeSceneNode(),
-            unitTray.makeSceneNode(),
-            selectedUnit ? cardTray.makeSceneNode( selectedUnit.cards ) : []
-        ].flat()
-        Scene.addParentReferences( this.scene )
+        this.scene = Scene.startNode( { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) } )
+        {
+            world.makeSceneNode()
+            unitTray.makeSceneNode()
+            if ( selectedUnit )
+                cardTray.makeSceneNode( selectedUnit.cards )
+        }
+        Scene.endNode()
         return this.scene
     }
 }

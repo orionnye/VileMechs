@@ -7,7 +7,7 @@ import names from "./names"
 import { getImg } from "./utils"
 import Card from "./Card"
 import Game from "./Game"
-import { SceneNode } from "./scene/Scene"
+import Scene, { SceneNode } from "./scene/Scene"
 
 const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 
@@ -52,34 +52,5 @@ export default class Unit {
         let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )
         g.drawRect( textOffset, textDims, "grey" )
         g.drawText( textOffset, fontSize, name, "black" )
-    }
-
-    cardsSceneNode(): SceneNode {
-        let g = Graphics.instance
-
-        const marigin = 5
-        let stride = Card.dimensions.x + marigin
-        let width = stride * this.cards.length - marigin
-        const heightAboveBottom = 30
-
-        let screenSize = g.size.scale( 1 / Game.uiScale )
-        let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - heightAboveBottom )
-
-        return {
-            description: "card-tray",
-            localMatrix: Matrix.vTranslation( offset ),
-            children: this.cards.map(
-                ( card, i ) => {
-                    return {
-                        description: "card",
-                        color: "orange",
-                        localMatrix: Matrix.translation( stride * i, 0 ),
-                        rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-                        onRender: () => card.render( Vector.zero ),
-                        onHover: () => console.log( "!!!" )
-                    }
-                }
-            )
-        }
     }
 }

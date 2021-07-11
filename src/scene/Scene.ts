@@ -29,6 +29,27 @@ export type PickingResult = {
 
 export default class Scene {
 
+    static openNode?: SceneNode
+
+    static startNode( node: SceneNode ) {
+        let openNode = Scene.openNode
+        if ( openNode ) {
+            if ( !openNode.children )
+                openNode.children = []
+            if ( Array.isArray( openNode.children ) )
+                openNode.children.push( node )
+            node.parent = openNode
+        }
+        Scene.openNode = node
+        return node
+    }
+
+    static endNode() {
+        let node = Scene.openNode
+        Scene.openNode = Scene.openNode?.parent
+        return node
+    }
+
     static render( c: CanvasRenderingContext2D, node: SceneNode, debug = false ) {
         let { m11, m12, m13, m21, m22, m23 } = node.localMatrix
         c.save()
@@ -71,29 +92,29 @@ export default class Scene {
         return { node: result, point }
     }
 
-    static addParentReferences(node: SceneNode, parent?: SceneNode) {
+    static addParentReferences( node: SceneNode, parent?: SceneNode ) {
         node.parent = parent
-        if (node.children)
-            for (let child of node.children)
-                Scene.addParentReferences(child, node)
+        if ( node.children )
+            for ( let child of node.children )
+                Scene.addParentReferences( child, node )
     }
 
-    static relativeMatrix(node: SceneNode, ancestor?: SceneNode) {
+    static relativeMatrix( node: SceneNode, ancestor?: SceneNode ) {
         let result = node.localMatrix
-        while (node.parent && node != ancestor) {
-            result = node.parent.localMatrix.multiply(result)
+        while ( node.parent && node != ancestor ) {
+            result = node.parent.localMatrix.multiply( result )
             node = node.parent
         }
         return result
     }
 
-    static globalMatrix(node: SceneNode) {
-        return Scene.relativeMatrix(node)
+    static globalMatrix( node: SceneNode ) {
+        return Scene.relativeMatrix( node )
     }
 
-    static toLocalSpace(vector: Vector, node: SceneNode, ancestor?: SceneNode) {
-        let matrix = Scene.relativeMatrix(node, ancestor)
-        return matrix.inverse().multiplyVec(vector)
+    static toLocalSpace( vector: Vector, node: SceneNode, ancestor?: SceneNode ) {
+        let matrix = Scene.relativeMatrix( node, ancestor )
+        return matrix.inverse().multiplyVec( vector )
     }
 
 }
