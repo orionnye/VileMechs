@@ -76,12 +76,12 @@ export default class UnitTray {
             description: "unit-tray",
             localMatrix: Matrix.translation( 0, 32 ),
             rect: { width, height },
-            onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width + 2, height + 1 ), "#595959" )
+            onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width + 3, height + 1 ), "#595959" )
         } )
         units.forEach( ( unit, i ) => {
             terminalNode( {
                 description: "tray-unit",
-                localMatrix: Matrix.translation( 0, unitTrayStride * i ),
+                localMatrix: Matrix.translation( 1, unitTrayStride * i ),
                 rect: { width: World.tileSize, height: World.tileSize },
                 color: "blue",
                 onClick: () => this.toggleSelectIndex( i ),
@@ -89,7 +89,7 @@ export default class UnitTray {
                     unit.render( Vector.zero, false )
                     if ( selectedUnit == unit ) {
                         g.c.lineWidth = 1
-                        g.c.strokeStyle = "red"
+                        g.c.strokeStyle = "gray"
                         g.c.strokeRect( .5, .5, 31, 31 )
                         g.c.stroke()
                     }

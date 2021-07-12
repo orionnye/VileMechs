@@ -14,5 +14,5 @@ export function randomColor() {
 }
 
 export function getFrameNumber( fps: number, numberOfFrames = Infinity, time = performance.now() / 1000 ) {
-    return Math.floor( time / fps ) % numberOfFrames
+    return Math.floor( time * fps ) % numberOfFrames
 }

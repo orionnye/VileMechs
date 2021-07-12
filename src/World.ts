@@ -146,11 +146,12 @@ export default class World {
                 rect: { width: tileSize, height: tileSize },
                 onClick: () => game.unitTray.toggleSelectIndex( i ),
                 onRender: () => {
-                    if ( unit == selectedUnit ) {
+                    let isSelected = unit == selectedUnit
+                    if ( isSelected ) {
                         g.c.shadowBlur = 10
                         g.c.shadowColor = "black"
                     }
-                    unit.render( Vector.zero )
+                    unit.render( Vector.zero, isSelected, isSelected )
                 }
             } )
         } )
@@ -164,9 +165,10 @@ export default class World {
                         localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
                         onClick: () => { console.log( pos.toString() ) },
-                        onRender: () => {
-                            g.c.fillStyle = "rgb(3, 202, 252, .5)"
-                            g.c.strokeStyle = "rgb(0, 173, 217, .5)"
+                        onRender: ( node ) => {
+                            let hover = node == game.mouseOverData.node
+                            g.c.fillStyle = hover ? "rgba(135, 231, 255, .35)" : "rgba(3, 202, 252, .35)"
+                            g.c.strokeStyle = "rgba(0, 173, 217, .35)"
                             g.c.beginPath()
                             g.c.rect( 0, 0, tileSize, tileSize )
                             g.c.fill()

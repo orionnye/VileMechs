@@ -39,15 +39,20 @@ export default class Unit {
             this.draw.push( new Card() )
         for ( let i = 0; i < 4; i++ )
             this.discard.push( new Card() )
-            
+
     }
 
-    render( offset = Vector.zero, animate = true ) {
+    render( offset = Vector.zero, animate = true, showName = true ) {
         let g = Graphics.instance
-        let frame = animate ? getFrameNumber( 1, 2 ) : 1
+        let frame = animate ? getFrameNumber( 2, 2 ) : 0
         g.drawSheetFrame( mechSheet, 32, offset.x, offset.y, frame )
 
-        //  Nametag
+        if ( showName )
+            this.renderNametag( offset )
+    }
+
+    renderNametag( offset = Vector.zero ) {
+        let g = Graphics.instance
         g.c.shadowBlur = 0
         const fontSize = 3.5
         g.c.font = fontSize + "px pixel"
