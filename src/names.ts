@@ -95,7 +95,6 @@ const names = `
     Courtney
     Christine
     Alicia
-    Kody
     Allison
     Bradley
     Samuel
@@ -567,6 +566,7 @@ const names = `
     Bianca
     Leticia
     Tia
+    Cody
     Kristie
     Stuart
     Laurie
@@ -692,7 +692,15 @@ const names = `
     Lynn
     Landon
     Brenton
-    Sandy`
+    Sandy
+    Leif
+    Leif
+    Kaden
+    Kaden
+    Orion
+    Orion
+    Kody
+    Kody`
     .split( "\n" ).map( x => x.trim() ) as string[]
 
 export default names

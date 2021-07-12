@@ -39,13 +39,19 @@ export default class Game {
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
         window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
-        window.addEventListener( "keydown", ev => {
+        window.addEventListener( "keyup", ev => {
+            //DEV COMMANDS
             if ( ev.key == "`" )
                 this.showSceneDebug = !this.showSceneDebug
             if ( ev.key == "," )
                 this.showFPS = !this.showFPS
+
+            //Player buttons
             if ( ev.key == "Escape" )
                 this.goBack()
+            if (ev.key == "Enter") {
+                console.log("This needs to cycle cards")
+            }
         } )
         this.world = new World()
     }
