@@ -10,5 +10,9 @@ export function randomColor() {
         ( Math.random() * 256 ) | 0,
         ( Math.random() * 256 ) | 0,
     ]
-    return "#" + nums.map( x => x.toString( 16 ).padStart(2, "0") ).join( "" )
+    return "#" + nums.map( x => x.toString( 16 ).padStart( 2, "0" ) ).join( "" )
+}
+
+export function getFrameNumber( fps: number, numberOfFrames = Infinity, time = performance.now() / 1000 ) {
+    return Math.floor( time / fps ) % numberOfFrames
 }

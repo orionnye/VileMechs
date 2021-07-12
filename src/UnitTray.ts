@@ -86,7 +86,7 @@ export default class UnitTray {
                 color: "blue",
                 onClick: () => this.toggleSelectIndex( i ),
                 onRender: () => {
-                    unit.render( Vector.zero )
+                    unit.render( Vector.zero, false )
                     if ( selectedUnit == unit ) {
                         g.c.lineWidth = 1
                         g.c.strokeStyle = "red"

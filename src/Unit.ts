@@ -4,12 +4,14 @@ import Matrix from "./math/Matrix"
 import Input from "./Input"
 import Graphics from "./Graphics"
 import names from "./names"
-import { getImg } from "./utils"
+import { getFrameNumber, getImg } from "./utils"
 import Card from "./Card"
 import Game from "./Game"
 import Scene, { SceneNode } from "./scene/Scene"
 
-const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
+// const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
+// const baseUnitImg = getImg( require( "../www/images/MinigunMech.png" ) )
+const mechSheet = getImg( require( "../www/images/MinigunMech_sheet.png" ) )
 
 export default class Unit {
     name: string
@@ -33,9 +35,10 @@ export default class Unit {
             this.cards.push( new Card() )
     }
 
-    render( offset = Vector.zero ) {
+    render( offset = Vector.zero, animate = true ) {
         let g = Graphics.instance
-        g.c.drawImage( baseUnitImg, offset.x, offset.y )
+        let frame = animate ? getFrameNumber( 1, 2 ) : 1
+        g.drawSheetFrame( mechSheet, 32, offset.x, offset.y, frame )
 
         //  Nametag
         g.c.shadowBlur = 0

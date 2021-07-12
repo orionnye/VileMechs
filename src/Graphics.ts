@@ -48,4 +48,10 @@ export default class Graphics {
         let metrics = this.c.measureText( text )
         this.c.fillText( text, pos.x, pos.y + metrics.actualBoundingBoxAscent )
     }
+
+    drawSheetFrame( img: HTMLImageElement, frameHeight: number, x: number, y: number, frame: number ) {
+        let w = img.width
+        let h = frameHeight
+        this.c.drawImage( img, 0, h * frame, w, h, x, y, w, h )
+    }
 }

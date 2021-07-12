@@ -48,12 +48,20 @@ export default class Matrix {
         )
     }
 
+    translate( x = 0, y = 0 ) {
+        return this.multiply( Matrix.translation( x, y ) )
+    }
+
     static vTranslation( v: Vector ) {
         return new Matrix(
             1, 0, v.x,
             0, 1, v.y,
             0, 0, 1
         )
+    }
+
+    vTranslate( v: Vector ) {
+        return this.multiply( Matrix.vTranslation( v ) )
     }
 
     static rotation( angle = 0 ) {
@@ -66,12 +74,20 @@ export default class Matrix {
         )
     }
 
+    rotate( angle = 0 ) {
+        return this.multiply( Matrix.rotation( angle ) )
+    }
+
     static scale( x = 1, y = 1 ) {
         return new Matrix(
             x, 0, 0,
             0, y, 0,
             0, 0, 1
         )
+    }
+
+    scale( x = 1, y = 1 ) {
+        return this.multiply( Matrix.scale( x, y ) )
     }
 
     // https://en.wikipedia.org/wiki/Transformation_matrix#Affine_transformations
