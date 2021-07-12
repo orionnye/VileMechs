@@ -21,7 +21,9 @@ export default class Unit {
     color: string
     health: number
 
-    cards: Card[] = []
+    draw: Card[] = []
+    hand: Card[] = []
+    discard: Card[] = []
 
     constructor( pos ) {
         this.name = names[ randomFloor( names.length ) ]
@@ -32,7 +34,12 @@ export default class Unit {
         this.health = 10
 
         for ( let i = 0; i < 4; i++ )
-            this.cards.push( new Card() )
+            this.hand.push( new Card() )
+        for ( let i = 0; i < 4; i++ )
+            this.draw.push( new Card() )
+        for ( let i = 0; i < 4; i++ )
+            this.discard.push( new Card() )
+            
     }
 
     render( offset = Vector.zero, animate = true ) {

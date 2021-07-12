@@ -25,7 +25,7 @@ export default class CardTray {
 
     selectedCard() {
         let unit = Game.instance.selectedUnit()
-        return unit?.cards[ this.index ]
+        return unit?.hand[ this.index ]
     }
 
     selectIndex( index: number ) {
@@ -54,12 +54,14 @@ export default class CardTray {
 
     makeSceneNode() {
         let g = Graphics.instance
-        let cards = Game.instance.selectedUnit()?.cards
-        if ( !cards ) return
+        let hand = Game.instance.selectedUnit()?.hand
+        let draw = Game.instance.selectedUnit()?.draw
+        let discard = Game.instance.selectedUnit()?.discard
+        if ( !hand || !draw || !discard) return
 
         const marigin = 3
         let stride = Card.dimensions.x + marigin
-        let width = stride * cards.length - marigin
+        let width = stride * hand.length - marigin
 
         let screenSize = g.size.scale( 1 / Game.uiScale )
         let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
@@ -67,26 +69,58 @@ export default class CardTray {
         let { startNode, endNode, terminalNode } = Scene
         startNode( {
             description: "card-tray",
-            localMatrix: Matrix.vTranslation( offset ),
+            localMatrix: Matrix.vTranslation( Vector.zero ),
             rect: { width, height: Card.dimensions.y }
         } )
-        cards.forEach( ( card, i ) => terminalNode( {
-            description: "card",
-            color: "orange",
-            localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
-            rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-            onRender: () => card.render( Vector.zero ),
-            onHover: () => { if ( !this.isPickingTarget ) this.index = i },
-            onClick: () => {
-                let isSelectedCard = this.index == i
-                if ( this.isPickingTarget && isSelectedCard ) {
-                    this.deselect()
-                } else {
-                    this.index = i
-                    this.isPickingTarget = true
-                }
-            }
-        } ) )
+            startNode( {
+                description: "card-tray",
+                localMatrix: Matrix.vTranslation( offset ),
+                rect: { width, height: Card.dimensions.y }
+            } )
+                hand.forEach( ( card, i ) => terminalNode( {
+                    description: "card",
+                    color: "orange",
+                    localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
+                    rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                    onRender: () => card.render( Vector.zero ),
+                    onHover: () => { if ( !this.isPickingTarget ) this.index = i },
+                    onClick: () => {
+                        let isSelectedCard = this.index == i
+                        if ( this.isPickingTarget && isSelectedCard ) {
+                            this.deselect()
+                        } else {
+                            this.index = i
+                            this.isPickingTarget = true
+                        }
+                    }
+                } ) )
+            endNode()
+            startNode( {
+                description: "draw-tray",
+                localMatrix: Matrix.vTranslation( new Vector( 10, screenSize.y-Card.dimensions.y/3 * 2 ) ),
+                rect: { width, height: Card.dimensions.y }
+            } )
+                draw.forEach( ( card, i ) => terminalNode( {
+                    description: "card",
+                    color: "orange",
+                    localMatrix: Matrix.translation( 3 * i, 3 * i),
+                    rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                    onRender: () => card.render( Vector.zero )
+                } ) )
+            endNode()
+            startNode( {
+                description: "discard-tray",
+                localMatrix: Matrix.vTranslation( new Vector( screenSize.x - Card.dimensions.x - 20, screenSize.y-Card.dimensions.y/3 * 2 ) ),
+                rect: { width, height: Card.dimensions.y }
+            } )
+                discard.forEach( ( card, i ) => terminalNode( {
+                    description: "card",
+                    color: "orange",
+                    localMatrix: Matrix.translation( 3 * i, 3 * i),
+                    rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                    onRender: () => card.render( Vector.zero )
+                } ) )
+            endNode()
         endNode()
     }
 }
