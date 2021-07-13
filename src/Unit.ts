@@ -21,6 +21,8 @@ export default class Unit {
     color: string
     health: number
 
+    hurtTime: number = 0
+
     draw: Card[] = []
     hand: Card[] = []
     discard: Card[] = []
@@ -42,10 +44,32 @@ export default class Unit {
 
     }
 
-    render( offset = Vector.zero, animate = true, showName = true ) {
+    addHealth( amount: number ) {
+        this.health += amount
+        if ( amount < 0 ) {
+            console.log( this.hurtTime )
+            this.hurtTime += Math.sqrt( -amount + 1 ) * .1
+        }
+    }
+
+    update() {
+        let dtSeconds = Game.instance.clock.dt / 1000
+        this.hurtTime = Math.max( 0, this.hurtTime - dtSeconds )
+    }
+
+    render( animate = true, showName = true ) {
         let g = Graphics.instance
         let frame = animate ? getFrameNumber( 2, 2 ) : 0
-        g.drawSheetFrame( mechSheet, 32, offset.x, offset.y, frame )
+
+        let doShake = animate && this.hurtTime > 0
+        if ( doShake ) {
+            g.c.save()
+            let shake = Vector.lissajous( this.hurtTime, 13, 10, 2, 1, 0, 0 )
+            g.c.translate( shake.x, shake.y )
+        }
+        g.drawSheetFrame( mechSheet, 32, 0, 0, frame )
+        if ( doShake )
+            g.c.restore()
 
         if ( showName ) {
             g.c.shadowBlur = 0
@@ -54,16 +78,14 @@ export default class Unit {
             const maxLength = 8
             if ( name.length > maxLength )
                 name = name.slice( 0, maxLength - 3 ) + "..."
-            g.drawTextBox( offset.addXY( 0, 32 ), name, { textColor: "#c2c2c2", boxColor: "#696969", alignY: TextAlignY.bottom } )
+            g.drawTextBox( new Vector( 0, 32 ), name, { textColor: "#c2c2c2", boxColor: "#696969", alignY: TextAlignY.bottom } )
         }
 
         g.setFont( 4, "impact" )
         let healthText = this.health.toString().padStart( 2, "0" )
         let energyText = this.energy.toString().padStart( 2, "0" )
-        let boxDims = g.drawTextBox( offset, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
-        // g.drawTextBox( offset.addXY( boxDims.x, 0 ), energyText, { textColor: "white", boxColor: "#32a852" } )
-        g.drawTextBox( offset.addXY( boxDims.x, 0 ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
+        let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
+        g.drawTextBox( new Vector( boxDims.x, 0 ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
     }
-
 
 }

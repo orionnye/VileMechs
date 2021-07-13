@@ -11,35 +11,20 @@ export class Vector {
         this.x = x
         this.y = y
     }
-    subtract( other: Vector ) {
-        return new Vector( this.x - other.x, this.y - other.y )
-    }
-    add( other: Vector ) {
-        return new Vector( this.x + other.x, this.y + other.y )
-    }
-    addXY(x: number, y: number) {
-        return new Vector(this.x + x, this.y + y)
-    }
-    product( other: Vector ) {
-        return new Vector( this.x * other.x, this.y * other.y )
-    }
-    scale( other: number ) {
-        return new Vector( this.x * other, this.y * other )
-    }
+    subtract( other: Vector ) { return new Vector( this.x - other.x, this.y - other.y ) }
+    add( other: Vector ) { return new Vector( this.x + other.x, this.y + other.y ) }
+    addXY( x: number, y: number ) { return new Vector( this.x + x, this.y + y ) }
+    product( other: Vector ) { return new Vector( this.x * other.x, this.y * other.y ) }
+    scale( other: number ) { return new Vector( this.x * other, this.y * other ) }
+    floor() { return new Vector( Math.floor( this.x ), Math.floor( this.y ) ) }
+    distance( other: Vector ) { return this.subtract( other ).length }
     equals( other: Vector | null ) {
-        if ( other == null )
-            return false
+        if ( other == null ) return false
         return equals( this.x, other.x ) && equals( this.y, other.y )
-    }
-    floor() {
-        return new Vector( Math.floor( this.x ), Math.floor( this.y ) )
     }
     lerp( other: Vector, alpha: number ) {
         let beta = 1 - alpha
         return new Vector( this.x * beta + other.x * alpha, this.y * beta + other.y * alpha )
-    }
-    distance( other: Vector ) {
-        return this.subtract( other ).length
     }
     get length() {
         let dist = Math.sqrt( this.x ** 2 + this.y ** 2 )
@@ -47,5 +32,12 @@ export class Vector {
     }
     toString() {
         return this.x + "," + this.y
+    }
+
+    static lissajous( t, xFreq, yFreq, xAmplitude = 1, yAmplitude = xAmplitude, xPhase = 0, yPhase = 0 ) {
+        return new Vector(
+            Math.cos( Math.PI * 2 * ( t + xPhase ) * xFreq ) * xAmplitude,
+            Math.sin( Math.PI * 2 * ( t + yPhase ) * yFreq ) * yAmplitude
+        )
     }
 }

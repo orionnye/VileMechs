@@ -72,8 +72,22 @@ export default class Game {
         else
             unitTray.deselect()
     }
+    applyCardAt( pos: Vector ) {
+        let unit = this.selectedUnit()
+        let card = this.selectedCard()
+        this.cardTray.deselect()
+        if ( unit && card ) {
+            let index = unit.hand.indexOf( card )
+            if ( index < 0 )
+                throw new Error( "Selected card is not in selected unit's hand." )
+            unit.hand.splice( index, 1 )
+            unit.discard.push( card )
+            card.apply( pos )
+        }
+    }
     update() {
         this.clock.nextFrame()
+        this.world.update()
         this.cardTray.update()
         this.makeSceneNode()
         this.camera.update()

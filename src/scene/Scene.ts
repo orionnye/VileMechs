@@ -68,8 +68,6 @@ export default class Scene {
             c.fillRect( 0, 0, node.rect.width, node.rect.height )
             c.globalAlpha = 1
         }
-        // if ( node.description == "world" )
-        //     debugger
         if ( node.children )
             for ( let child of node.children )
                 Scene.render( c, child, debug )

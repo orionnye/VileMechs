@@ -78,7 +78,7 @@ export default class CardTray {
             color: "orange",
             localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-            onRender: () => card.render( Vector.zero ),
+            onRender: () => card.render(),
             onHover: () => { if ( !this.isPickingTarget ) this.index = i },
             onClick: () => {
                 let isSelectedCard = this.index == i
@@ -98,7 +98,7 @@ export default class CardTray {
             color: "orange",
             localMatrix: Matrix.vTranslation( drawBase.addXY( i * 3, i * 3 ) ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-            onRender: () => card.render( Vector.zero )
+            onRender: () => card.render()
         } ) )
 
         let discardBase = new Vector( screenSize.x - Card.dimensions.x - 20, screenSize.y - Card.dimensions.y / 3 * 2 )
@@ -107,7 +107,7 @@ export default class CardTray {
             color: "orange",
             localMatrix: Matrix.vTranslation( discardBase.addXY( i * 3, i * 3 ) ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-            onRender: () => card.render( Vector.zero )
+            onRender: () => card.render()
         } ) )
     }
 }

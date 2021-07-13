@@ -41,6 +41,7 @@ export default class World {
         }
     }
 
+    // Model
     getUnit( pos: Vector ) {
         for ( let unit of this.units )
             if ( unit.pos.equals( pos ) )
@@ -62,6 +63,12 @@ export default class World {
         return Scene.toLocalSpace( cursor, this.scene ).scale( 1 / World.tileSize ).floor()
     }
 
+    update() {
+        for ( let unit of this.units )
+            unit.update()
+    }
+
+    // View
     render() {
         let g = Graphics.instance
         let game = Game.instance
@@ -157,7 +164,7 @@ export default class World {
                         g.c.shadowBlur = 10
                         g.c.shadowColor = "black"
                     }
-                    unit.render( Vector.zero, true, isSelected || hover )
+                    unit.render( true, isSelected || hover )
                 }
             } )
         } )
@@ -170,7 +177,7 @@ export default class World {
                         color: "purple",
                         localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
-                        onClick: () => { card?.apply( pos ) },
+                        onClick: () => game.applyCardAt( pos ),
                         onRender: ( node ) => {
                             let hover = node == game.mouseOverData.node
                             g.c.fillStyle = hover ? "rgba(135, 231, 255, .35)" : "rgba(3, 202, 252, .35)"
