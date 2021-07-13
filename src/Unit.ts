@@ -2,7 +2,7 @@ import { randomFloor } from "./math/math"
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
 import Input from "./Input"
-import Graphics from "./Graphics"
+import Graphics, { TextAlignX, TextAlignY } from "./Graphics"
 import names from "./names"
 import { getFrameNumber, getImg } from "./utils"
 import Card from "./Card"
@@ -47,25 +47,23 @@ export default class Unit {
         let frame = animate ? getFrameNumber( 2, 2 ) : 0
         g.drawSheetFrame( mechSheet, 32, offset.x, offset.y, frame )
 
-        if ( showName )
-            this.renderNametag( offset )
+        if ( showName ) {
+            g.c.shadowBlur = 0
+            g.setFont( 3, "pixel" )
+            let name = this.name
+            const maxLength = 8
+            if ( name.length > maxLength )
+                name = name.slice( 0, maxLength - 3 ) + "..."
+            g.drawTextBox( offset.addXY( 0, 32 ), name, { textColor: "#c2c2c2", boxColor: "#696969", alignY: TextAlignY.bottom } )
+        }
+
+        g.setFont( 4, "impact" )
+        let healthText = this.health.toString().padStart( 2, "0" )
+        let energyText = this.energy.toString().padStart( 2, "0" )
+        let boxDims = g.drawTextBox( offset, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
+        // g.drawTextBox( offset.addXY( boxDims.x, 0 ), energyText, { textColor: "white", boxColor: "#32a852" } )
+        g.drawTextBox( offset.addXY( boxDims.x, 0 ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
     }
 
-    renderNametag( offset = Vector.zero ) {
-        let g = Graphics.instance
-        g.c.shadowBlur = 0
-        const fontSize = 3.5
-        g.c.font = fontSize + "px pixel"
 
-        let name = this.name
-        const maxLength = 8
-        if ( name.length > maxLength )
-            name = name.slice( 0, maxLength - 3 ) + "..."
-
-        let metrics = g.c.measureText( name )
-        let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
-        let textOffset = offset.add( new Vector( 1, 31 - textDims.y ) )
-        g.drawRect( textOffset, textDims, "grey" )
-        g.drawText( textOffset, fontSize, name, "black" )
-    }
 }

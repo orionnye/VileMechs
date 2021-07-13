@@ -35,6 +35,7 @@ export default class Game {
 
     constructor() {
         Game.instance = this
+        this.world = new World()
         window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
         window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
@@ -53,7 +54,6 @@ export default class Game {
                 console.log( "This needs to cycle cards" )
             }
         } )
-        this.world = new World()
     }
 
     playerUnits() { return this.world.units }
@@ -91,16 +91,19 @@ export default class Game {
         g.c.fillStyle = "#5fb2de"
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
         g.c.imageSmoothingEnabled = false
+        g.c.textBaseline = "top"
         let picked = Scene.pickNode( this.scene, this.input.cursor )
-        if ( this.showSceneDebug && picked !== undefined ) {
-            picked.color = "white"
+        if ( this.showSceneDebug ) {
+            if ( picked ) picked.color = "white"
             Scene.render( g.c, this.scene, true )
-            g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), 12, picked.description ?? "a", "white" )
+            g.setFont( 12, "pixel" )
+            g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), picked?.description ?? "", "white" )
         } else {
             Scene.render( g.c, this.scene, false )
         }
         if ( this.showFPS ) {
-            g.drawText( Vector.one.scale( 10 ), 12, this.averageFPS.toFixed( 2 ), "red" )
+            g.setFont( 12, "pixel" )
+            g.drawText( Vector.one.scale( 10 ), this.averageFPS.toFixed( 2 ), "red" )
         }
     }
 

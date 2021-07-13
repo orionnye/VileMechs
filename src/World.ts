@@ -108,7 +108,8 @@ export default class World {
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
                     let currentText = x.toString() + ", " + y.toString()
-                    g.drawText( textPos, ( tileSize / 8 ) | 0, currentText, "#f0ead8" )
+                    g.setFont( tileSize / 8 | 0, "pixel" )
+                    g.drawText( textPos, currentText, "#f0ead8" )
                 }
             }
         }
@@ -150,13 +151,14 @@ export default class World {
                 localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                 rect: { width: tileSize, height: tileSize },
                 onClick: () => game.unitTray.toggleSelectIndex( i ),
-                onRender: () => {
+                onRender: ( node ) => {
+                    let hover = node == game.mouseOverData.node
                     let isSelected = unit == selectedUnit
                     if ( isSelected ) {
                         g.c.shadowBlur = 10
                         g.c.shadowColor = "black"
                     }
-                    unit.render( Vector.zero, isSelected, isSelected )
+                    unit.render( Vector.zero, true, isSelected || hover )
                 }
             } )
         } )

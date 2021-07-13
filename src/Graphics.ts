@@ -41,12 +41,38 @@ export default class Graphics {
             this.c.lineTo( path[ i ].x, path[ i ].y )
     }
 
-    drawText( pos: Vector, size: number, text: string, color: string = "black" ) {
-        this.c.fillStyle = color
-        // this.c.font = size + "px Times New Roman"
-        this.c.font = size + "px pixel"
+    setFont( size: number, font: string ) {
+        this.c.font = size + "px " + font
+    }
+
+    textDimensions( text: string ) {
         let metrics = this.c.measureText( text )
-        this.c.fillText( text, pos.x, pos.y + metrics.actualBoundingBoxAscent )
+        return new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
+    }
+
+    drawText( pos: Vector, text: string, color: string = "black" ) {
+        this.c.fillStyle = color
+        this.c.fillText( text, pos.x, pos.y )
+    }
+
+    drawTextBox( pos: Vector, text: string, options: { padding?: number, textColor?: string, boxColor?: string, alignX?: TextAlignX, alignY?: TextAlignY } ) {
+        let padding = options.padding ?? 1
+        let textColor = options.textColor ?? "white"
+        let boxColor = options.boxColor ?? "black"
+        let alignX = options.alignX ?? TextAlignX.left
+        let alignY = options.alignY ?? TextAlignY.top
+
+        let metrics = this.c.measureText( text )
+
+        let p = padding, p2 = padding * 2
+        let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
+        let textBoxDims = textDims.addXY( p2, p2 )
+        let textBoxOffset = pos.addXY( -textBoxDims.x * alignX, -textBoxDims.y * alignY )
+        let textOffset = textBoxOffset.addXY( p, p + metrics.actualBoundingBoxAscent )
+        this.drawRect( textBoxOffset, textBoxDims, boxColor )
+        this.drawText( textOffset, text, textColor )
+
+        return textBoxDims
     }
 
     drawSheetFrame( img: HTMLImageElement, frameHeight: number, x: number, y: number, frame: number ) {
@@ -55,3 +81,6 @@ export default class Graphics {
         this.c.drawImage( img, 0, h * frame, w, h, x, y, w, h )
     }
 }
+
+export enum TextAlignX { left = 0, center = .5, right = 1 }
+export enum TextAlignY { top = 0, center = .5, bottom = 1 }

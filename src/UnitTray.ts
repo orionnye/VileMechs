@@ -90,7 +90,7 @@ export default class UnitTray {
                     if ( selectedUnit == unit ) {
                         g.c.lineWidth = 1
                         g.c.strokeStyle = "gray"
-                        g.c.strokeRect( .5, .5, 31, 31 )
+                        g.c.strokeRect( -.5, -.5, 33, 33 )
                         g.c.stroke()
                     }
                 }
