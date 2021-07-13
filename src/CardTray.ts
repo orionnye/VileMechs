@@ -96,7 +96,7 @@ export default class CardTray {
         draw.forEach( ( card, i ) => terminalNode( {
             description: "card-tray-draw",
             color: "orange",
-            localMatrix: Matrix.vTranslation( drawBase.add( Vector.one.scale( i * 3 ) ) ),
+            localMatrix: Matrix.vTranslation( drawBase.addXY( i * 3, i * 3 ) ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render( Vector.zero )
         } ) )
@@ -105,7 +105,7 @@ export default class CardTray {
         discard.forEach( ( card, i ) => terminalNode( {
             description: "card-tray-discard",
             color: "orange",
-            localMatrix: Matrix.vTranslation( discardBase.add( Vector.one.scale( i * 3 ) ) ),
+            localMatrix: Matrix.vTranslation( discardBase.addXY( i * 3, i * 3 ) ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render( Vector.zero )
         } ) )

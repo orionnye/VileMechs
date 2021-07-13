@@ -49,8 +49,8 @@ export default class Game {
             //Player buttons
             if ( ev.key == "Escape" )
                 this.goBack()
-            if (ev.key == "Enter") {
-                console.log("This needs to cycle cards")
+            if ( ev.key == "Enter" ) {
+                console.log( "This needs to cycle cards" )
             }
         } )
         this.world = new World()
@@ -131,15 +131,19 @@ export default class Game {
 
     onMousedown( ev: MouseEvent ) {
         let button = ev.button
-        if ( button == 0 ) {
+        let leftClick = button == 0
+        let middleClick = button == 1
+        let rightClick = button == 2
+        if ( leftClick || middleClick ) {
             let cursor = this.input.cursor
             let node = Scene.pickNode( this.scene, cursor )
             let worldClicked = node == this.world.scene
             let nothingClicked = node == undefined
             let unitSelected = this.unitTray.selectedUnit() !== undefined
-            if ( ( worldClicked || nothingClicked ) && !unitSelected )
+            let canLeftClickDrag = ( worldClicked || nothingClicked ) && !unitSelected
+            if ( canLeftClickDrag || middleClick )
                 this.lastDragPosition = this.input.cursor
-        } else if ( button == 2 ) {
+        } else if ( rightClick ) {
             this.goBack()
         }
     }

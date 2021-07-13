@@ -1,3 +1,4 @@
+import Game from "./Game"
 import Graphics from "./Graphics"
 import { Vector } from "./math/Vector"
 import Unit from "./Unit"
@@ -15,7 +16,7 @@ export default class Card {
         g.strokeRect( offset, Card.dimensions, "#f0ead8" )
     }
 
-    getTargets( world: World, user: Unit ) {
+    getTargets( user: Unit ) {
         let result: Vector[] = []
         let { x, y } = user.pos
         for ( let dy = -2; dy <= 2; dy++ )
@@ -29,5 +30,15 @@ export default class Card {
         //     user.pos.addXY( 0, 1 ),
         //     user.pos.addXY( 0, -1 ),
         // ]
+    }
+
+    apply( pos: Vector ) {
+        let game = Game.instance
+        let { world } = game
+        let target = world.getUnit( pos )
+        if ( target ) {
+            target.health -= 1
+            console.log( target.health )
+        }
     }
 }

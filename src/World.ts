@@ -41,10 +41,15 @@ export default class World {
         }
     }
 
-    isWalkable( pos: Vector ) {
+    getUnit( pos: Vector ) {
         for ( let unit of this.units )
             if ( unit.pos.equals( pos ) )
-                return false
+                return unit
+    }
+
+    isWalkable( pos: Vector ) {
+        if ( this.getUnit( pos ) )
+            return false
         return this.map.contains( pos ) && this.map.isEmpty( pos )
     }
 
@@ -158,13 +163,13 @@ export default class World {
         if ( pickingTarget ) {
             let card = game.selectedCard()
             if ( selectedUnit && card ) {
-                for ( let pos of card?.getTargets( this, selectedUnit ) ) {
+                for ( let pos of card?.getTargets( selectedUnit ) ) {
                     terminalNode( {
                         description: "card-target",
                         color: "purple",
                         localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
-                        onClick: () => { console.log( pos.toString() ) },
+                        onClick: () => { card?.apply( pos ) },
                         onRender: ( node ) => {
                             let hover = node == game.mouseOverData.node
                             g.c.fillStyle = hover ? "rgba(135, 231, 255, .35)" : "rgba(3, 202, 252, .35)"
