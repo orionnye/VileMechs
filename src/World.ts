@@ -118,7 +118,6 @@ export default class World {
     makeSceneNode() {
         let game = Game.instance
         let g = Graphics.instance
-        let { camPos } = game
         let { units } = this
         let { width, height } = this.map
         let selectedUnit = game.selectedUnit()
@@ -129,7 +128,7 @@ export default class World {
         startNode( {
             description: "world",
             color: "yellow",
-            localMatrix: Matrix.vTranslation( camPos.scale( -1 ) ),
+            localMatrix: game.cameraTransform(),
             rect: {
                 width: width * tileSize,
                 height: height * tileSize,

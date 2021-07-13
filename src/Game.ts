@@ -11,31 +11,29 @@ import Scene from "./scene/Scene"
 import CardTray from "./CardTray"
 import { lerp } from "./math/math"
 import Card from "./Card"
+import Camera from "./Camera"
+import Clock from "./Clock"
 
 export default class Game {
     static instance: Game
     static uiScale = 3
     static camVelocityDecay = 0.85
-    static minSeekDistance = World.tileSize * 15 / Game.uiScale
     graphics = new Graphics()
+    camera = new Camera()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
-    showSceneDebug = false
-    showFPS = false
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
-    lastDragPosition?: Vector
-    world: World
+
+    world = new World()
     unitTray = new UnitTray()
     cardTray = new CardTray()
-    camPos = new Vector( 0, 0 )
-    camVelocity = new Vector( 0, 0 )
-    camTarget?: Vector = undefined
-    averageFPS = 0
-    lastFrame?: number
+
+    showSceneDebug = false
+    showFPS = false
+    clock = new Clock()
 
     constructor() {
         Game.instance = this
-        this.world = new World()
         window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
         window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
@@ -56,6 +54,7 @@ export default class Game {
         } )
     }
 
+    // Model
     playerUnits() { return this.world.units }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
@@ -64,7 +63,7 @@ export default class Game {
         this.cardTray.deselect()
         let selectedUnit = this.selectedUnit()
         if ( selectedUnit )
-            this.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
+            this.camera.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
     }
     goBack() {
         let { unitTray, cardTray } = this
@@ -73,19 +72,49 @@ export default class Game {
         else
             unitTray.deselect()
     }
-
     update() {
+        this.clock.nextFrame()
         this.cardTray.update()
         this.makeSceneNode()
-        this.updateDrag()
-        this.updateCamera()
+        this.camera.update()
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )
             node.onHover( node, point )
-        this.updateFPS()
     }
 
+    // Controls
+    onClick( ev: MouseEvent ) {
+        let cursor = this.input.cursor
+        let { node, point } = Scene.pick( this.scene, cursor )
+        if ( node ) {
+            if ( node.onClick )
+                node.onClick( node, point )
+        }
+    }
+    onMousedown( ev: MouseEvent ) {
+        let button = ev.button
+        let leftClick = button == 0
+        let middleClick = button == 1
+        let rightClick = button == 2
+        if ( leftClick || middleClick ) {
+            let cursor = this.input.cursor
+            let node = Scene.pickNode( this.scene, cursor )
+            let worldClicked = node == this.world.scene
+            let nothingClicked = node == undefined
+            let unitSelected = this.unitTray.selectedUnit() !== undefined
+            let canLeftClickDrag = ( worldClicked || nothingClicked ) && !unitSelected
+            if ( canLeftClickDrag || middleClick )
+                this.camera.startDragging()
+        } else if ( rightClick ) {
+            this.goBack()
+        }
+    }
+    onMouseup( ev: MouseEvent ) {
+        this.camera.stopDragging()
+    }
+
+    // View
     render() {
         let g = this.graphics
         g.c.fillStyle = "#5fb2de"
@@ -102,127 +131,27 @@ export default class Game {
             Scene.render( g.c, this.scene, false )
         }
         if ( this.showFPS ) {
-            g.setFont( 12, "pixel" )
-            g.drawText( Vector.one.scale( 10 ), this.averageFPS.toFixed( 2 ), "red" )
+            g.setFont( 24, "impact" )
+            g.drawText( Vector.one.scale( 2 ), this.clock.averageFPS.toFixed( 2 ), "red" )
         }
     }
-
-    screenDimensions() { return this.graphics.size.scale( 1 / Game.uiScale ) }
-    screenCenter() { return this.graphics.size.scale( 0.5 / Game.uiScale ) }
-    distFromViewport( pos: Vector ) {
-        let center = this.screenCenter()
-        let diff = pos.subtract( center )
-        diff.x = Math.abs( diff.x ) - center.x
-        diff.y = Math.abs( diff.y ) - center.y
-        return Math.max( diff.x, diff.y )
-    }
-    isInFocusArea( pos: Vector ) { return this.distFromViewport( pos.subtract( this.camPos ) ) < -World.tileSize * 2 }
-    setCameraTarget( pos: Vector ) {
-        if ( this.isInFocusArea( pos ) )
-            return
-        this.camTarget = pos
-    }
-
-    onClick( ev: MouseEvent ) {
-        let cursor = this.input.cursor
-        let { node, point } = Scene.pick( this.scene, cursor )
-        if ( node ) {
-            if ( node.onClick )
-                node.onClick( node, point )
-        }
-    }
-
-    onMousedown( ev: MouseEvent ) {
-        let button = ev.button
-        let leftClick = button == 0
-        let middleClick = button == 1
-        let rightClick = button == 2
-        if ( leftClick || middleClick ) {
-            let cursor = this.input.cursor
-            let node = Scene.pickNode( this.scene, cursor )
-            let worldClicked = node == this.world.scene
-            let nothingClicked = node == undefined
-            let unitSelected = this.unitTray.selectedUnit() !== undefined
-            let canLeftClickDrag = ( worldClicked || nothingClicked ) && !unitSelected
-            if ( canLeftClickDrag || middleClick )
-                this.lastDragPosition = this.input.cursor
-        } else if ( rightClick ) {
-            this.goBack()
-        }
-    }
-
-    onMouseup( ev: MouseEvent ) {
-        this.lastDragPosition = undefined
-    }
-
-    updateDrag() {
-        if ( this.lastDragPosition ) {
-            let cursor = this.input.cursor
-            let diff = this.lastDragPosition.subtract( cursor )
-            let mat = Scene.relativeMatrix( this.world.scene )
-            let diffPrime = mat.inverse().multiplyVec( diff, 0 )
-            this.camVelocity = diffPrime
-            this.lastDragPosition = cursor
-        }
-    }
-
-    updateFPS() {
-        let time = performance.now()
-        if ( this.lastFrame ) {
-            let dt = time - this.lastFrame
-            let currFPS = 1000 / dt
-            this.averageFPS = lerp( this.averageFPS, currFPS, 0.05 )
-        }
-        this.lastFrame = time
-    }
-
-    updateCamera() {
-        let { input, camVelocity, camPos } = this
-
-        if ( input.keys.get( "w" ) ) {
-            camVelocity.y += -1
-            this.camTarget = undefined
-        }
-        if ( input.keys.get( "s" ) ) {
-            camVelocity.y += 1
-            this.camTarget = undefined
-        }
-        if ( input.keys.get( "a" ) ) {
-            camVelocity.x += -1
-            this.camTarget = undefined
-        }
-        if ( input.keys.get( "d" ) ) {
-            camVelocity.x += 1
-            this.camTarget = undefined
-        }
-
-        this.camPos = camPos.add( camVelocity )
-        this.camVelocity = camVelocity.scale( Game.camVelocityDecay )
-        if ( camVelocity.length < 0.5 ) {
-            camVelocity = new Vector( 0, 0 )
-            camPos.x |= 0
-            camPos.y |= 0
-        }
-
-        if ( this.camTarget ) {
-            let targetCamPos = this.camTarget.subtract( this.screenCenter() )
-            let lerpTarget = this.camPos.lerp( targetCamPos, 0.05 )
-            this.camVelocity = lerpTarget.subtract( this.camPos )
-            if ( this.isInFocusArea( this.camTarget ) )
-                this.camTarget = undefined
-        }
-    }
-
     makeSceneNode() {
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.selectedUnit()
-        this.scene = Scene.startNode( { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) } )
+        let { startNode, endNode } = Scene
+        this.scene = startNode( { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) } )
         {
             world.makeSceneNode()
             unitTray.makeSceneNode()
             if ( selectedUnit )
                 cardTray.makeSceneNode()
         }
-        Scene.endNode()
+        endNode()
     }
+    cameraTransform() {
+        let screenDims = this.screenDimensions()
+        return this.camera.worldToCamera( screenDims.x, screenDims.y )
+    }
+    screenDimensions() { return this.graphics.size.scale( 1 / Game.uiScale ) }
+    screenCenter() { return this.graphics.size.scale( 0.5 / Game.uiScale ) }
 }
