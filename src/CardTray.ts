@@ -11,14 +11,11 @@ export default class CardTray {
     static restingDepth = 32
     index = -1
     cardCount: number
-    cardElevations: number[] = []
     lastSelectTime: number = -Infinity
     isPickingTarget = false
 
     constructor( cardCount = 4 ) {
         this.cardCount = cardCount
-        for ( let i = 0; i < cardCount; i++ )
-            this.cardElevations.push( 0 )
     }
 
     hasCardSelected() { return this.index > -1 }
@@ -38,18 +35,63 @@ export default class CardTray {
         this.isPickingTarget = false
     }
 
+    onSelectUnit() {
+        this.deselect()
+        this.lerpCards( 1 )
+    }
+
     update() {
-        let { index, cardCount, cardElevations, lastSelectTime } = this
-        for ( let i = 0; i < cardCount; i++ ) {
-            let dy = ( i == index ) ? 2 : -2
-            cardElevations[ i ] = clamp( 0, CardTray.restingDepth, cardElevations[ i ] + dy )
-        }
+        let { lastSelectTime } = this
+        this.lerpCards( .2 )
         if ( this.hasCardSelected() && !this.isPickingTarget ) {
             let now = Date.now()
             let dt = now - lastSelectTime
             if ( dt > CardTray.selectionTimeout )
                 this.selectIndex( -1 )
         }
+    }
+
+    lerpCards( alpha ) {
+        let unit = Game.instance.selectedUnit()
+        if ( unit ) {
+            let hand = unit.hand
+            let draw = unit.draw
+            let discard = unit.discard
+            hand.forEach( ( card, i ) => {
+                let targetPos = this.handPosition( hand.length, i )
+                card.pos = card.pos.lerp( targetPos, alpha )
+            } )
+            draw.forEach( ( card, i ) => {
+                let targetPos = this.drawPosition( draw.length, i )
+                card.pos = card.pos.lerp( targetPos, alpha )
+            } )
+            discard.forEach( ( card, i ) => {
+                let targetPos = this.discardPosition( discard.length, i )
+                card.pos = card.pos.lerp( targetPos, alpha )
+            } )
+        }
+    }
+
+    handPosition( handLength: number, cardIndex: number ) {
+        const marigin = 3
+        let stride = Card.dimensions.x + marigin
+        let width = stride * handLength - marigin
+        let screenSize = Game.instance.screenDimensions()
+        let handBase = new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
+        let elevation = cardIndex == this.index ? CardTray.restingDepth : 0
+        return handBase.addXY( stride * cardIndex, -elevation )
+    }
+
+    drawPosition( handLength: number, cardIndex: number ) {
+        let screenSize = Game.instance.screenDimensions()
+        let drawBase = new Vector( 10, screenSize.y - Card.dimensions.y / 3 * 2 )
+        return drawBase.addXY( cardIndex * 3, cardIndex * 3 )
+    }
+
+    discardPosition( handLength: number, cardIndex: number ) {
+        let screenSize = Game.instance.screenDimensions()
+        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 20, screenSize.y - Card.dimensions.y / 3 * 2 )
+        return discardBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
 
     makeSceneNode() {
@@ -59,24 +101,12 @@ export default class CardTray {
         let discard = Game.instance.selectedUnit()?.discard
         if ( !hand || !draw || !discard ) return
 
-        const marigin = 3
-        let stride = Card.dimensions.x + marigin
-        let width = stride * hand.length - marigin
-
-        let screenSize = g.size.scale( 1 / Game.uiScale )
-        let offset = new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
-
         let { startNode, endNode, terminalNode } = Scene
 
-        startNode( {
-            description: "card-tray",
-            localMatrix: Matrix.vTranslation( offset ),
-            rect: { width, height: Card.dimensions.y }
-        } )
         hand.forEach( ( card, i ) => terminalNode( {
-            description: "card",
+            description: "card-hand",
             color: "orange",
-            localMatrix: Matrix.translation( stride * i, -this.cardElevations[ i ] ),
+            localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
             onHover: () => { if ( !this.isPickingTarget ) this.index = i },
@@ -90,22 +120,19 @@ export default class CardTray {
                 }
             }
         } ) )
-        endNode()
 
-        let drawBase = new Vector( 10, screenSize.y - Card.dimensions.y / 3 * 2 )
         draw.forEach( ( card, i ) => terminalNode( {
-            description: "card-tray-draw",
+            description: "card-draw",
             color: "orange",
-            localMatrix: Matrix.vTranslation( drawBase.addXY( i * 3, i * 3 ) ),
+            localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render()
         } ) )
 
-        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 20, screenSize.y - Card.dimensions.y / 3 * 2 )
         discard.forEach( ( card, i ) => terminalNode( {
-            description: "card-tray-discard",
+            description: "card-discard",
             color: "orange",
-            localMatrix: Matrix.vTranslation( discardBase.addXY( i * 3, i * 3 ) ),
+            localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render()
         } ) )

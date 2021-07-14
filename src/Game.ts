@@ -60,7 +60,7 @@ export default class Game {
     selectedCard() { return this.cardTray.selectedCard() }
     isPickingTarget() { return this.cardTray.isPickingTarget }
     onSelectUnit() {
-        this.cardTray.deselect()
+        this.cardTray.onSelectUnit()
         let selectedUnit = this.selectedUnit()
         if ( selectedUnit )
             this.camera.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
