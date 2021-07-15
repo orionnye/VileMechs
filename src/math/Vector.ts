@@ -1,4 +1,4 @@
-import { equals } from "./math"
+import { clamp, equals } from "./math"
 
 export class Vector {
     x: number
@@ -32,6 +32,17 @@ export class Vector {
     }
     toString() {
         return this.x + "," + this.y
+    }
+
+    unit() {
+        return this.scale( 1 / this.length )
+    }
+
+    clampLength( min, max ) {
+        let length = this.length
+        let unit = this.scale( 1 / length )
+        length = clamp( min, max, length )
+        return unit.scale( length )
     }
 
     static lissajous( t, xFreq, yFreq, xAmplitude = 1, yAmplitude = xAmplitude, xPhase = 0, yPhase = 0 ) {

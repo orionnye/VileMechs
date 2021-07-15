@@ -37,21 +37,9 @@ export default class Game {
         window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
         window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
+        window.addEventListener( "wheel", ev => this.onWheel( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
-        window.addEventListener( "keyup", ev => {
-            //DEV COMMANDS
-            if ( ev.key == "`" )
-                this.showSceneDebug = !this.showSceneDebug
-            if ( ev.key == "," )
-                this.showFPS = !this.showFPS
-
-            //Player buttons
-            if ( ev.key == "Escape" )
-                this.goBack()
-            if ( ev.key == "Enter" ) {
-                console.log( "This needs to cycle cards" )
-            }
-        } )
+        window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
     }
 
     // Model
@@ -127,13 +115,32 @@ export default class Game {
     onMouseup( ev: MouseEvent ) {
         this.camera.stopDragging()
     }
+    onWheel( ev: WheelEvent ) {
+        this.camera.onWheel( ev )
+    }
+    onKeyup( ev: KeyboardEvent ) {
+        this.camera.onKeyup( ev )
+
+        //DEV COMMANDS
+        if ( ev.key == "`" )
+            this.showSceneDebug = !this.showSceneDebug
+        if ( ev.key == "," )
+            this.showFPS = !this.showFPS
+
+        //Player buttons
+        if ( ev.key == "Escape" )
+            this.goBack()
+        if ( ev.key == "Enter" ) {
+            console.log( "This needs to cycle cards" )
+        }
+    }
 
     // View
     render() {
         let g = this.graphics
+        g.c.imageSmoothingEnabled = false
         g.c.fillStyle = "#5fb2de"
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
-        g.c.imageSmoothingEnabled = false
         g.c.textBaseline = "top"
         let picked = Scene.pickNode( this.scene, this.input.cursor )
         if ( this.showSceneDebug ) {

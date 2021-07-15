@@ -11,6 +11,8 @@ import Scene, { SceneNode } from "./scene/Scene"
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
 
+const maxPathDistance = 5
+
 export default class World {
     static tileSize = 32
     map: Grid
@@ -18,7 +20,7 @@ export default class World {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor() {
-        this.map = new Grid( 10, 10 )
+        this.map = new Grid( 20, 20 )
         this.units = [
             new Unit( new Vector( 1, 1 ) ),
             new Unit( new Vector( 2, 2 ) ),
@@ -74,6 +76,11 @@ export default class World {
         let game = Game.instance
         let tileSize = World.tileSize
 
+        if ( game.camera.zoom * Game.uiScale <= 1.5 ) {
+            g.c.imageSmoothingEnabled = true
+            g.c.imageSmoothingQuality = "low"
+        }
+
         let cursor = this.tileSpaceCursor()
         let selectedUnit = Game.instance.unitTray.selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
@@ -84,16 +91,39 @@ export default class World {
         if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path ) {
+                let pathLength = path.length
+                let walkableLength = Math.min( path.length, maxPathDistance )
+                let trimmedSteps = path.slice( walkableLength - 1 )
+                let walkablePath = path.slice( 0, walkableLength )
+                path.length = walkableLength
                 let radius = 3
                 g.c.save()
-                g.makePath( path.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                g.c.strokeStyle = "#f0ead8"
-                g.c.lineWidth = radius
-                g.c.stroke()
-                g.c.beginPath()
-                let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                g.c.fillStyle = "#f0ead8"
-                g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                {
+                    const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b9"
+                    g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                    g.c.strokeStyle = walkableColor
+                    g.c.lineWidth = radius
+                    g.c.stroke()
+
+                    let pathTooLong = walkableLength != pathLength
+                    if ( pathTooLong ) {
+                        g.makePath( trimmedSteps.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                        g.c.strokeStyle = unwalkableColor
+                        g.c.lineWidth = radius
+                        g.c.stroke()
+                        g.c.setLineDash( [] )
+
+                        g.c.beginPath()
+                        let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                        g.c.fillStyle = unwalkableColor
+                        g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                    }
+
+                    g.c.beginPath()
+                    let endpoint = path[ path.length - 1 ].add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                    g.c.fillStyle = walkableColor
+                    g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                }
                 g.c.restore()
             }
         }
@@ -144,8 +174,10 @@ export default class World {
                 if ( selectedUnit && !pickingTarget ) {
                     let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
-                    if ( path )
-                        selectedUnit.pos = cell
+                    if ( path ) {
+                        path.length = Math.min( path.length, maxPathDistance )
+                        selectedUnit.pos = path[ path.length - 1 ]
+                    }
                 }
             },
             onRender: () => this.render()

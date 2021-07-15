@@ -54,9 +54,7 @@ export default class CardTray {
     lerpCards( alpha ) {
         let unit = Game.instance.selectedUnit()
         if ( unit ) {
-            let hand = unit.hand
-            let draw = unit.draw
-            let discard = unit.discard
+            let hand = unit.hand, draw = unit.draw, discard = unit.discard
             hand.forEach( ( card, i ) => {
                 let targetPos = this.handPosition( hand.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
@@ -72,14 +70,19 @@ export default class CardTray {
         }
     }
 
-    handPosition( handLength: number, cardIndex: number ) {
-        const marigin = 3
+    static handMargin = 3
+    handBase( handLength: number ) {
+        const marigin = CardTray.handMargin
         let stride = Card.dimensions.x + marigin
         let width = stride * handLength - marigin
         let screenSize = Game.instance.screenDimensions()
-        let handBase = new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
+        return new Vector( screenSize.x / 2 - width / 2, screenSize.y - Card.dimensions.y + CardTray.restingDepth )
+    }
+    handPosition( handLength: number, cardIndex: number ) {
+        const marigin = CardTray.handMargin
+        let stride = Card.dimensions.x + marigin
         let elevation = cardIndex == this.index ? CardTray.restingDepth : 0
-        return handBase.addXY( stride * cardIndex, -elevation )
+        return this.handBase( handLength ).addXY( stride * cardIndex, -elevation )
     }
 
     drawPosition( handLength: number, cardIndex: number ) {
@@ -102,6 +105,16 @@ export default class CardTray {
         if ( !hand || !draw || !discard ) return
 
         let { startNode, endNode, terminalNode } = Scene
+
+        const marigin = CardTray.handMargin
+        let stride = Card.dimensions.x + marigin
+        let width = stride * hand.length - marigin
+        terminalNode( {
+            description: "card-tray",
+            localMatrix: Matrix.vTranslation( this.handBase( hand.length ) ),
+            rect: { width, height: Card.dimensions.y },
+            color: "white"
+        } )
 
         hand.forEach( ( card, i ) => terminalNode( {
             description: "card-hand",

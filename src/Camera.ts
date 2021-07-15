@@ -1,4 +1,5 @@
 import Game from "./Game"
+import { clamp } from "./math/math"
 import Matrix from "./math/Matrix"
 import { Vector } from "./math/Vector"
 import Scene from "./scene/Scene"
@@ -8,7 +9,8 @@ export default class Camera {
     position: Vector
     targetPosition?: Vector
     velocity: Vector
-    zoom: number
+    get zoom() { return Math.SQRT2 ** this.zoomLevel }
+    zoomLevel: number
     rotation: number
     velocityDecay = 0.85
     lastDragPosition?: Vector
@@ -16,7 +18,7 @@ export default class Camera {
     constructor() {
         this.position = new Vector( 0, 0 )
         this.velocity = new Vector( 0, 0 )
-        this.zoom = 1
+        this.zoomLevel = 0
         this.rotation = 0
     }
 
@@ -30,49 +32,54 @@ export default class Camera {
             screenWidth / 2, screenHeight / 2
         )
     }
-    cameraToWorld( screenWidth: number, screenHeight: number ) {
-        let { x, y } = this.position
-        let { zoom, rotation } = this
-        let invZoom = 1 / zoom
-        return Matrix.transformation(
-            -screenWidth / 2, -screenHeight / 2,
-            rotation,
-            invZoom, invZoom,
-            x, y
-        )
-    }
+    cameraToWorld( screenWidth: number, screenHeight: number ) { return this.worldToCamera( screenWidth, screenHeight ).inverse() }
     worldPosition( screenWidth: number, screenHeight: number, screenPosition: Vector ) {
         return this.cameraToWorld( screenWidth, screenHeight ).multiplyVec( screenPosition )
+    }
+
+    onKeyup( ev: KeyboardEvent ) {
+        if ( ev.key == "=" )
+            this.changeZoom( true )
+        if ( ev.key == "-" )
+            this.changeZoom( false )
+    }
+    onWheel( ev: WheelEvent ) {
+        this.changeZoom( Math.sign( ev.deltaY ) < 0 )
+    }
+    changeZoom( zoomIn: boolean ) {
+        let dz = zoomIn ? 1 : -1
+        this.zoomLevel = clamp( -4, 4, this.zoomLevel + dz )
     }
 
     update() {
         let game = Game.instance
         let { input } = game
 
+        let acceleration = 1 / this.zoom
         if ( input.keys.get( "w" ) ) {
-            this.velocity.y += -1
+            this.velocity.y += -acceleration
             this.targetPosition = undefined
         }
         if ( input.keys.get( "s" ) ) {
-            this.velocity.y += 1
+            this.velocity.y += acceleration
             this.targetPosition = undefined
         }
         if ( input.keys.get( "a" ) ) {
-            this.velocity.x += -1
+            this.velocity.x += -acceleration
             this.targetPosition = undefined
         }
         if ( input.keys.get( "d" ) ) {
-            this.velocity.x += 1
+            this.velocity.x += acceleration
             this.targetPosition = undefined
         }
 
         this.position = this.position.add( this.velocity )
         this.velocity = this.velocity.scale( this.velocityDecay )
-        if ( this.velocity.length < 0.5 ) {
-            this.velocity = new Vector( 0, 0 )
-            this.position.x |= 0
-            this.position.y |= 0
-        }
+        // if ( this.velocity.length < 0.5 ) {
+        //     this.velocity = new Vector( 0, 0 )
+        //     this.position.x |= 0
+        //     this.position.y |= 0
+        // }
 
         if ( this.targetPosition ) {
             let lerpTarget = this.position.lerp( this.targetPosition, 0.05 )
@@ -82,6 +89,7 @@ export default class Camera {
         }
 
         if ( this.lastDragPosition ) {
+            this.targetPosition = undefined
             let cursor = input.cursor
             let diff = this.lastDragPosition.subtract( cursor )
             let mat = Scene.relativeMatrix( game.world.scene )
@@ -101,12 +109,15 @@ export default class Camera {
 
     distFromViewport( pos: Vector ) {
         let center = Game.instance.screenCenter()
-        let dx = Math.abs( pos.x ) - center.x
-        let dy = Math.abs( pos.y ) - center.y
+        let diff = pos.subtract( center )
+        let dx = Math.abs( diff.x ) - center.x
+        let dy = Math.abs( diff.y ) - center.y
         return Math.max( dx, dy )
     }
     isInFocusArea( pos: Vector ) {
-        return this.distFromViewport( pos.subtract( this.position ) ) < -World.tileSize * 2
+        let screenDims = Game.instance.screenDimensions()
+        let pos2 = this.worldToCamera( screenDims.x, screenDims.y ).multiplyVec( pos )
+        return this.distFromViewport( pos2 ) < -World.tileSize * 2
     }
     setCameraTarget( pos: Vector ) {
         if ( this.isInFocusArea( pos ) )
