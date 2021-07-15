@@ -1,10 +1,10 @@
 import Card from "./Card"
-import Game from "./Game"
-import Graphics from "./Graphics"
-import { clamp } from "./math/math"
-import Matrix from "./math/Matrix"
-import { Vector } from "./math/Vector"
-import Scene, { SceneNode } from "./scene/Scene"
+import Game from "../Game"
+import Graphics from "../Graphics"
+import { clamp } from "../math/math"
+import Matrix from "../math/Matrix"
+import { Vector } from "../math/Vector"
+import Scene, { SceneNode } from "../Scene"
 
 export default class CardTray {
     static selectionTimeout = 500

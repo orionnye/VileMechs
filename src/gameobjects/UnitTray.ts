@@ -1,10 +1,10 @@
-import Graphics from "./Graphics"
-import Game from "./Game"
-import { Vector } from "./math/Vector"
+import Graphics from "../Graphics"
+import Game from "../Game"
+import { Vector } from "../math/Vector"
 import Unit from "./Unit"
 import World from "./World"
-import Matrix from "./math/Matrix"
-import Scene, { SceneNode } from "./scene/Scene"
+import Matrix from "../math/Matrix"
+import Scene, { SceneNode } from "../Scene"
 
 export default class UnitTray {
     private index = 0

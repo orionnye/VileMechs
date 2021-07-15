@@ -1,15 +1,15 @@
 import Unit from "./Unit"
-import Grid from "./Grid"
-import Graphics from "./Graphics"
-import { Vector } from "./math/Vector"
-import { findPath } from "./pathfinding"
-import Game from "./Game"
-import { getImg } from "./utils"
-import Matrix from "./math/Matrix"
-import Scene, { SceneNode } from "./scene/Scene"
+import Grid from "../Grid"
+import Graphics from "../Graphics"
+import { Vector } from "../math/Vector"
+import { findPath } from "../pathfinding"
+import Game from "../Game"
+import { getImg } from "../utils"
+import Matrix from "../math/Matrix"
+import Scene, { SceneNode } from "../Scene"
 
-const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
-const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
+const hillTileImg = getImg( require( "../../www/images/tiles/flat/hill5.png" ) )
+const grassTileImg = getImg( require( "../../www/images/tiles/flat/grass.png" ) )
 
 const maxPathDistance = 5
 

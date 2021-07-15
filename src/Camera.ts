@@ -2,8 +2,8 @@ import Game from "./Game"
 import { clamp } from "./math/math"
 import Matrix from "./math/Matrix"
 import { Vector } from "./math/Vector"
-import Scene from "./scene/Scene"
-import World from "./World"
+import Scene from "./Scene"
+import World from "./gameobjects/World"
 
 export default class Camera {
     position: Vector

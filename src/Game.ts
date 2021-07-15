@@ -1,16 +1,16 @@
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
-import World from './World'
+import World from './gameobjects/World'
 import Input from "./input"
 import Graphics from "./Graphics"
 import "./GlobalTypes"
-import UnitTray from './UnitTray'
+import UnitTray from './gameobjects/UnitTray'
 import { getImg } from "./utils"
-import { PickingResult, SceneNode } from "./scene/Scene"
-import Scene from "./scene/Scene"
-import CardTray from "./CardTray"
+import { PickingResult, SceneNode } from "./Scene"
+import Scene from "./Scene"
+import CardTray from "./gameobjects/CardTray"
 import { lerp } from "./math/math"
-import Card from "./Card"
+import Card from "./gameobjects/Card"
 import Camera from "./Camera"
 import Clock from "./Clock"
 
@@ -121,14 +121,10 @@ export default class Game {
     }
     onKeyup( ev: KeyboardEvent ) {
         this.camera.onKeyup( ev )
-
-        //DEV COMMANDS
         if ( ev.key == "`" )
             this.showSceneDebug = !this.showSceneDebug
         if ( ev.key == "," )
             this.showFPS = !this.showFPS
-
-        //Player buttons
         if ( ev.key == "Escape" )
             this.goBack()
         if ( ev.key == "Enter" ) {

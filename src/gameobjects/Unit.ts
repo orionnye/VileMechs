@@ -1,17 +1,17 @@
-import { randomFloor } from "./math/math"
-import { Vector } from "./math/Vector"
-import Matrix from "./math/Matrix"
-import Input from "./Input"
-import Graphics, { TextAlignX, TextAlignY } from "./Graphics"
-import names from "./names"
-import { getFrameNumber, getImg } from "./utils"
+import { randomFloor } from "../math/math"
+import { Vector } from "../math/Vector"
+import Matrix from "../math/Matrix"
+import Input from "../Input"
+import Graphics, { TextAlignX, TextAlignY } from "../Graphics"
+import names from "../names"
+import { getFrameNumber, getImg } from "../utils"
 import Card from "./Card"
-import Game from "./Game"
-import Scene, { SceneNode } from "./scene/Scene"
+import Game from "../Game"
+import Scene, { SceneNode } from "../Scene"
 
 // const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 // const baseUnitImg = getImg( require( "../www/images/MinigunMech.png" ) )
-const mechSheet = getImg( require( "../www/images/MinigunMech_sheet.png" ) )
+const mechSheet = getImg( require( "../../www/images/MinigunMech_sheet.png" ) )
 
 export default class Unit {
     name: string
