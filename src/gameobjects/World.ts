@@ -20,7 +20,7 @@ export default class World {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor() {
-        this.map = new Grid( 20, 20 )
+        this.map = new Grid( 15, 15 )
         this.units = [
             new Unit( new Vector( 1, 1 ) ),
             new Unit( new Vector( 2, 2 ) ),
@@ -90,7 +90,7 @@ export default class World {
         //  Draw unit path
         if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
-            if ( path ) {
+            if ( path && !selectedUnit.isWalking() ) {
                 let pathLength = path.length
                 let walkableLength = Math.min( path.length, maxPathDistance )
                 let trimmedSteps = path.slice( walkableLength - 1 )
@@ -171,12 +171,12 @@ export default class World {
                 height: height * tileSize,
             },
             onClick: ( node, pos: Vector ) => {
-                if ( selectedUnit && !pickingTarget ) {
+                if ( selectedUnit && !selectedUnit.isWalking() && !pickingTarget ) {
                     let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path ) {
                         path.length = Math.min( path.length, maxPathDistance )
-                        selectedUnit.pos = path[ path.length - 1 ]
+                        selectedUnit.walk( path )
                     }
                 }
             },
@@ -192,7 +192,7 @@ export default class World {
                 onRender: ( node ) => {
                     let hover = node == game.mouseOverData.node
                     let isSelected = unit == selectedUnit
-                    if ( isSelected ) {
+                    if ( isSelected && !unit.isWalking() ) {
                         g.c.shadowBlur = 10
                         g.c.shadowColor = "black"
                     }

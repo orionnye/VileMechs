@@ -20,6 +20,10 @@ export default class Graphics {
         this.size = new Vector( this.canvas.width, this.canvas.height )
     }
 
+    vTranslate( v: Vector ) {
+        this.c.translate( v.x, v.y )
+    }
+
     drawRect( pos: Vector, size: Vector, color: string = "red" ) {
         this.c.fillStyle = color
         this.c.beginPath()

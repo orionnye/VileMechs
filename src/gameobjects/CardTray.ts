@@ -84,16 +84,16 @@ export default class CardTray {
         let elevation = cardIndex == this.index ? CardTray.restingDepth : 0
         return this.handBase( handLength ).addXY( stride * cardIndex, -elevation )
     }
-
     drawPosition( handLength: number, cardIndex: number ) {
         let screenSize = Game.instance.screenDimensions()
-        let drawBase = new Vector( 10, screenSize.y - Card.dimensions.y / 3 * 2 )
-        return drawBase.addXY( cardIndex * 3, cardIndex * 3 )
+        let stride = 3, width = stride * handLength
+        let drawBase = new Vector( 10 - width / 2, screenSize.y - Card.dimensions.y / 3 * 2 - width / 2 )
+        return drawBase.addXY( cardIndex * 3, cardIndex * 3 - width / 2 )
     }
-
     discardPosition( handLength: number, cardIndex: number ) {
         let screenSize = Game.instance.screenDimensions()
-        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 20, screenSize.y - Card.dimensions.y / 3 * 2 )
+        let stride = 3, width = stride * handLength
+        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width / 2, screenSize.y - Card.dimensions.y / 3 * 2 - width / 2 )
         return discardBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
 
