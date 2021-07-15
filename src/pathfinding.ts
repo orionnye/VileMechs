@@ -35,7 +35,7 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
 
     if ( origin.equals( destination ) )
         return [ origin ]
-    if ( !world.isWalkable( destination ) ) // || !world.isWalkable( from ) )
+    if ( !world.isWalkable( destination ) )
         return null
 
     let destKey = destination.toString()

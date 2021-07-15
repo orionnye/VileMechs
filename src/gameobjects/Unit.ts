@@ -16,6 +16,7 @@ const mechSheet = getImg( require( "../../www/images/MinigunMech_sheet.png" ) )
 
 export default class Unit {
     name: string
+    teamId: number
     pos: Vector
     speed: number
     energy: number
@@ -32,8 +33,11 @@ export default class Unit {
     walkAnimRate: number = 10 // Tiles per second
     walkAnimPath?: Vector[]
 
-    constructor( pos ) {
+    hasMovedThisTurn: boolean = false
+
+    constructor( pos, teamId ) {
         this.name = names[ randomFloor( names.length ) ]
+        this.teamId = teamId
         this.pos = pos
         this.speed = 4
         this.energy = 2
@@ -48,6 +52,7 @@ export default class Unit {
             this.discard.push( new Card() )
     }
 
+    // Model
     addHealth( amount: number ) {
         this.health += amount
         if ( amount < 0 ) {
@@ -56,14 +61,21 @@ export default class Unit {
         }
     }
 
-    walk( path: Vector[] ) {
+    move( path: Vector[] ) {
+        if ( this.hasMovedThisTurn )
+            throw new Error( "Should not be trying to move when a unit has already moved this turn." )
+        this.hasMovedThisTurn = true
         this.pos = path[ path.length - 1 ]
         this.walkAnimStep = 0
         this.walkAnimPath = path
     }
 
-    isWalking() {
-        return this.walkAnimPath != undefined
+    isOnActiveTeam() { return this.teamId == Game.instance.turn }
+    canMove() { return !this.isWalking() && !this.hasMovedThisTurn }
+    isWalking() { return this.walkAnimPath != undefined }
+
+    onEndTurn() {
+        this.hasMovedThisTurn = false
     }
 
     update() {
@@ -77,6 +89,7 @@ export default class Unit {
         }
     }
 
+    // View
     render( animate = true, showName = true ) {
         let g = Graphics.instance
         let frame = animate ? getFrameNumber( 2, 2 ) : 0

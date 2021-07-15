@@ -29,6 +29,9 @@ export default class Game {
     showFPS = false
     clock = new Clock()
 
+    numberOfTeams = 2
+    turn = 0
+
     constructor() {
         Game.instance = this
         window.addEventListener( "click", ev => this.onClick( ev ) )
@@ -40,7 +43,7 @@ export default class Game {
     }
 
     // Model
-    playerUnits() { return this.world.units }
+    playerUnits() { return this.world.units.filter( unit => unit.teamId == this.turn ) }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
     isPickingTarget() { return this.cardTray.isPickingTarget }
@@ -69,6 +72,13 @@ export default class Game {
             unit.discard.push( card )
             card.apply( pos )
         }
+    }
+    endTurn() {
+        this.turn++
+        this.turn %= this.numberOfTeams
+        for ( let unit of this.world.units )
+            unit.onEndTurn()
+        this.unitTray.setUnitIndex( 0 )
     }
     update() {
         this.clock.nextFrame()
@@ -125,7 +135,7 @@ export default class Game {
         if ( ev.key == "Escape" )
             this.goBack()
         if ( ev.key == "Enter" ) {
-            console.log( "This needs to cycle cards" )
+            this.endTurn()
         }
     }
 

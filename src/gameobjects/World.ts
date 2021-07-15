@@ -22,10 +22,14 @@ export default class World {
     constructor() {
         this.map = new Grid( 15, 15 )
         this.units = [
-            new Unit( new Vector( 1, 1 ) ),
-            new Unit( new Vector( 2, 2 ) ),
-            new Unit( new Vector( 7, 7 ) ),
-            new Unit( new Vector( 8, 8 ) ),
+            new Unit( new Vector( 1, 1 ), 0 ),
+            new Unit( new Vector( 2, 2 ), 0 ),
+            new Unit( new Vector( 3, 1 ), 0 ),
+            new Unit( new Vector( 4, 2 ), 0 ),
+            new Unit( new Vector( 13, 13 ), 1 ),
+            new Unit( new Vector( 12, 12 ), 1 ),
+            new Unit( new Vector( 11, 13 ), 1 ),
+            new Unit( new Vector( 10, 12 ), 1 )
         ]
 
         let randomTerrain = true
@@ -90,7 +94,7 @@ export default class World {
         //  Draw unit path
         if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
-            if ( path && !selectedUnit.isWalking() ) {
+            if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length
                 let walkableLength = Math.min( path.length, maxPathDistance )
                 let trimmedSteps = path.slice( walkableLength - 1 )
@@ -171,12 +175,12 @@ export default class World {
                 height: height * tileSize,
             },
             onClick: ( node, pos: Vector ) => {
-                if ( selectedUnit && !selectedUnit.isWalking() && !pickingTarget ) {
+                if ( selectedUnit && selectedUnit.canMove() && !pickingTarget ) {
                     let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path ) {
                         path.length = Math.min( path.length, maxPathDistance )
-                        selectedUnit.walk( path )
+                        selectedUnit.move( path )
                     }
                 }
             },
@@ -188,7 +192,7 @@ export default class World {
                 color: "red",
                 localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                 rect: { width: tileSize, height: tileSize },
-                onClick: () => game.unitTray.toggleSelectIndex( i ),
+                onClick: () => game.unitTray.toggleSelectUnit( unit ),
                 onRender: ( node ) => {
                     let hover = node == game.mouseOverData.node
                     let isSelected = unit == selectedUnit

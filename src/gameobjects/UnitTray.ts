@@ -20,7 +20,7 @@ export default class UnitTray {
     }
 
     setUnitIndex( index: number ) {
-        this.hasUnitSelected = true
+        this.hasUnitSelected = index > -1
         this.index = index
         Game.instance.onSelectUnit()
     }
@@ -35,6 +35,11 @@ export default class UnitTray {
             this.deselect()
         else
             this.setUnitIndex( index )
+    }
+
+    toggleSelectUnit( unit: Unit ) {
+        let index = Game.instance.playerUnits().indexOf( unit )
+        this.toggleSelectIndex( index )
     }
 
     numberOfUnits() {
