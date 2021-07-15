@@ -16,7 +16,7 @@ const mechSheet = getImg( require( "../../www/images/MinigunMech_sheet.png" ) )
 
 export default class Unit {
     name: string
-    teamId: number
+    teamNumber: number
     pos: Vector
     speed: number
     energy: number
@@ -35,9 +35,9 @@ export default class Unit {
 
     hasMovedThisTurn: boolean = false
 
-    constructor( pos, teamId ) {
+    constructor( pos, teamNumber ) {
         this.name = names[ randomFloor( names.length ) ]
-        this.teamId = teamId
+        this.teamNumber = teamNumber
         this.pos = pos
         this.speed = 4
         this.energy = 2
@@ -70,7 +70,7 @@ export default class Unit {
         this.walkAnimPath = path
     }
 
-    isOnActiveTeam() { return this.teamId == Game.instance.turn }
+    isOnActiveTeam() { return this.teamNumber == Game.instance.turn }
     canMove() { return !this.isWalking() && !this.hasMovedThisTurn }
     isWalking() { return this.walkAnimPath != undefined }
 
@@ -107,14 +107,16 @@ export default class Unit {
         }
 
         let doShake = animate && this.hurtTime > 0
-        if ( doShake ) {
-            g.c.save()
-            let shake = Vector.lissajous( this.hurtTime, 13, 10, 2, 1, 0, 0 )
-            g.c.translate( shake.x, shake.y )
+        let flip = Game.instance.teams[ this.teamNumber ].flipUnits
+        g.c.save()
+        if ( doShake )
+            g.vTranslate( Vector.lissajous( this.hurtTime, 13, 10, 2, 1, 0, 0 ) )
+        if ( flip ) {
+            g.c.translate( 32, 0 )
+            g.c.scale( -1, 1 )
         }
         g.drawSheetFrame( mechSheet, 32, 0, 0, frame )
-        if ( doShake )
-            g.c.restore()
+        g.c.restore()
 
         if ( showName && !isWalking ) {
             g.c.shadowBlur = 0

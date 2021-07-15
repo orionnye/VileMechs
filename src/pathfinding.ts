@@ -2,21 +2,27 @@ import { Vector } from "./math/Vector"
 import World from "./gameobjects/World"
 
 const offsetOrderings = [
-    //  Horizontal-first ordering
-    [
-        new Vector( 1, 0 ),
-        new Vector( -1, 0 ),
-        new Vector( 0, 1 ),
-        new Vector( 0, -1 ),
+    [ //  Horizontal-first ordering
+        new Vector( 1, 0 ), new Vector( -1, 0 ),
+        new Vector( 0, 1 ), new Vector( 0, -1 ),
     ],
-    //  Vertical first ordering
-    [
-        new Vector( 0, 1 ),
-        new Vector( 0, -1 ),
-        new Vector( 1, 0 ),
-        new Vector( -1, 0 ),
+    [ //  Vertical first ordering
+        new Vector( 0, 1 ), new Vector( 0, -1 ),
+        new Vector( 1, 0 ), new Vector( -1, 0 ),
     ],
 ]
+function getMoves( tilePairity: number, useDiagnols = true ) {
+    if ( useDiagnols )
+        return [
+            new Vector( 1, 0 ), new Vector( -1, 0 ),
+            new Vector( 0, 1 ), new Vector( 0, -1 ),
+
+            new Vector( 1, 1 ), new Vector( -1, 1 ),
+            new Vector( -1, -1 ), new Vector( 1, -1 ),
+        ]
+    else
+        return offsetOrderings[ tilePairity ]
+}
 
 export function findPath( world: World, origin: Vector, destination: Vector, maxDepth = 4 ) {
     type Node = { pos: Vector, parent: Node | null }
@@ -51,12 +57,17 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
             //  Alternating between vertical-first and horizontal-first leads
             //  to a preference for zigzagging paths over large L-shaped paths.
             let pairity = ( node.pos.x + node.pos.y ) % 2
-            let offsets = offsetOrderings[ pairity ]
+            let offsets = getMoves( pairity )
 
             for ( let offset of offsets ) {
                 let pos2 = node.pos.add( offset )
                 if ( !world.isWalkable( pos2 ) )
                     continue
+                if ( Math.abs( offset.x ) > 0 && Math.abs( offset.y ) > 0 ) {
+                    let pos3 = node.pos.add( offset ).addXY( -offset.x, 0 )
+                    let pos4 = node.pos.add( offset ).addXY( 0, -offset.y )
+                    if ( !world.isWalkable( pos3 ) && !world.isWalkable( pos4 ) ) continue
+                }
                 let key = pos2.toString()
                 if ( visited.has( key ) )
                     continue

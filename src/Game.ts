@@ -2,7 +2,7 @@ import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
 import World from './gameobjects/World'
 import Input from "./common/Input"
-import Graphics from "./Graphics"
+import Graphics, { TextAlignX } from "./Graphics"
 import "./GlobalTypes"
 import UnitTray from './gameobjects/UnitTray'
 import { PickingResult, SceneNode } from "./Scene"
@@ -10,6 +10,8 @@ import Scene from "./Scene"
 import CardTray from "./gameobjects/CardTray"
 import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
+
+type Team = { name: string, flipUnits: boolean }
 
 export default class Game {
     static instance: Game
@@ -29,7 +31,10 @@ export default class Game {
     showFPS = false
     clock = new Clock()
 
-    numberOfTeams = 2
+    teams: Team[] = [
+        { name: "Drunken Scholars", flipUnits: false },
+        { name: "Choden Warriors", flipUnits: true }
+    ]
     turn = 0
 
     constructor() {
@@ -43,7 +48,7 @@ export default class Game {
     }
 
     // Model
-    playerUnits() { return this.world.units.filter( unit => unit.teamId == this.turn ) }
+    playerUnits() { return this.world.units.filter( unit => unit.teamNumber == this.turn ) }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
     isPickingTarget() { return this.cardTray.isPickingTarget }
@@ -75,7 +80,7 @@ export default class Game {
     }
     endTurn() {
         this.turn++
-        this.turn %= this.numberOfTeams
+        this.turn %= this.teams.length
         for ( let unit of this.world.units )
             unit.onEndTurn()
         this.unitTray.setUnitIndex( 0 )
@@ -161,10 +166,18 @@ export default class Game {
         }
     }
     makeSceneNode() {
+        let g = Graphics.instance
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.selectedUnit()
         let { startNode, endNode } = Scene
-        this.scene = startNode( { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) } )
+        this.scene = startNode( {
+            localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
+            onRenderPost: () => {
+                let center = this.screenCenter()
+                g.setFont( 6, "pixel" )
+                g.drawTextBox( new Vector( center.x, 0 ), this.teams[ this.turn ].name, { textColor: "#c2c2c2", boxColor: "#696969", alignX: TextAlignX.center } )
+            }
+        } )
         {
             world.makeSceneNode()
             unitTray.makeSceneNode()

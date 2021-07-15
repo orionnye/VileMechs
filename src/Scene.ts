@@ -11,6 +11,7 @@ export interface SceneNode {
     onClick?: ( node: SceneNode, pos: Vector ) => void
     onHover?: ( node: SceneNode, pos: Vector ) => void
     onRender?: ( node: SceneNode ) => void
+    onRenderPost?: ( node: SceneNode ) => void
     // Debug fields
     color?: string
     description?: string
@@ -71,6 +72,8 @@ export default class Scene {
         if ( node.children )
             for ( let child of node.children )
                 Scene.render( c, child, debug )
+        if ( node.onRenderPost )
+            node.onRenderPost( node )
         c.restore()
     }
 
