@@ -65,7 +65,7 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
                 if ( Math.abs( offset.x ) > 0 && Math.abs( offset.y ) > 0 ) {
                     // Check that diagonal move isn't between two obstacles.
                     let freeAlongX = world.isWalkable( node.pos.addXY( offset.x, 0 ) )
-                    let freeAlongY = world.isWalkable( node.pos.addXY( offset.y, 0 ) )
+                    let freeAlongY = world.isWalkable( node.pos.addXY( 0, offset.y ) )
                     if ( !freeAlongX && !freeAlongY )
                         continue
                 }
