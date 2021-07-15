@@ -11,8 +11,8 @@ const offsetOrderings = [
         new Vector( 1, 0 ), new Vector( -1, 0 ),
     ],
 ]
-function getMoves( tilePairity: number, useDiagnols = true ) {
-    if ( useDiagnols )
+function getMoves( tilePairity: number, useDiagonals = false ) {
+    if ( useDiagonals )
         return [
             new Vector( 1, 0 ), new Vector( -1, 0 ),
             new Vector( 0, 1 ), new Vector( 0, -1 ),
@@ -22,6 +22,8 @@ function getMoves( tilePairity: number, useDiagnols = true ) {
         ]
     else
         return offsetOrderings[ tilePairity ]
+    //  Alternating between vertical-first and horizontal-first leads
+    //  to a preference for zigzagging paths over large L-shaped paths.
 }
 
 export function findPath( world: World, origin: Vector, destination: Vector, maxDepth = 4 ) {
@@ -53,9 +55,6 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
 
     for ( let i = 0; i < maxDepth; i++ ) {
         for ( let node of currLayer ) {
-
-            //  Alternating between vertical-first and horizontal-first leads
-            //  to a preference for zigzagging paths over large L-shaped paths.
             let pairity = ( node.pos.x + node.pos.y ) % 2
             let offsets = getMoves( pairity )
 
@@ -64,9 +63,11 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
                 if ( !world.isWalkable( pos2 ) )
                     continue
                 if ( Math.abs( offset.x ) > 0 && Math.abs( offset.y ) > 0 ) {
-                    let pos3 = node.pos.add( offset ).addXY( -offset.x, 0 )
-                    let pos4 = node.pos.add( offset ).addXY( 0, -offset.y )
-                    if ( !world.isWalkable( pos3 ) && !world.isWalkable( pos4 ) ) continue
+                    // Check that diagonal move isn't between two obstacles.
+                    let freeAlongX = world.isWalkable( node.pos.addXY( offset.x, 0 ) )
+                    let freeAlongY = world.isWalkable( node.pos.addXY( offset.y, 0 ) )
+                    if ( !freeAlongX && !freeAlongY )
+                        continue
                 }
                 let key = pos2.toString()
                 if ( visited.has( key ) )
