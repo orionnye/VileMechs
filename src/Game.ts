@@ -89,7 +89,7 @@ export default class Game {
     onClick( ev: MouseEvent ) {
         let cursor = this.input.cursor
         let { node, point } = Scene.pick( this.scene, cursor )
-        if ( node ) {
+        if ( node && !this.input.keys.get( "shift" ) ) {
             if ( node.onClick )
                 node.onClick( node, point )
         }
@@ -105,7 +105,8 @@ export default class Game {
             let worldClicked = node == this.world.scene
             let nothingClicked = node == undefined
             let unitSelected = this.unitTray.selectedUnit() !== undefined
-            let canLeftClickDrag = ( worldClicked || nothingClicked ) && !unitSelected
+            let isMovingUnit = unitSelected && !this.isPickingTarget()
+            let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || this.input.keys.get( "shift" )
             if ( canLeftClickDrag || middleClick )
                 this.camera.startDragging()
         } else if ( rightClick ) {
