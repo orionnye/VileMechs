@@ -2,7 +2,7 @@ import Game from "../Game"
 import Graphics from "../Graphics"
 import { Vector } from "../math/Vector"
 import Unit from "./Unit"
-import { randomColor } from "../utils"
+import { randomColor } from "../common/utils"
 import World from "./World"
 
 export default class Card {

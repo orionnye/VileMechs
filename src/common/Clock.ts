@@ -1,4 +1,4 @@
-import { lerp } from "./math/math"
+import { lerp } from "../math/math"
 
 export default class Clock {
     static instance: Clock

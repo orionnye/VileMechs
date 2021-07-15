@@ -1,18 +1,15 @@
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
 import World from './gameobjects/World'
-import Input from "./input"
+import Input from "./common/Input"
 import Graphics from "./Graphics"
 import "./GlobalTypes"
 import UnitTray from './gameobjects/UnitTray'
-import { getImg } from "./utils"
 import { PickingResult, SceneNode } from "./Scene"
 import Scene from "./Scene"
 import CardTray from "./gameobjects/CardTray"
-import { lerp } from "./math/math"
-import Card from "./gameobjects/Card"
-import Camera from "./Camera"
-import Clock from "./Clock"
+import Camera from "./gameobjects/Camera"
+import Clock from "./common/Clock"
 
 export default class Game {
     static instance: Game

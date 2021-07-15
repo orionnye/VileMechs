@@ -1,5 +1,5 @@
-import { Vector } from "./math/Vector"
-import Tile from "./tile"
+import { Vector } from "../math/Vector"
+import Tile from "./Tile"
 
 export default class Grid {
     private content: Tile[]

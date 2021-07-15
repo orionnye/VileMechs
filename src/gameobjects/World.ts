@@ -1,10 +1,10 @@
 import Unit from "./Unit"
-import Grid from "../Grid"
+import Grid from "../map/Grid"
 import Graphics from "../Graphics"
 import { Vector } from "../math/Vector"
 import { findPath } from "../pathfinding"
 import Game from "../Game"
-import { getImg } from "../utils"
+import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
 
