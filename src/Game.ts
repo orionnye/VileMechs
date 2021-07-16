@@ -10,6 +10,7 @@ import Scene from "./Scene"
 import CardTray from "./gameobjects/CardTray"
 import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
+import Unit from "./gameobjects/Unit"
 
 type Team = { name: string, flipUnits: boolean }
 
@@ -45,6 +46,7 @@ export default class Game {
         window.addEventListener( "wheel", ev => this.onWheel( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
+        this.moveCamToFirstUnit()
     }
 
     // Model
@@ -56,7 +58,13 @@ export default class Game {
         this.cardTray.onSelectUnit()
         let selectedUnit = this.selectedUnit()
         if ( selectedUnit )
-            this.camera.setCameraTarget( selectedUnit.pos.addXY( .5, .5 ).scale( World.tileSize ) )
+            this.moveCamToUnit( selectedUnit )
+    }
+    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( World.tileSize ) ) }
+    moveCamToFirstUnit() {
+        let units = this.playerUnits()
+        if ( units.length == 0 ) return
+        this.moveCamToUnit( units[ 0 ] )
     }
     goBack() {
         let { unitTray, cardTray } = this
@@ -83,7 +91,8 @@ export default class Game {
         this.turn %= this.teams.length
         for ( let unit of this.world.units )
             unit.onEndTurn()
-        this.unitTray.setUnitIndex( 0 )
+        this.unitTray.deselect()
+        this.moveCamToFirstUnit()
     }
     update() {
         this.clock.nextFrame()

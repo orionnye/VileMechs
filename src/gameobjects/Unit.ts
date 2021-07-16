@@ -120,7 +120,10 @@ export default class Unit {
 
         if ( showName && !isWalking ) {
             g.c.shadowBlur = 0
-            g.setFont( 3, "pixel" )
+            if ( 0 )
+                g.setFont( 3.5, "pixel" )
+            else
+                g.setFont( 4, "pixel2" )
             let name = this.name
             const maxLength = 8
             if ( name.length > maxLength )
