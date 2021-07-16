@@ -3,14 +3,11 @@ import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
 
-// Results from getTagets should include empty tiles even if the card cannot apply to empty tiles.
-// The method is used to render target indicators, and showing empty targets gives the user a feel
-// for the range of a card.
 export type CardType = {
     name: string,
     color: string,
     canApplyToEmptyTiles: boolean
-    getTargets: ( user: Unit ) => Vector[]
+    getTilesInRange: ( user: Unit ) => Vector[]
     onApply?: ( user: Unit ) => void
     onApplyToTile?: ( user: Unit, pos: Vector, target?: Unit ) => void
 }
@@ -20,7 +17,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         name: "Laser",
         color: "#f54242",
         canApplyToEmptyTiles: false,
-        getTargets: ( user ) => rookStyleTargets( user.pos, { range: 3 } ),
+        getTilesInRange: ( user ) => rookStyleTargets( user.pos, { range: 3 } ),
         onApplyToTile: ( user, pos, target ) => {
             target?.addHealth( -5 )
         }
@@ -29,7 +26,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         name: "Repair",
         color: "#32a852",
         canApplyToEmptyTiles: false,
-        getTargets: ( user ) => targetsWithinRadius( user.pos, 2 ),
+        getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 2 ),
         onApplyToTile: ( user, pos, target ) => {
             target?.addHealth( 5 )
         }
@@ -73,6 +70,17 @@ function rookStyleTargets(
     targetsAlongLine( pos, new Vector( 0, 1 ), { range, ignoreObstacles, result } )
     targetsAlongLine( pos, new Vector( 0, -1 ), { range, ignoreObstacles, result } )
     return result
+}
+
+function bishopStyleTargets(
+    pos: Vector,
+    { range = Infinity, ignoreObstacles = false, result = [] }:
+        { range?: number, ignoreObstacles?: boolean, result?: Vector[] }
+) {
+    targetsAlongLine( pos, new Vector( 1, 0 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( -1, 0 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( 0, 1 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( 0, -1 ), { range, ignoreObstacles, result } )
 }
 
 function targetsWithinRadius( pos: Vector, radius: number, result: Vector[] = [] ) {

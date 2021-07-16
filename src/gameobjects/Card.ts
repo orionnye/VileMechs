@@ -25,21 +25,8 @@ export default class Card {
         g.drawText( Vector.one, this.type.name, "#f0ead8" )
     }
 
-    getTargets( user: Unit ) {
-        return this.type.getTargets( user )
-        // let result: Vector[] = []
-        // let { x, y } = user.pos
-        // for ( let dy = -2; dy <= 2; dy++ )
-        //     for ( let dx = -2; dx <= 2; dx++ )
-        //         if ( Math.abs( dx ) + Math.abs( dy ) < 3 && Math.abs( dx ) + Math.abs( dy ) > 0 )
-        //             result.push( new Vector( x + dx, y + dy ) )
-        // return result
-        // return [
-        //     user.pos.addXY( 1, 0 ),
-        //     user.pos.addXY( -1, 0 ),
-        //     user.pos.addXY( 0, 1 ),
-        //     user.pos.addXY( 0, -1 ),
-        // ]
+    getTilesInRange( user: Unit ) {
+        return this.type.getTilesInRange( user )
     }
 
     apply( user: Unit, pos: Vector, target?: Unit ) {

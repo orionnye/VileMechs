@@ -34,7 +34,7 @@ export default class World {
 
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize( 0.1 )
+            this.map.randomize( 0.2 )
             for ( let unit of this.units ) {
                 this.map.set( unit.pos, 0 )
             }
@@ -208,7 +208,7 @@ export default class World {
         if ( pickingTarget ) {
             let card = game.selectedCard()
             if ( selectedUnit && card ) {
-                for ( let pos of card?.getTargets( selectedUnit ) ) {
+                for ( let pos of card?.getTilesInRange( selectedUnit ) ) {
                     let unit = this.getUnit( pos )
                     let isValidTarget = unit || card?.type.canApplyToEmptyTiles
                     terminalNode( {
