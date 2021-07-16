@@ -11,7 +11,7 @@ import Scene, { SceneNode } from "../Scene"
 const hillTileImg = getImg( require( "../../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../../www/images/tiles/flat/grass.png" ) )
 
-const maxPathDistance = 5
+const maxPathDistance = 7
 
 export default class World {
     static tileSize = 32
@@ -34,7 +34,7 @@ export default class World {
 
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize( 0.3 )
+            this.map.randomize( 0.1 )
             for ( let unit of this.units ) {
                 this.map.set( unit.pos, 0 )
             }
@@ -54,8 +54,8 @@ export default class World {
                 return unit
     }
 
-    isWalkable( pos: Vector ) {
-        if ( this.getUnit( pos ) )
+    isWalkable( pos: Vector, checkUnits = true ) {
+        if ( checkUnits && this.getUnit( pos ) )
             return false
         return this.map.contains( pos ) && this.map.isEmpty( pos )
     }
@@ -70,6 +70,7 @@ export default class World {
     }
 
     update() {
+        this.units = this.units.filter( unit => unit.health > 0 )
         for ( let unit of this.units )
             unit.update()
     }
@@ -208,16 +209,23 @@ export default class World {
             let card = game.selectedCard()
             if ( selectedUnit && card ) {
                 for ( let pos of card?.getTargets( selectedUnit ) ) {
+                    let unit = this.getUnit( pos )
+                    let isValidTarget = unit || card?.type.canApplyToEmptyTiles
                     terminalNode( {
                         description: "card-target",
                         color: "purple",
                         localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
-                        onClick: () => game.applyCardAt( pos ),
+                        onClick: () => {
+                            if ( isValidTarget )
+                                game.applyCardAt( pos )
+                        },
                         onRender: ( node ) => {
                             let hover = node == game.mouseOverData.node
-                            g.c.fillStyle = hover ? "rgba(135, 231, 255, .35)" : "rgba(3, 202, 252, .35)"
-                            g.c.strokeStyle = "rgba(0, 173, 217, .35)"
+                            let highlight = hover && isValidTarget
+                            let alpha = isValidTarget ? .5 : .15
+                            g.c.fillStyle = highlight ? `rgba(135, 231, 255, ${ alpha })` : `rgba(3, 202, 252, ${ alpha })`
+                            g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
                             g.c.beginPath()
                             g.c.rect( 0, 0, tileSize, tileSize )
                             g.c.fill()

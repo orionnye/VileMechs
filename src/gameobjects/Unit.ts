@@ -1,4 +1,4 @@
-import { randomFloor } from "../math/math"
+import { clamp, randomFloor } from "../math/math"
 import { Vector } from "../math/Vector"
 import Matrix from "../math/Matrix"
 import Input from "../common/Input"
@@ -22,6 +22,7 @@ export default class Unit {
     energy: number
     color: string
     health: number
+    maxHealth: number
 
     hurtTime: number = 0
 
@@ -43,6 +44,7 @@ export default class Unit {
         this.energy = 2
         this.color = "red"
         this.health = 10
+        this.maxHealth = 10
 
         for ( let i = 0; i < 4; i++ )
             this.hand.push( new Card() )
@@ -55,10 +57,9 @@ export default class Unit {
     // Model
     addHealth( amount: number ) {
         this.health += amount
-        if ( amount < 0 ) {
-            console.log( this.hurtTime )
+        this.health = clamp( 0, this.maxHealth, this.health )
+        if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
-        }
     }
 
     move( path: Vector[] ) {
@@ -70,7 +71,6 @@ export default class Unit {
         this.walkAnimPath = path
     }
 
-    isOnActiveTeam() { return this.teamNumber == Game.instance.turn }
     canMove() { return !this.isWalking() && !this.hasMovedThisTurn }
     isWalking() { return this.walkAnimPath != undefined }
 

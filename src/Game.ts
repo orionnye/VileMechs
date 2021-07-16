@@ -83,7 +83,8 @@ export default class Game {
                 throw new Error( "Selected card is not in selected unit's hand." )
             unit.hand.splice( index, 1 )
             unit.discard.push( card )
-            card.apply( pos )
+            let world = this.world
+            card.apply( unit, pos, world.getUnit( pos ) )
         }
     }
     endTurn() {
