@@ -90,8 +90,9 @@ export default class Game {
     endTurn() {
         this.turn++
         this.turn %= this.teams.length
-        for ( let unit of this.world.units )
+        for ( let unit of this.world.units ) {
             unit.onEndTurn()
+        }
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
     }

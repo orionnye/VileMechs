@@ -11,6 +11,8 @@ import Scene, { SceneNode } from "../Scene"
 const hillTileImg = getImg( require( "../../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../../www/images/tiles/flat/grass.png" ) )
 
+const vineMech = getImg( require( "../../www/images/units/Vinecent1.png" ) )
+
 const maxPathDistance = 7
 
 export default class World {
@@ -22,10 +24,10 @@ export default class World {
     constructor() {
         this.map = new Grid( 15, 15 )
         this.units = [
-            new Unit( new Vector( 1, 1 ), 0 ),
-            new Unit( new Vector( 2, 2 ), 0 ),
-            new Unit( new Vector( 3, 1 ), 0 ),
-            new Unit( new Vector( 4, 2 ), 0 ),
+            new Unit( new Vector( 1, 1 ), 0, vineMech ),
+            new Unit( new Vector( 2, 2 ), 0, vineMech ),
+            new Unit( new Vector( 3, 1 ), 0, vineMech ),
+            new Unit( new Vector( 4, 2 ), 0, vineMech ),
             new Unit( new Vector( 13, 13 ), 1 ),
             new Unit( new Vector( 12, 12 ), 1 ),
             new Unit( new Vector( 11, 13 ), 1 ),

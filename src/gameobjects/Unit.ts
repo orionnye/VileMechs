@@ -13,8 +13,10 @@ import World from "./World"
 // const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 // const baseUnitImg = getImg( require( "../www/images/MinigunMech.png" ) )
 const mechSheet = getImg( require( "../../www/images/MinigunMech_sheet.png" ) )
+// const mechSheet = getImg( require( "../../www/images/units/Vinecent1.png" ) )
 
 export default class Unit {
+    sprite: HTMLImageElement
     name: string
     teamNumber: number
     pos: Vector
@@ -28,6 +30,7 @@ export default class Unit {
 
     draw: Card[] = []
     hand: Card[] = []
+    handMax: number = 4
     discard: Card[] = []
 
     walkAnimStep: number = 0
@@ -36,7 +39,8 @@ export default class Unit {
 
     hasMovedThisTurn: boolean = false
 
-    constructor( pos, teamNumber ) {
+    constructor( pos, teamNumber, sprite: HTMLImageElement = mechSheet ) {
+        this.sprite = sprite
         this.name = names[ randomFloor( names.length ) ]
         this.teamNumber = teamNumber
         this.pos = pos
@@ -70,12 +74,45 @@ export default class Unit {
         this.walkAnimStep = 0
         this.walkAnimPath = path
     }
+    emptyHand() {
+        let { hand, discard } = this
+        for (let i = hand.length; i > 0; i--) {
+            let card = <Card> hand.pop()
+            discard.push(card)
+        }
+    }
+    fillHand() {
+        let { draw, hand, handMax, discard } = this
+        let { length } = draw
+        for ( let i = length < handMax ? length : handMax; i > 0; i-- ) {
+            let card = <Card> draw.pop()
+            hand.push(card)
+        }
+        //extra shuffle and draw if the drawpile was a bit low
+        if ( hand.length < handMax ) {
+            console.log("Hand is underFilled")
+            //empty discard into draw
+            for (let i = discard.length; i > 0; i--) {
+                let card = <Card> discard.pop()
+                draw.push(card)
+            }
+            //draws Missing amount if there are enough cards to allow it
+            length = draw.length
+            let remainder = handMax - hand.length
+            for ( let i = length < remainder ? length : remainder; i > 0; i-- ) {
+                let card = <Card> draw.pop()
+                hand.push(card)
+            }
+        }
+    }
 
     canMove() { return !this.isWalking() && !this.hasMovedThisTurn }
     isWalking() { return this.walkAnimPath != undefined }
 
     onEndTurn() {
         this.hasMovedThisTurn = false
+        this.emptyHand()
+        this.fillHand()
     }
 
     update() {
@@ -115,7 +152,7 @@ export default class Unit {
             g.c.translate( 32, 0 )
             g.c.scale( -1, 1 )
         }
-        g.drawSheetFrame( mechSheet, 32, 0, 0, frame )
+        g.drawSheetFrame( this.sprite, 32, 0, 0, frame )
         g.c.restore()
 
         if ( showName && !isWalking ) {
