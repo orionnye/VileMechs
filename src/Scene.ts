@@ -15,7 +15,7 @@ export interface SceneNode {
     onRender?: ( node: SceneNode ) => void
     onRenderPost?: ( node: SceneNode ) => void
     // Debug fields
-    color?: string
+    debugColor?: string
     description?: string
 }
 
@@ -56,9 +56,9 @@ export default class Scene {
         c.transform( m11, m21, m12, m22, m13, m23 )
         if ( node.onRender )
             node.onRender( node )
-        if ( debug && node.rect != null && node.color != null ) {
+        if ( debug && node.rect != null && node.debugColor != null ) {
             c.globalAlpha = 0.25
-            c.fillStyle = node.color
+            c.fillStyle = node.debugColor
             c.fillRect( 0, 0, node.rect.width, node.rect.height )
             c.globalAlpha = 1
         }

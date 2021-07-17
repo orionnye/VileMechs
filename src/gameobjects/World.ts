@@ -170,7 +170,6 @@ export default class World {
 
         this.scene = Scene.node( {
             description: "world",
-            color: "yellow",
             localMatrix: game.cameraTransform(),
             rect: { width: width * tileSize, height: height * tileSize, },
             onClick: ( node, pos: Vector ) => {
@@ -188,7 +187,6 @@ export default class World {
                 units.forEach( ( unit, i ) => {
                     Scene.node( {
                         description: "unit",
-                        color: "red",
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
                         onClick: () => game.unitTray.toggleSelectUnit( unit ),
@@ -211,7 +209,6 @@ export default class World {
                             let isValidTarget = unit || card?.type.canApplyToEmptyTiles
                             Scene.node( {
                                 description: "card-target",
-                                color: "purple",
                                 localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
                                 rect: { width: tileSize, height: tileSize },
                                 onClick: () => {

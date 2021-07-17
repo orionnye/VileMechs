@@ -87,7 +87,6 @@ export default class UnitTray {
                         description: "tray-unit",
                         localMatrix: Matrix.translation( 1, unitTrayStride * i ),
                         rect: { width: World.tileSize, height: World.tileSize },
-                        color: "blue",
                         onClick: () => this.toggleSelectIndex( i ),
                         onRender: () => {
                             unit.render( false )

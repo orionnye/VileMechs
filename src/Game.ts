@@ -165,7 +165,7 @@ export default class Game {
         g.c.textBaseline = "top"
         let picked = Scene.pickNode( this.scene, this.input.cursor )
         if ( this.showSceneDebug ) {
-            if ( picked ) picked.color = "white"
+            if ( picked ) picked.debugColor = "white"
             Scene.render( g.c, this.scene, true )
             g.setFont( 12, "pixel" )
             g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), picked?.description ?? "", "white" )

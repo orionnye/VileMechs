@@ -111,12 +111,10 @@ export default class CardTray {
             description: "card-tray",
             localMatrix: Matrix.vTranslation( this.handBase( hand.length ) ),
             rect: { width, height: Card.dimensions.y },
-            color: "white"
         } )
 
         hand.forEach( ( card, i ) => Scene.node( {
             description: "card-hand",
-            color: "orange",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
@@ -134,7 +132,6 @@ export default class CardTray {
 
         draw.forEach( ( card, i ) => Scene.node( {
             description: "card-draw",
-            color: "orange",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render()
@@ -142,7 +139,6 @@ export default class CardTray {
 
         discard.forEach( ( card, i ) => Scene.node( {
             description: "card-discard",
-            color: "orange",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render()
