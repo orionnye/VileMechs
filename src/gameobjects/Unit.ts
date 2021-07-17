@@ -76,32 +76,32 @@ export default class Unit {
     }
     emptyHand() {
         let { hand, discard } = this
-        for (let i = hand.length; i > 0; i--) {
-            let card = <Card> hand.pop()
-            discard.push(card)
+        for ( let i = hand.length; i > 0; i-- ) {
+            let card = <Card>hand.pop()
+            discard.push( card )
         }
     }
     fillHand() {
         let { draw, hand, handMax, discard } = this
         let { length } = draw
         for ( let i = length < handMax ? length : handMax; i > 0; i-- ) {
-            let card = <Card> draw.pop()
-            hand.push(card)
+            let card = <Card>draw.pop()
+            hand.push( card )
         }
         //extra shuffle and draw if the drawpile was a bit low
         if ( hand.length < handMax ) {
-            console.log("Hand is underFilled")
+            console.log( "Hand is underFilled" )
             //empty discard into draw
-            for (let i = discard.length; i > 0; i--) {
-                let card = <Card> discard.pop()
-                draw.push(card)
+            for ( let i = discard.length; i > 0; i-- ) {
+                let card = <Card>discard.pop()
+                draw.push( card )
             }
             //draws Missing amount if there are enough cards to allow it
             length = draw.length
             let remainder = handMax - hand.length
             for ( let i = length < remainder ? length : remainder; i > 0; i-- ) {
-                let card = <Card> draw.pop()
-                hand.push(card)
+                let card = <Card>draw.pop()
+                hand.push( card )
             }
         }
     }
@@ -157,10 +157,8 @@ export default class Unit {
 
         if ( showName && !isWalking ) {
             g.c.shadowBlur = 0
-            if ( 0 )
-                g.setFont( 3.5, "pixel" )
-            else
-                g.setFont( 4, "pixel2" )
+            // g.setFont( 3.5, "pixel" )
+            g.setFont( 4, "pixel2" )
             let name = this.name
             const maxLength = 8
             if ( name.length > maxLength )

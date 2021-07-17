@@ -74,7 +74,7 @@ export default class UnitTray {
         let g = Graphics.instance
         const unitTrayStride = World.tileSize + 1
         let width = World.tileSize
-        let height = unitTrayStride * this.numberOfUnits()
+        let height = unitTrayStride * Math.max( 4, this.numberOfUnits() )
 
         Scene.node( {
             description: "unit-tray",
