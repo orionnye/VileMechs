@@ -76,32 +76,32 @@ export default class UnitTray {
         let width = World.tileSize
         let height = unitTrayStride * this.numberOfUnits()
 
-        let { startNode, endNode, terminalNode } = Scene
-        startNode( {
+        Scene.node( {
             description: "unit-tray",
             localMatrix: Matrix.translation( 0, 32 ),
             rect: { width, height },
-            onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width + 3, height + 1 ), "#595959" )
+            onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width + 3, height + 1 ), "#595959" ),
+            content: () => {
+                units.forEach( ( unit, i ) => {
+                    Scene.node( {
+                        description: "tray-unit",
+                        localMatrix: Matrix.translation( 1, unitTrayStride * i ),
+                        rect: { width: World.tileSize, height: World.tileSize },
+                        color: "blue",
+                        onClick: () => this.toggleSelectIndex( i ),
+                        onRender: () => {
+                            unit.render( false )
+                            if ( selectedUnit == unit ) {
+                                g.c.lineWidth = 1
+                                g.c.strokeStyle = "gray"
+                                g.c.strokeRect( -.5, -.5, 33, 33 )
+                                g.c.stroke()
+                            }
+                        }
+                    } )
+                } )
+            }
         } )
-        units.forEach( ( unit, i ) => {
-            terminalNode( {
-                description: "tray-unit",
-                localMatrix: Matrix.translation( 1, unitTrayStride * i ),
-                rect: { width: World.tileSize, height: World.tileSize },
-                color: "blue",
-                onClick: () => this.toggleSelectIndex( i ),
-                onRender: () => {
-                    unit.render( false )
-                    if ( selectedUnit == unit ) {
-                        g.c.lineWidth = 1
-                        g.c.strokeStyle = "gray"
-                        g.c.strokeRect( -.5, -.5, 33, 33 )
-                        g.c.stroke()
-                    }
-                }
-            } )
-        } )
-        endNode()
     }
 
 }

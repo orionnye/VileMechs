@@ -7,6 +7,8 @@ export interface SceneNode {
     children?: Iterable<SceneNode>
     parent?: SceneNode
     rect?: Rect
+    // For adding child nodes.
+    content?: () => void
     // Events
     onClick?: ( node: SceneNode, pos: Vector ) => void
     onHover?: ( node: SceneNode, pos: Vector ) => void
@@ -32,7 +34,7 @@ export default class Scene {
 
     static openNode?: SceneNode
 
-    static startNode( node: SceneNode ) {
+    static node( node: SceneNode ) {
         let openNode = Scene.openNode
         if ( openNode ) {
             if ( !openNode.children )
@@ -42,18 +44,9 @@ export default class Scene {
             node.parent = openNode
         }
         Scene.openNode = node
-        return node
-    }
-
-    static endNode() {
-        let node = Scene.openNode
-        Scene.openNode = Scene.openNode?.parent
-        return node
-    }
-
-    static terminalNode( node: SceneNode ) {
-        Scene.startNode( node )
-        Scene.endNode()
+        if ( node.content )
+            node.content()
+        Scene.openNode = node.parent
         return node
     }
 

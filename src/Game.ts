@@ -11,6 +11,7 @@ import CardTray from "./gameobjects/CardTray"
 import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
 import Unit from "./gameobjects/Unit"
+import content from "*.css"
 
 type Team = { name: string, flipUnits: boolean }
 
@@ -180,22 +181,20 @@ export default class Game {
         let g = Graphics.instance
         let { world, unitTray, cardTray } = this
         let selectedUnit = this.selectedUnit()
-        let { startNode, endNode } = Scene
-        this.scene = startNode( {
+        this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
             onRenderPost: () => {
                 let center = this.screenCenter()
                 g.setFont( 6, "pixel" )
                 g.drawTextBox( new Vector( center.x, 0 ), this.teams[ this.turn ].name, { textColor: "#c2c2c2", boxColor: "#696969", alignX: TextAlignX.center } )
+            },
+            content: () => {
+                world.makeSceneNode()
+                unitTray.makeSceneNode()
+                if ( selectedUnit )
+                    cardTray.makeSceneNode()
             }
         } )
-        {
-            world.makeSceneNode()
-            unitTray.makeSceneNode()
-            if ( selectedUnit )
-                cardTray.makeSceneNode()
-        }
-        endNode()
     }
     cameraTransform() {
         let screenDims = this.screenDimensions()

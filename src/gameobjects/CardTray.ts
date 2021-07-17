@@ -104,19 +104,17 @@ export default class CardTray {
         let discard = Game.instance.selectedUnit()?.discard
         if ( !hand || !draw || !discard ) return
 
-        let { startNode, endNode, terminalNode } = Scene
-
         const marigin = CardTray.handMargin
         let stride = Card.dimensions.x + marigin
         let width = stride * hand.length - marigin
-        terminalNode( {
+        Scene.node( {
             description: "card-tray",
             localMatrix: Matrix.vTranslation( this.handBase( hand.length ) ),
             rect: { width, height: Card.dimensions.y },
             color: "white"
         } )
 
-        hand.forEach( ( card, i ) => terminalNode( {
+        hand.forEach( ( card, i ) => Scene.node( {
             description: "card-hand",
             color: "orange",
             localMatrix: Matrix.vTranslation( card.pos ),
@@ -134,7 +132,7 @@ export default class CardTray {
             }
         } ) )
 
-        draw.forEach( ( card, i ) => terminalNode( {
+        draw.forEach( ( card, i ) => Scene.node( {
             description: "card-draw",
             color: "orange",
             localMatrix: Matrix.vTranslation( card.pos ),
@@ -142,7 +140,7 @@ export default class CardTray {
             onRender: () => card.render()
         } ) )
 
-        discard.forEach( ( card, i ) => terminalNode( {
+        discard.forEach( ( card, i ) => Scene.node( {
             description: "card-discard",
             color: "orange",
             localMatrix: Matrix.vTranslation( card.pos ),
