@@ -55,7 +55,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
-            world.map.set(pos, 1)
+            world.map.set(pos, 0)
             target?.addHealth( -3 )
             user?.addEnergy( -1 )
         }
