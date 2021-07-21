@@ -17,18 +17,68 @@ const CardTypes: { [ name: string ]: CardType } = {
         name: "Laser",
         color: "#f54242",
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => rookStyleTargets( user.pos, { range: 3 } ),
+        getTilesInRange: ( user ) => rookStyleTargets( user.pos, { range: 5 } ),
         onApplyToTile: ( user, pos, target ) => {
             target?.addHealth( -5 )
+            user?.addEnergy( -1 )
+        }
+    },
+    Stone: {
+        name: "Stone",
+        color: "#aaaaaa",
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
+        onApplyToTile: ( user, pos, target ) => {
+            console.log(user.hand)
+            user.addEnergy( -1 )
+            //look for the card in the users Discard Pile and remove it
+        }
+    },
+    bouldertoss: {
+        name: "Boulder Toss",
+        color: "#885555",
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
+        onApplyToTile: ( user, pos, target ) => {
+            // console.log(pos)
+            let world = Game.instance.world
+            world.map.set(pos, 1)
+            target?.addHealth( -3 )
+            user?.addEnergy( -1 )
+        }
+    },
+    mine: {
+        name: "Mine",
+        color: "#000000",
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
+        onApplyToTile: ( user, pos, target ) => {
+            // console.log(pos)
+            let world = Game.instance.world
+            world.map.set(pos, 1)
+            target?.addHealth( -3 )
+            user?.addEnergy( -1 )
         }
     },
     repair: {
-        name: "Repair",
+        name: "Auto-Repair",
         color: "#32a852",
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 2 ),
+        getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
         onApplyToTile: ( user, pos, target ) => {
-            target?.addHealth( 5 )
+            user.addHealth( 5 )
+            user?.addEnergy( -1 )
+        }
+    },
+    jolt: {
+        name: "Jolt",
+        color: "#0000aa",
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
+        onApplyToTile: ( user, pos, target ) => {
+            target?.addHealth( -3 )
+            target?.addSpeed( 2 )
+            user?.addEnergy( -1 )
         }
     }
 }
@@ -88,6 +138,16 @@ function targetsWithinRadius( pos: Vector, radius: number, result: Vector[] = []
         for ( let dy = -radius; dy <= radius; dy++ ) {
             let r = Math.abs( dx ) + Math.abs( dy )
             if ( r <= radius )
+                result.push( pos.addXY( dx, dy ) )
+        }
+    }
+    return result
+}
+function targetsWithinRange( pos: Vector, minDist: number, maxDist: number, result: Vector[] = [] ) {
+    for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
+        for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
+            let r = Math.abs( dx ) + Math.abs( dy )
+            if ( r >= minDist && r <= maxDist )
                 result.push( pos.addXY( dx, dy ) )
         }
     }

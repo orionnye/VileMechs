@@ -45,7 +45,7 @@ export default class Unit {
         this.teamNumber = teamNumber
         this.pos = pos
         this.speed = 4
-        this.energy = 2
+        this.energy = 3
         this.color = "red"
         this.health = 10
         this.maxHealth = 10
@@ -65,7 +65,13 @@ export default class Unit {
         if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
     }
+    addSpeed( amount: number) {
+        this.speed += amount
+    }
 
+    addEnergy( amount: number) {
+        this.energy += amount
+    }
     move( path: Vector[] ) {
         if ( this.hasMovedThisTurn )
             throw new Error( "Should not be trying to move when a unit has already moved this turn." )

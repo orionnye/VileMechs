@@ -12,9 +12,7 @@ const hillTileImg = getImg( require( "../../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../../www/images/tiles/flat/grass.png" ) )
 
 const vineMech = getImg( require( "../../www/images/units/Vinecent1.png" ) )
-
-const maxPathDistance = 7
-
+    
 export default class World {
     static tileSize = 32
     map: Grid
@@ -99,7 +97,7 @@ export default class World {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length
-                let walkableLength = Math.min( path.length, maxPathDistance )
+                let walkableLength = Math.min( path.length, selectedUnit.speed )
                 let trimmedSteps = path.slice( walkableLength - 1 )
                 let walkablePath = path.slice( 0, walkableLength )
                 path.length = walkableLength
@@ -177,7 +175,7 @@ export default class World {
                     let cell = pos.scale( 1 / tileSize ).floor()
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path ) {
-                        path.length = Math.min( path.length, maxPathDistance )
+                        path.length = Math.min( path.length, selectedUnit.speed )
                         selectedUnit.move( path )
                     }
                 }
