@@ -79,21 +79,25 @@ export default class Game {
         let card = this.selectedCard()
         this.cardTray.deselect()
         if ( unit && card ) {
-            let index = unit.hand.indexOf( card )
-            if ( index < 0 )
-                throw new Error( "Selected card is not in selected unit's hand." )
-            unit.hand.splice( index, 1 )
-            unit.discard.push( card )
-            let world = this.world
-            card.apply( unit, pos, world.getUnit( pos ) )
+            if ( unit.energy > 0 ) {
+                let index = unit.hand.indexOf( card )
+                if ( index < 0 )
+                    throw new Error( "Selected card is not in selected unit's hand." )
+                unit.hand.splice( index, 1 )
+                unit.discard.push( card )
+                let world = this.world
+                card.apply( unit, pos, world.getUnit( pos ) )
+            }
         }
     }
     endTurn() {
+        for ( let unit of this.world.units ) {
+            if ( unit.teamNumber == this.turn )
+                unit.onEndTurn()
+        }
         this.turn++
         this.turn %= this.teams.length
-        for ( let unit of this.world.units ) {
-            unit.onEndTurn()
-        }
+
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
     }

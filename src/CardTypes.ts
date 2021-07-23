@@ -1,4 +1,5 @@
 import Game from "./Game"
+import Card from "./gameobjects/Card"
 import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
@@ -23,15 +24,17 @@ const CardTypes: { [ name: string ]: CardType } = {
             user?.addEnergy( -1 )
         }
     },
-    Stone: {
-        name: "Stone",
+    ore: {
+        name: "Ore",
         color: "#aaaaaa",
-        canApplyToEmptyTiles: true,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 0 ),
         onApplyToTile: ( user, pos, target ) => {
             console.log(user.hand)
             user.addEnergy( -1 )
+            target?.addMaxHealth( 2 )
             //look for the card in the users Discard Pile and remove it
+            user.discard.pop()
         }
     },
     bouldertoss: {
@@ -51,11 +54,17 @@ const CardTypes: { [ name: string ]: CardType } = {
         name: "Mine",
         color: "#000000",
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
         onApplyToTile: ( user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
-            world.map.set(pos, 0)
+            console.log(world.map.get(pos))
+            if ( world.map.get( pos ).content == 1 ) {
+                world.map.set(pos, 0)
+                let card = new Card()
+                card.type = cardTypeList[1]
+                user.draw.push(card)
+            }
             target?.addHealth( -3 )
             user?.addEnergy( -1 )
         }
@@ -66,7 +75,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
         onApplyToTile: ( user, pos, target ) => {
-            user.addHealth( 5 )
+            target?.addHealth( 5 )
             user?.addEnergy( -1 )
         }
     },

@@ -22,6 +22,7 @@ export default class Unit {
     pos: Vector
     speed: number
     energy: number
+    maxEnergy: number
     color: string
     health: number
     maxHealth: number
@@ -46,6 +47,7 @@ export default class Unit {
         this.pos = pos
         this.speed = 4
         this.energy = 3
+        this.maxEnergy = 3
         this.color = "red"
         this.health = 10
         this.maxHealth = 10
@@ -62,6 +64,11 @@ export default class Unit {
     addHealth( amount: number ) {
         this.health += amount
         this.health = clamp( 0, this.maxHealth, this.health )
+        if ( amount < 0 )
+            this.hurtTime += Math.sqrt( -amount + 1 ) * .1
+    }
+    addMaxHealth( amount: number ) {
+        this.maxHealth += amount
         if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
     }
@@ -117,6 +124,7 @@ export default class Unit {
 
     onEndTurn() {
         this.hasMovedThisTurn = false
+        this.energy = this.maxEnergy
         this.emptyHand()
         this.fillHand()
     }
