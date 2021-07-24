@@ -6,7 +6,7 @@
     "watch": "parcel src/index.html",
     "deploy": "npm-run-all deploy:*",
     "deploy:parcel-build": "parcel build --public-url ./ src/index.html --dist-dir build",
-    "deploy:push-gh-page": "push-dir --dir=build --branch=gg-pages --cleanup --verbose",
+    "deploy:push-gh-page": "push-dir --dir=build --branch=gh-pages --cleanup --verbose",
     "deploy:cleanup": "rm -rf build"
   },
   "repository": {
