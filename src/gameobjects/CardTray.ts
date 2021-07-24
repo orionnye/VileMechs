@@ -8,7 +8,7 @@ import Scene, { SceneNode } from "../Scene"
 
 export default class CardTray {
     static selectionTimeout = 500
-    static restingDepth = 32
+    static restingDepth = 22
     index = -1
     cardCount: number
     lastSelectTime: number = -Infinity

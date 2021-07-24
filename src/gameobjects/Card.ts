@@ -2,7 +2,7 @@ import Game from "../Game"
 import Graphics from "../Graphics"
 import { Vector } from "../math/Vector"
 import Unit from "./Unit"
-import { randomColor } from "../common/utils"
+import { getImg, randomColor } from "../common/utils"
 import World from "./World"
 import CardTypes, { CardType, randomCardType } from "../CardTypes"
 
@@ -19,10 +19,15 @@ export default class Card {
 
     render() {
         let g = Graphics.instance
+        //background
         g.drawRect( Vector.zero, Card.dimensions, this.type.color )
+        //graphic
+        g.c.drawImage( this.type.sprite, 13, 13, 40, 40, 4, 4, 40, 40 )
+
         g.strokeRect( Vector.zero, Card.dimensions, "#f0ead8" )
-        g.setFont( 4, "pixel2" )
+        g.setFont( 6, "pixel2" )
         g.drawText( Vector.one, this.type.name, "#f0ead8" )
+
     }
 
     getTilesInRange( user: Unit ) {

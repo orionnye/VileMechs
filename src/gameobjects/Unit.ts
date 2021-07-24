@@ -11,16 +11,19 @@ import Scene, { SceneNode } from "../Scene"
 import World from "./World"
 
 // const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
-// const baseUnitImg = getImg( require( "../www/images/MinigunMech.png" ) )
+// const mechSheet = getImg( require( "../www/images/MinigunMech.png" ) )
+// const mechSheet = getImg( require( "../../www/images/units/Vinecent1.png" ) )
 const mechSheet = getImg( require( "../../www/images/MinigunMech_sheet.png" ) )
 // const mechSheet = getImg( require( "../../www/images/units/Vinecent1.png" ) )
 
 export default class Unit {
     sprite: HTMLImageElement
+
     name: string
     teamNumber: number
     pos: Vector
     speed: number
+    maxSpeed: number
     energy: number
     maxEnergy: number
     color: string
@@ -46,6 +49,7 @@ export default class Unit {
         this.teamNumber = teamNumber
         this.pos = pos
         this.speed = 4
+        this.maxSpeed = 6
         this.energy = 3
         this.maxEnergy = 3
         this.color = "red"
@@ -125,6 +129,7 @@ export default class Unit {
     onEndTurn() {
         this.hasMovedThisTurn = false
         this.energy = this.maxEnergy
+        this.speed = this.maxSpeed
         this.emptyHand()
         this.fillHand()
     }

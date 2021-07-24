@@ -1137,6 +1137,11 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
+autoquit@~0.1.4:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/autoquit/-/autoquit-0.1.6.tgz#d4918e16160c2ea4b24b471f91b21cbf87b0a3ac"
+  integrity sha1-1JGOFhYMLqSyS0cfkbIcv4ewo6w=
+
 aws-sign2@~0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
@@ -5935,6 +5940,13 @@ ws@^6.1.2:
   integrity sha512-zmhltoSR8u1cnDsD43TX59mzoMZsLKqUweyYBAIvTngR3shc0W6aOZylZmq/7hqyVxPdi+5Ud2QInblgyE72fw==
   dependencies:
     async-limiter "~1.0.0"
+
+www@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/www/-/www-0.0.0.tgz#7ae3f8a60ae122313ba9f8624f717e8a20230190"
+  integrity sha1-euP4pgrhIjE7qfhiT3F+iiAjAZA=
+  dependencies:
+    autoquit "~0.1.4"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

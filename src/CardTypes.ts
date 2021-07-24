@@ -1,13 +1,22 @@
+import { getImg } from "./common/utils"
 import Game from "./Game"
 import Card from "./gameobjects/Card"
 import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
 
+
+const boulder = getImg( require( "../www/images/cards/BoulderCard.png" ) )
+const laser = getImg( require( "../www/images/cards/LaserCard.png" ) )
+const ore = getImg( require( "../www/images/cards/OrePustule.png" ) )
+const mine = getImg( require( "../www/images/cards/MineCard.png" ) )
+const blank = getImg( require( "../www/images/cards/card.png" ) )
+
 export type CardType = {
     name: string,
     color: string,
-    canApplyToEmptyTiles: boolean
+    sprite: HTMLImageElement,
+    canApplyToEmptyTiles: boolean,
     getTilesInRange: ( user: Unit ) => Vector[]
     onApply?: ( user: Unit ) => void
     onApplyToTile?: ( user: Unit, pos: Vector, target?: Unit ) => void
@@ -17,22 +26,24 @@ const CardTypes: { [ name: string ]: CardType } = {
     laser: {
         name: "Laser",
         color: "#f54242",
+        sprite: laser,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => rookStyleTargets( user.pos, { range: 5 } ),
         onApplyToTile: ( user, pos, target ) => {
-            target?.addHealth( -5 )
+            target?.addHealth( -8 )
             user?.addEnergy( -1 )
         }
     },
     ore: {
         name: "Ore",
         color: "#aaaaaa",
+        sprite: ore,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 0 ),
         onApplyToTile: ( user, pos, target ) => {
-            console.log(user.hand)
+            // console.log(user.hand)
             user.addEnergy( -1 )
-            target?.addMaxHealth( 2 )
+            // target?.addMaxHealth( 2 )
             //look for the card in the users Discard Pile and remove it
             user.discard.pop()
         }
@@ -40,6 +51,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     bouldertoss: {
         name: "Boulder Toss",
         color: "#885555",
+        sprite: boulder,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
         onApplyToTile: ( user, pos, target ) => {
@@ -48,46 +60,54 @@ const CardTypes: { [ name: string ]: CardType } = {
             world.map.set(pos, 1)
             target?.addHealth( -3 )
             user?.addEnergy( -1 )
+            //check if "ore" is in hand and scale with total. Then remove ores
         }
     },
     mine: {
         name: "Mine",
         color: "#000000",
+        sprite: mine,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
         onApplyToTile: ( user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
-            console.log(world.map.get(pos))
+            // console.log(world.map.get(pos))
             if ( world.map.get( pos ).content == 1 ) {
                 world.map.set(pos, 0)
-                let card = new Card()
-                card.type = cardTypeList[1]
-                user.draw.push(card)
+                for ( let i = 0; i < 2; i++ ) {
+                    let card = new Card()
+                    card.type = cardTypeList[1]
+                    user.draw.push(card)
+                }
             }
-            target?.addHealth( -3 )
+            target?.addHealth( -10 )
             user?.addEnergy( -1 )
         }
     },
     repair: {
         name: "Auto-Repair",
         color: "#32a852",
+        sprite: blank,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
         onApplyToTile: ( user, pos, target ) => {
-            target?.addHealth( 5 )
+            target?.addHealth( 7 )
             user?.addEnergy( -1 )
         }
     },
-    jolt: {
-        name: "Jolt",
+    sprint: {
+        name: "Sprint",
         color: "#0000aa",
+        sprite: blank,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
         onApplyToTile: ( user, pos, target ) => {
-            target?.addHealth( -3 )
-            target?.addSpeed( 2 )
-            user?.addEnergy( -1 )
+            if ( target ) {
+                user?.addHealth( -2 )
+                target?.addSpeed( target.maxSpeed )
+                user?.addEnergy( -1 )
+            }
         }
     }
 }
