@@ -12,9 +12,9 @@ import World from "./World"
 
 // const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
 // const mechSheet = getImg( require( "../www/images/MinigunMech.png" ) )
-// const mechSheet = getImg( require( "../../www/images/units/Vinecent1.png" ) )
-const mechSheet = getImg( require( "../../www/images/MinigunMech_sheet.png" ) )
-// const mechSheet = getImg( require( "../../www/images/units/Vinecent1.png" ) )
+// const mechSheet = getImg( require( "../www/images/units/Vinecent1.png" ) )
+const mechSheet = getImg( require( "../www/images/MinigunMech_sheet.png" ) )
+// const mechSheet = getImg( require( "../www/images/units/Vinecent1.png" ) )
 
 export default class Unit {
     sprite: HTMLImageElement
@@ -76,11 +76,11 @@ export default class Unit {
         if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
     }
-    addSpeed( amount: number) {
+    addSpeed( amount: number ) {
         this.speed += amount
     }
 
-    addEnergy( amount: number) {
+    addEnergy( amount: number ) {
         this.energy += amount
     }
     move( path: Vector[] ) {

@@ -8,11 +8,11 @@ import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
 
-const hillTileImg = getImg( require( "../../www/images/tiles/flat/hill5.png" ) )
-const grassTileImg = getImg( require( "../../www/images/tiles/flat/grass.png" ) )
+const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
+const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
 
-const vineMech = getImg( require( "../../www/images/units/Vinecent1.png" ) )
-    
+const vineMech = getImg( require( "../www/images/units/Vinecent1.png" ) )
+
 export default class World {
     static tileSize = 32
     map: Grid

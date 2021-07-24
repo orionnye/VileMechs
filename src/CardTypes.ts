@@ -6,11 +6,11 @@ import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
 
 
-const boulder = getImg( require( "../www/images/cards/BoulderCard.png" ) )
-const laser = getImg( require( "../www/images/cards/LaserCard.png" ) )
-const ore = getImg( require( "../www/images/cards/OrePustule.png" ) )
-const mine = getImg( require( "../www/images/cards/MineCard.png" ) )
-const blank = getImg( require( "../www/images/cards/card.png" ) )
+const boulder = getImg( require( "./www/images/cards/BoulderCard.png" ) )
+const laser = getImg( require( "./www/images/cards/LaserCard.png" ) )
+const ore = getImg( require( "./www/images/cards/OrePustule.png" ) )
+const mine = getImg( require( "./www/images/cards/MineCard.png" ) )
+const blank = getImg( require( "./www/images/cards/card.png" ) )
 
 export type CardType = {
     name: string,
@@ -57,7 +57,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
-            world.map.set(pos, 1)
+            world.map.set( pos, 1 )
             target?.addHealth( -3 )
             user?.addEnergy( -1 )
             //check if "ore" is in hand and scale with total. Then remove ores
@@ -74,11 +74,11 @@ const CardTypes: { [ name: string ]: CardType } = {
             let world = Game.instance.world
             // console.log(world.map.get(pos))
             if ( world.map.get( pos ).content == 1 ) {
-                world.map.set(pos, 0)
+                world.map.set( pos, 0 )
                 for ( let i = 0; i < 2; i++ ) {
                     let card = new Card()
-                    card.type = cardTypeList[1]
-                    user.draw.push(card)
+                    card.type = cardTypeList[ 1 ]
+                    user.draw.push( card )
                 }
             }
             target?.addHealth( -10 )
