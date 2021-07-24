@@ -4,7 +4,7 @@
     ],
     "compilerOptions": {
         "target": "ESNext",
-        "module": "commonjs",
+        "module": "ES2020",
         "declaration": true,
         "outDir": "lib",
         "rootDir": "src",
