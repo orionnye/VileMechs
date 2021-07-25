@@ -80,11 +80,11 @@ export default class Game {
         this.cardTray.deselect()
         if ( unit && card ) {
             if ( unit.energy > 0 ) {
-                let index = unit.hand.indexOf( card )
+                let index = unit.hand.cards.indexOf( card )
                 if ( index < 0 )
                     throw new Error( "Selected card is not in selected unit's hand." )
-                unit.hand.splice( index, 1 )
-                unit.discard.push( card )
+                unit.hand.cards.splice( index, 1 )
+                unit.discard.cards.push( card )
                 let world = this.world
                 card.apply( unit, pos, world.getUnit( pos ) )
             }

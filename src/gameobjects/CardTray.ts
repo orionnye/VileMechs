@@ -8,7 +8,7 @@ import Scene, { SceneNode } from "../Scene"
 
 export default class CardTray {
     static selectionTimeout = 500
-    static restingDepth = 22
+    static restingDepth = 24
     index = -1
     cardCount: number
     lastSelectTime: number = -Infinity
@@ -22,7 +22,7 @@ export default class CardTray {
 
     selectedCard() {
         let unit = Game.instance.selectedUnit()
-        return unit?.hand[ this.index ]
+        return unit?.hand.cards[ this.index ]
     }
 
     selectIndex( index: number ) {
@@ -55,15 +55,15 @@ export default class CardTray {
         let unit = Game.instance.selectedUnit()
         if ( unit ) {
             let hand = unit.hand, draw = unit.draw, discard = unit.discard
-            hand.forEach( ( card, i ) => {
+            hand.cards.forEach( ( card, i ) => {
                 let targetPos = this.handPosition( hand.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
             } )
-            draw.forEach( ( card, i ) => {
+            draw.cards.forEach( ( card, i ) => {
                 let targetPos = this.drawPosition( draw.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
             } )
-            discard.forEach( ( card, i ) => {
+            discard.cards.forEach( ( card, i ) => {
                 let targetPos = this.discardPosition( discard.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
             } )
@@ -87,13 +87,13 @@ export default class CardTray {
     drawPosition( handLength: number, cardIndex: number ) {
         let screenSize = Game.instance.screenDimensions()
         let stride = 3, width = stride * handLength
-        let drawBase = new Vector( 10 - width / 2, screenSize.y - Card.dimensions.y / 3 * 2 - width / 2 )
-        return drawBase.addXY( cardIndex * 3, cardIndex * 3 - width / 2 )
+        let drawBase = new Vector( 20 - width, screenSize.y - Card.dimensions.y/1.2 )
+        return drawBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
     discardPosition( handLength: number, cardIndex: number ) {
         let screenSize = Game.instance.screenDimensions()
         let stride = 3, width = stride * handLength
-        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width / 2, screenSize.y - Card.dimensions.y / 3 * 2 - width / 2 )
+        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width, screenSize.y - Card.dimensions.y/1.2 )
         return discardBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
 
@@ -113,7 +113,7 @@ export default class CardTray {
             rect: { width, height: Card.dimensions.y },
         } )
 
-        hand.forEach( ( card, i ) => Scene.node( {
+        hand.cards.forEach( ( card, i ) => Scene.node( {
             description: "card-hand",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
@@ -130,14 +130,14 @@ export default class CardTray {
             }
         } ) )
 
-        draw.forEach( ( card, i ) => Scene.node( {
+        draw.cards.forEach( ( card, i ) => Scene.node( {
             description: "card-draw",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render()
         } ) )
 
-        discard.forEach( ( card, i ) => Scene.node( {
+        discard.cards.forEach( ( card, i ) => Scene.node( {
             description: "card-discard",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },

@@ -5,17 +5,29 @@ import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
 
-
-const boulder = getImg( require( "./www/images/cards/BoulderCard.png" ) )
-const laser = getImg( require( "./www/images/cards/LaserCard.png" ) )
+//I have no idea why this requires one period but it does
+const sprint = getImg( require( "./www/images/cards/Sprint.png" ) )
 const ore = getImg( require( "./www/images/cards/OrePustule.png" ) )
-const mine = getImg( require( "./www/images/cards/MineCard.png" ) )
-const blank = getImg( require( "./www/images/cards/card.png" ) )
+const mine = getImg( require( "./www/images/cards/MineCard2.png" ) )
+const repair = getImg( require( "./www/images/cards/Repair1.png" ) )
+const laser = getImg( require( "./www/images/cards/LaserCard.png" ) )
+const blank = getImg( require( "./www/images/cards/backing/card.png" ) )
+const boulder = getImg( require( "./www/images/cards/BoulderCard1.png" ) )
+
+//card background
+const red = getImg( require( "./www/images/cards/backing/RedCardBase.png" ) )
+const black = getImg( require( "./www/images/cards/backing/BlackCardBase.png" ) )
+const brown = getImg( require( "./www/images/cards/backing/BrownCardBase.png" ) )
+const green = getImg( require( "./www/images/cards/backing/GreenCardBase.png" ) )
+const metal = getImg( require( "./www/images/cards/backing/MetalCardBase.png" ) )
+const purple = getImg( require( "./www/images/cards/backing/PurpleCardBase.png" ) )
 
 export type CardType = {
     name: string,
+    description: string,
     color: string,
     sprite: HTMLImageElement,
+    backing: HTMLImageElement,
     canApplyToEmptyTiles: boolean,
     getTilesInRange: ( user: Unit ) => Vector[]
     onApply?: ( user: Unit ) => void
@@ -25,8 +37,10 @@ export type CardType = {
 const CardTypes: { [ name: string ]: CardType } = {
     laser: {
         name: "Laser",
+        description: "Deal 8 damage \n to target",
         color: "#f54242",
         sprite: laser,
+        backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => rookStyleTargets( user.pos, { range: 5 } ),
         onApplyToTile: ( user, pos, target ) => {
@@ -36,8 +50,10 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     ore: {
         name: "Ore",
+        description: "Shiny Stone that \n might prove useful \n after the battle... \nUse to remove",
         color: "#aaaaaa",
         sprite: ore,
+        backing: black,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 0 ),
         onApplyToTile: ( user, pos, target ) => {
@@ -45,13 +61,15 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.addEnergy( -1 )
             // target?.addMaxHealth( 2 )
             //look for the card in the users Discard Pile and remove it
-            user.discard.pop()
+            user.discard.cards.pop()
         }
     },
     bouldertoss: {
         name: "Boulder Toss",
+        description: "Place a Mountain \n and deal 3 damage",
         color: "#885555",
         sprite: boulder,
+        backing: brown,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
         onApplyToTile: ( user, pos, target ) => {
@@ -65,8 +83,10 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     mine: {
         name: "Mine",
+        description: "Destroy a Mountain \nand deal 10 damage",
         color: "#000000",
         sprite: mine,
+        backing: brown,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
         onApplyToTile: ( user, pos, target ) => {
@@ -78,7 +98,7 @@ const CardTypes: { [ name: string ]: CardType } = {
                 for ( let i = 0; i < 2; i++ ) {
                     let card = new Card()
                     card.type = cardTypeList[ 1 ]
-                    user.draw.push( card )
+                    user.draw.cards.push( card )
                 }
             }
             target?.addHealth( -10 )
@@ -87,8 +107,10 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     repair: {
         name: "Auto-Repair",
+        description: "Heal yourself or \n nearby units for \n 7 health",
         color: "#32a852",
-        sprite: blank,
+        sprite: repair,
+        backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
         onApplyToTile: ( user, pos, target ) => {
@@ -98,8 +120,10 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     sprint: {
         name: "Sprint",
+        description: "Take 2 damage and\n double target\n mobility this turn",
         color: "#0000aa",
-        sprite: blank,
+        sprite: sprint,
+        backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
         onApplyToTile: ( user, pos, target ) => {

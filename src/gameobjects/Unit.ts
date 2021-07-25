@@ -9,12 +9,9 @@ import Card from "./Card"
 import Game from "../Game"
 import Scene, { SceneNode } from "../Scene"
 import World from "./World"
+import { Deck } from "./Deck"
 
-// const baseUnitImg = getImg( require( "../www/images/BaseEnemy.png" ) )
-// const mechSheet = getImg( require( "../www/images/MinigunMech.png" ) )
-// const mechSheet = getImg( require( "../www/images/units/Vinecent1.png" ) )
 const mechSheet = getImg( require( "../www/images/MinigunMech_sheet.png" ) )
-// const mechSheet = getImg( require( "../www/images/units/Vinecent1.png" ) )
 
 export default class Unit {
     sprite: HTMLImageElement
@@ -32,10 +29,9 @@ export default class Unit {
 
     hurtTime: number = 0
 
-    draw: Card[] = []
-    hand: Card[] = []
-    handMax: number = 4
-    discard: Card[] = []
+    draw: Deck = new Deck(3)
+    hand: Deck = new Deck(3)
+    discard: Deck = new Deck(3)
 
     walkAnimStep: number = 0
     walkAnimRate: number = 10 // Tiles per second
@@ -55,13 +51,7 @@ export default class Unit {
         this.color = "red"
         this.health = 10
         this.maxHealth = 10
-
-        for ( let i = 0; i < 4; i++ )
-            this.hand.push( new Card() )
-        for ( let i = 0; i < 4; i++ )
-            this.draw.push( new Card() )
-        for ( let i = 0; i < 4; i++ )
-            this.discard.push( new Card() )
+        this.hand.max = 4
     }
 
     // Model
@@ -79,10 +69,10 @@ export default class Unit {
     addSpeed( amount: number ) {
         this.speed += amount
     }
-
     addEnergy( amount: number ) {
         this.energy += amount
     }
+
     move( path: Vector[] ) {
         if ( this.hasMovedThisTurn )
             throw new Error( "Should not be trying to move when a unit has already moved this turn." )
@@ -91,35 +81,19 @@ export default class Unit {
         this.walkAnimStep = 0
         this.walkAnimPath = path
     }
-    emptyHand() {
-        let { hand, discard } = this
-        for ( let i = hand.length; i > 0; i-- ) {
-            let card = <Card>hand.pop()
-            discard.push( card )
-        }
-    }
-    fillHand() {
-        let { draw, hand, handMax, discard } = this
-        let { length } = draw
-        for ( let i = length < handMax ? length : handMax; i > 0; i-- ) {
-            let card = <Card>draw.pop()
-            hand.push( card )
-        }
+
+    cardCycle() {
+        let { draw, hand, discard } = this
+        //empty hand
+        hand.fill( discard )
+        //fill hand
+        draw.fill(hand)
+
         //extra shuffle and draw if the drawpile was a bit low
-        if ( hand.length < handMax ) {
-            console.log( "Hand is underFilled" )
+        if ( hand.length < hand.max ) {
             //empty discard into draw
-            for ( let i = discard.length; i > 0; i-- ) {
-                let card = <Card>discard.pop()
-                draw.push( card )
-            }
-            //draws Missing amount if there are enough cards to allow it
-            length = draw.length
-            let remainder = handMax - hand.length
-            for ( let i = length < remainder ? length : remainder; i > 0; i-- ) {
-                let card = <Card>draw.pop()
-                hand.push( card )
-            }
+            discard.fill(draw)
+            draw.fill(hand)
         }
     }
 
@@ -127,11 +101,11 @@ export default class Unit {
     isWalking() { return this.walkAnimPath != undefined }
 
     onEndTurn() {
+        //Stat Reset
         this.hasMovedThisTurn = false
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
-        this.emptyHand()
-        this.fillHand()
+        this.cardCycle()
     }
 
     update() {

@@ -6,6 +6,9 @@ import { getImg, randomColor } from "../common/utils"
 import World from "./World"
 import CardTypes, { CardType, randomCardType } from "../CardTypes"
 
+//this requires two periods while Cardtypes require only one period, idk why...
+// const backing = getImg( require( "../www/images/cards/RedCardBase.png" ) )
+
 export default class Card {
     static dimensions = new Vector( 48, 64 )
 
@@ -19,15 +22,24 @@ export default class Card {
 
     render() {
         let g = Graphics.instance
+
         //background
-        g.drawRect( Vector.zero, Card.dimensions, this.type.color )
+        // g.strokeRect( Vector.zero, Card.dimensions, "#ffddff")
+        // g.drawRect( Vector.zero, Card.dimensions, this.type.color)
+        g.c.drawImage( this.type.backing, 0, 0, Card.dimensions.x, Card.dimensions.y, 0, 0, Card.dimensions.x, Card.dimensions.y )
         //graphic
-        g.c.drawImage( this.type.sprite, 13, 13, 40, 40, 4, 4, 40, 40 )
+        g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 2, 0, Card.dimensions.x, Card.dimensions.y )
+        //title
+        g.setFont( 5, "pixel2" )
+        g.drawText( new Vector(3, 1), this.type.name, "#f0ead8" )
 
-        g.strokeRect( Vector.zero, Card.dimensions, "#f0ead8" )
-        g.setFont( 6, "pixel2" )
-        g.drawText( Vector.one, this.type.name, "#f0ead8" )
-
+        //card description
+        g.drawRect( new Vector(4, 40), new Vector(40, 20), "grey")
+        let lines = this.type.description.split("\n")
+        lines.forEach( (line, index) => {
+            g.setFont( 3, "pixel2" )
+            g.drawText( new Vector(6, 42 + index*3 ), line, "#f0ead8" )
+        })
     }
 
     getTilesInRange( user: Unit ) {
