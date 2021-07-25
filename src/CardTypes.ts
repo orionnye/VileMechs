@@ -4,15 +4,17 @@ import Card from "./gameobjects/Card"
 import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
+import { findPath } from "./pathfinding"
 
 //I have no idea why this requires one period but it does
+const blank = getImg( require( "./www/images/cards/backing/card.png" ) )
 const sprint = getImg( require( "./www/images/cards/Sprint.png" ) )
 const ore = getImg( require( "./www/images/cards/OrePustule.png" ) )
 const mine = getImg( require( "./www/images/cards/MineCard2.png" ) )
 const repair = getImg( require( "./www/images/cards/Repair1.png" ) )
 const laser = getImg( require( "./www/images/cards/LaserCard.png" ) )
-const blank = getImg( require( "./www/images/cards/backing/card.png" ) )
 const boulder = getImg( require( "./www/images/cards/BoulderCard1.png" ) )
+const tentacle = getImg( require( "./www/images/cards/Tentacle.png" ) )
 
 //card background
 const red = getImg( require( "./www/images/cards/backing/RedCardBase.png" ) )
@@ -64,6 +66,25 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.discard.cards.pop()
         }
     },
+    tentacle: {
+        name: "Tentacle Pull",
+        description: "Pull target to you",
+        color: "#aaaaaa",
+        sprite: tentacle,
+        backing: purple,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 5 ),
+        onApplyToTile: ( user, pos, target ) => {
+            // console.log(user.hand)
+            user.addEnergy( -1 )
+            if ( target ) {
+                let distance = user.pos.subtract(target.pos)
+                let xShift = Math.floor(distance.x * 0.9)
+                let yShift = Math.floor(distance.y * 0.9)
+                target.pos = target.pos.addXY(xShift, yShift)
+            }
+        }
+    },
     bouldertoss: {
         name: "Boulder Toss",
         description: "Place a Mountain \n and deal 3 damage",
@@ -107,7 +128,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     repair: {
         name: "Auto-Repair",
-        description: "Heal yourself or \n nearby units for \n 7 health",
+        description: "Heal yourself or \n a nearby unit for \n 7 health",
         color: "#32a852",
         sprite: repair,
         backing: metal,
