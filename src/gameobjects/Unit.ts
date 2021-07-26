@@ -30,7 +30,7 @@ export default class Unit {
     hurtTime: number = 0
 
     draw: Deck = new Deck(3)
-    hand: Deck = new Deck(3)
+    hand: Deck = new Deck(4)
     discard: Deck = new Deck(3)
 
     walkAnimStep: number = 0
@@ -44,8 +44,8 @@ export default class Unit {
         this.name = names[ randomFloor( names.length ) ]
         this.teamNumber = teamNumber
         this.pos = pos
-        this.speed = 4
         this.maxSpeed = 6
+        this.speed = this.maxSpeed
         this.energy = 3
         this.maxEnergy = 3
         this.color = "red"

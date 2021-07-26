@@ -78,10 +78,14 @@ const CardTypes: { [ name: string ]: CardType } = {
             // console.log(user.hand)
             user.addEnergy( -1 )
             if ( target ) {
-                let distance = user.pos.subtract(target.pos)
-                let xShift = Math.floor(distance.x * 0.9)
-                let yShift = Math.floor(distance.y * 0.9)
-                target.pos = target.pos.addXY(xShift, yShift)
+                //Chaining Ternary functions are weird man
+                let xShift = (user.pos.x < target.pos.x) ?
+                    user.pos.x + 1 : (user.pos.x == target.pos.x) ?
+                    user.pos.x : user.pos.x - 1
+                let yShift = (user.pos.y < target.pos.y) ?
+                    user.pos.y + 1 : (user.pos.y == target.pos.y) ?
+                    user.pos.y : user.pos.y - 1
+                target.pos = new Vector(xShift, yShift)
             }
         }
     },
