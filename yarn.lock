@@ -1764,11 +1764,6 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-autoquit@~0.1.4:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/autoquit/-/autoquit-0.1.6.tgz#d4918e16160c2ea4b24b471f91b21cbf87b0a3ac"
-  integrity sha1-1JGOFhYMLqSyS0cfkbIcv4ewo6w=
-
 available-typed-arrays@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.4.tgz#9e0ae84ecff20caae6a94a1c3bc39b955649b7a9"
@@ -6754,13 +6749,6 @@ ws@^7.0.0:
   version "7.5.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.3.tgz#160835b63c7d97bfab418fc1b8a9fced2ac01a74"
   integrity sha512-kQ/dHIzuLrS6Je9+uv81ueZomEwH0qVYstcAQ4/Z93K8zeko9gtAbttJWzoC5ukqXY1PpoouV3+VSOqEAFt5wg==
-
-www@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/www/-/www-0.0.0.tgz#7ae3f8a60ae122313ba9f8624f717e8a20230190"
-  integrity sha1-euP4pgrhIjE7qfhiT3F+iiAjAZA=
-  dependencies:
-    autoquit "~0.1.4"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"
