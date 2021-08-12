@@ -56,6 +56,7 @@ export default class Unit {
 
     // Model
     addHealth( amount: number ) {
+        //REWORK THIS TO DEFAULT TO CURRENT VALUE RATHER THAN RESETTING TO MAXHEALTH When Exceeding 
         this.health += amount
         this.health = clamp( 0, this.maxHealth, this.health )
         if ( amount < 0 )

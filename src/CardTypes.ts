@@ -7,22 +7,28 @@ import { Vector } from "./math/Vector"
 import { findPath } from "./pathfinding"
 
 //I have no idea why this requires one period but it does
-const blank = getImg( require( "./www/images/cards/backing/card.png" ) )
-const sprint = getImg( require( "./www/images/cards/Sprint.png" ) )
-const ore = getImg( require( "./www/images/cards/OrePustule.png" ) )
-const mine = getImg( require( "./www/images/cards/MineCard2.png" ) )
-const repair = getImg( require( "./www/images/cards/Repair1.png" ) )
-const laser = getImg( require( "./www/images/cards/LaserCard.png" ) )
-const boulder = getImg( require( "./www/images/cards/BoulderCard1.png" ) )
-const tentacle = getImg( require( "./www/images/cards/Tentacle.png" ) )
+//Ores
+const ore = getImg( require( "./www/images/cards/ore/pustule.png" ) )
 
-//card background
-const red = getImg( require( "./www/images/cards/backing/RedCardBase.png" ) )
+//Action Icons
+const blank = getImg( require( "./www/images/cards/backing/card.png" ) )
+const sprint = getImg( require( "./www/images/cards/icon/sprint.png" ) )
+const mine = getImg( require( "./www/images/cards/icon/mine.png" ) )
+const repair = getImg( require( "./www/images/cards/icon/repair.png" ) )
+const laser = getImg( require( "./www/images/cards/icon/laser.png" ) )
+const boulder = getImg( require( "./www/images/cards/icon/boulder.png" ) )
+const tentacle = getImg( require( "./www/images/cards/icon/tentacle.png" ) )
+const claw = getImg( require( "./www/images/cards/icon/claw.png" ) )
+const acid = getImg( require( "./www/images/cards/icon/acid.png" ) )
+const frost = getImg( require( "./www/images/cards/icon/frost.png" ) )
+
+//Card Background
+const flesh = getImg( require( "./www/images/cards/backing/flesh.png" ) )
 const black = getImg( require( "./www/images/cards/backing/BlackCardBase.png" ) )
 const brown = getImg( require( "./www/images/cards/backing/BrownCardBase.png" ) )
 const green = getImg( require( "./www/images/cards/backing/GreenCardBase.png" ) )
-const metal = getImg( require( "./www/images/cards/backing/MetalCardBase.png" ) )
-const purple = getImg( require( "./www/images/cards/backing/PurpleCardBase.png" ) )
+const metal = getImg( require( "./www/images/cards/backing/metal.png" ) )
+const purple = getImg( require( "./www/images/cards/backing/purple.png" ) )
 
 export type CardType = {
     name: string,
@@ -68,7 +74,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     tentacle: {
         name: "Tentacle Pull",
-        description: "Pull target to you",
+        description: "Pull target to you\nfrom 5 tiles away.\nTake 1 damage",
         color: "#aaaaaa",
         sprite: tentacle,
         backing: purple,
@@ -113,7 +119,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: mine,
         backing: brown,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 1 ),
         onApplyToTile: ( user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
@@ -137,7 +143,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: repair,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
         onApplyToTile: ( user, pos, target ) => {
             target?.addHealth( 7 )
             user?.addEnergy( -1 )
@@ -148,14 +154,66 @@ const CardTypes: { [ name: string ]: CardType } = {
         description: "Take 2 damage and\n double target\n mobility this turn",
         color: "#0000aa",
         sprite: sprint,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
+        onApplyToTile: ( user, pos, target ) => {
+            user?.addHealth( -2 )
+            user?.addEnergy( -1 )
+            if ( target ) {
+                target.speed += target.maxSpeed
+            }
+        }
+    },
+    claw: {
+        name: "Claw",
+        description: "Deal 1 damage, \n+ any health \ncurrently missing\n Range 3\n 0 Energy",
+        color: "#0000aa",
+        sprite: claw,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 3 ),
+        onApplyToTile: ( user, pos, target ) => {
+            // user.energy -= 1
+            if ( target ) {
+                let bonusDMG = user.maxHealth - user.health
+                target.health -= (1 + bonusDMG)
+            }
+        }
+    },
+    acid: {
+        name: "Acid",
+        description: "Melts Armor,\n target maxHealth -= 3\ntarget speed += 1\n userEnergy -= 1\n range = 7",
+        color: "#0000aa",
+        sprite: acid,
+        backing: purple,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 7 ),
+        onApplyToTile: ( user, pos, target ) => {
+            user.energy -= 1
+
+            if ( target ) {
+                target.maxHealth -= 3
+                target.speed += 1
+            }
+        }
+    },
+    frost: {
+        name: "Frost",
+        description: "Deals damage = to \n targets missing health \nuserHealth -= 2 \n range = 8\n userEnergy -= 1",
+        color: "#0000aa",
+        sprite: frost,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRadius( user.pos, 1 ),
+        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
         onApplyToTile: ( user, pos, target ) => {
+            user.energy -= 1
+            user.health -= 2
+            
+            //deals damage to target based on previously sustained damage
             if ( target ) {
-                user?.addHealth( -2 )
-                target?.addSpeed( target.maxSpeed )
-                user?.addEnergy( -1 )
+                let damage = target.maxHealth - target.health
+                target.health -= damage
             }
         }
     }
@@ -211,16 +269,6 @@ function bishopStyleTargets(
     targetsAlongLine( pos, new Vector( 0, -1 ), { range, ignoreObstacles, result } )
 }
 
-function targetsWithinRadius( pos: Vector, radius: number, result: Vector[] = [] ) {
-    for ( let dx = -radius; dx <= radius; dx++ ) {
-        for ( let dy = -radius; dy <= radius; dy++ ) {
-            let r = Math.abs( dx ) + Math.abs( dy )
-            if ( r <= radius )
-                result.push( pos.addXY( dx, dy ) )
-        }
-    }
-    return result
-}
 function targetsWithinRange( pos: Vector, minDist: number, maxDist: number, result: Vector[] = [] ) {
     for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
         for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
