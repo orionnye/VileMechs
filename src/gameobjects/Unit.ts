@@ -11,7 +11,7 @@ import Scene, { SceneNode } from "../Scene"
 import World from "./World"
 import { Deck } from "./Deck"
 
-const mechSheet = getImg( require( "../www/images/MinigunMech_sheet.png" ) )
+const mechSheet = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 
 export default class Unit {
     sprite: HTMLImageElement
