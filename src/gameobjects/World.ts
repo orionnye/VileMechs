@@ -7,11 +7,10 @@ import Game from "../Game"
 import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
+import { Treant, Chrome, Flesh } from "./RigTypes"
 
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
-
-const vineMech = getImg( require( "../www/images/units/Vinecent1.png" ) )
 
 export default class World {
     static tileSize = 32
@@ -22,14 +21,14 @@ export default class World {
     constructor() {
         this.map = new Grid( 15, 15 )
         this.units = [
-            new Unit( new Vector( 1, 1 ), 0, vineMech ),
-            new Unit( new Vector( 2, 2 ), 0, vineMech ),
-            new Unit( new Vector( 3, 1 ), 0, vineMech ),
-            new Unit( new Vector( 4, 2 ), 0, vineMech ),
-            new Unit( new Vector( 13, 13 ), 1 ),
-            new Unit( new Vector( 12, 12 ), 1 ),
-            new Unit( new Vector( 11, 13 ), 1 ),
-            new Unit( new Vector( 10, 12 ), 1 )
+            new Flesh( new Vector( 1, 1 ), 0 ),
+            new Treant( new Vector( 2, 2 ), 0 ),
+            new Chrome( new Vector( 3, 1 ), 0 ),
+            new Chrome( new Vector( 4, 2 ), 0 ),
+            new Flesh( new Vector( 13, 13 ), 1 ),
+            new Treant( new Vector( 12, 12 ), 1 ),
+            new Chrome( new Vector( 11, 13 ), 1 ),
+            new Chrome( new Vector( 10, 12 ), 1 )
         ]
 
         let randomTerrain = true

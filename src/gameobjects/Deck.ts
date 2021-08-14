@@ -1,6 +1,7 @@
 import Card from "./Card";
 import Game from "../Game"
 import { Vector } from "../math/Vector";
+import CardTypes, { CardType } from "../CardTypes";
 
 export class Deck {
 
@@ -23,6 +24,27 @@ export class Deck {
         return this.cards.length
     }
 
+    insertAt( card, index ) {
+        if ( this.length == 0 ) {
+            this.cards.push( card )
+            return
+        }
+        let store = this.cards[ index ]
+        this.cards[ index ] = card
+        this.cards.push( store )
+    }
+
+    insertAtRandom( card ) {
+        let random = Math.floor( Math.random() * this.length )
+        this.insertAt( card, random )
+    }
+    add( cardType: CardType, count: number = 1 ) {
+        for ( let i = 0; i < count; i++ ) {
+            let card = new Card(cardType)
+            this.insertAtRandom(card)
+        }
+    }
+
     fill( that: Deck ) {
         let { cards } = this
         for ( let i = cards.length; i > 0; i-- ) {
@@ -32,6 +54,7 @@ export class Deck {
             }
         }
     }
+    
     cardPosition( cardIndex: number ) {
         let { pos, offset } = this
         return pos.addXY( cardIndex * offset.x , cardIndex * offset.y )

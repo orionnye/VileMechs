@@ -10,6 +10,7 @@ import Game from "../Game"
 import Scene, { SceneNode } from "../Scene"
 import World from "./World"
 import { Deck } from "./Deck"
+import CardTypes from "../CardTypes"
 
 const mechSheet = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 
@@ -29,9 +30,9 @@ export default class Unit {
 
     hurtTime: number = 0
 
-    draw: Deck = new Deck(3)
-    hand: Deck = new Deck(4)
-    discard: Deck = new Deck(3)
+    draw: Deck = new Deck()
+    hand: Deck = new Deck()
+    discard: Deck = new Deck()
 
     walkAnimStep: number = 0
     walkAnimRate: number = 10 // Tiles per second
@@ -43,15 +44,24 @@ export default class Unit {
         this.sprite = sprite
         this.name = names[ randomFloor( names.length ) ]
         this.teamNumber = teamNumber
+        this.color = "red"
+
         this.pos = pos
         this.maxSpeed = 6
         this.speed = this.maxSpeed
+        
         this.energy = 3
         this.maxEnergy = 3
-        this.color = "red"
+        
         this.health = 10
         this.maxHealth = 10
         this.hand.max = 4
+
+        //default deck
+        //2 repair
+        this.draw.add(CardTypes.repair, 1)
+        //2 sprint
+        this.draw.add(CardTypes.sprint, 2)
     }
 
     // Model

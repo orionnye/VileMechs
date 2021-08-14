@@ -16,8 +16,12 @@ export default class Card {
     color: string = randomColor()
     type = CardTypes.laser
 
-    constructor() {
-        this.type = randomCardType()
+    constructor( cardType?: typeof CardTypes.laser) {
+        if ( cardType ) {
+            this.type = cardType
+        } else {
+            this.type = randomCardType()
+        }
     }
 
     render() {

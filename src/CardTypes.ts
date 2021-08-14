@@ -154,7 +154,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         description: "Take 2 damage and\n double target\n mobility this turn",
         color: "#0000aa",
         sprite: sprint,
-        backing: flesh,
+        backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
         onApplyToTile: ( user, pos, target ) => {
