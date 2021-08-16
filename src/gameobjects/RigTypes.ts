@@ -50,8 +50,8 @@ export class Flesh extends Unit {
         this.maxSpeed += 2
         this.speed = this.maxSpeed
         
-        this.draw.add(CardTypes.tentacle)
         this.draw.add(CardTypes.claw, 2)
+        this.draw.add(CardTypes.tentacle)
 
         this.cardCycle()
     }

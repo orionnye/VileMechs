@@ -98,7 +98,7 @@ export default class Unit {
         //empty hand
         hand.fill( discard )
         //fill hand
-        draw.fill(hand)
+        draw.fill( hand )
 
         //extra shuffle and draw if the drawpile was a bit low
         if ( hand.length < hand.max ) {

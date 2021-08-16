@@ -10,12 +10,10 @@ export default class CardTray {
     static selectionTimeout = 500
     static restingDepth = 24
     index = -1
-    cardCount: number
     lastSelectTime: number = -Infinity
     isPickingTarget = false
 
-    constructor( cardCount = 4 ) {
-        this.cardCount = cardCount
+    constructor() {
     }
 
     hasCardSelected() { return this.index > -1 }

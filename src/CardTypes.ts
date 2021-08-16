@@ -97,7 +97,8 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     bouldertoss: {
         name: "Boulder Toss",
-        description: "Place a Mountain \n and deal 3 damage",
+        // description: "Place a Mountain \n and deal 3 damage",
+        description: linesplit("Place a Mountain and deal 3 damage broh"),
         color: "#885555",
         sprite: boulder,
         backing: brown,
@@ -218,6 +219,22 @@ const CardTypes: { [ name: string ]: CardType } = {
         }
     }
 }
+
+// Returns a string with \n every ~17 characters
+function linesplit(input: string) {
+    let n = 17
+    let linebreak = "\n"
+    let outstring = ""
+    let splitnum = Math.floor(input.length / n)
+    for (let i = 0; i <= splitnum; i++) {
+        outstring += input.slice(outstring.length - i*linebreak.length, n*i) + linebreak
+    }
+    if (input.length % n > 0) {
+        outstring += input.slice((input.length - (input.length % n)), (input.length))
+    }
+    return outstring
+}
+
 export default CardTypes
 
 const cardTypeList = Object.values( CardTypes )
