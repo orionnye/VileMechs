@@ -26,7 +26,7 @@ const frost = getImg( require( "./www/images/cards/icon/frost.png" ) )
 const flesh = getImg( require( "./www/images/cards/backing/flesh.png" ) )
 const black = getImg( require( "./www/images/cards/backing/BlackCardBase.png" ) )
 const brown = getImg( require( "./www/images/cards/backing/BrownCardBase.png" ) )
-const green = getImg( require( "./www/images/cards/backing/GreenCardBase.png" ) )
+const green = getImg( require( "./www/images/cards/backing/jungle.png" ) )
 const metal = getImg( require( "./www/images/cards/backing/metal.png" ) )
 const purple = getImg( require( "./www/images/cards/backing/purple.png" ) )
 
@@ -118,7 +118,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         description: "Destroy a Mountain \nand deal 10 damage",
         color: "#000000",
         sprite: mine,
-        backing: brown,
+        backing: green,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 1 ),
         onApplyToTile: ( user, pos, target ) => {
