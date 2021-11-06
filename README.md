@@ -1,4 +1,4 @@
-# DeckMeld1
+# VileMechs
 A turn based strategy Deck builder.
 
 Spaces:
