@@ -12,6 +12,9 @@ import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
 import Unit from "./gameobjects/Unit"
 import content from "*.css"
+const vacationurl = require('./www/audio/Vacation.mp3')
+let vacation = new Audio(vacationurl)
+
 
 type Team = { name: string, flipUnits: boolean }
 
@@ -32,13 +35,16 @@ export default class Game {
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
+    music = true
+    musicPlaying = false
 
+    
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
         { name: "Choden Warriors", flipUnits: true }
     ]
     turn = 0
-
+    
     constructor() {
         Game.instance = this
         window.addEventListener( "click", ev => this.onClick( ev ) )
@@ -157,6 +163,16 @@ export default class Game {
             this.goBack()
         if ( ev.key == "Enter" ) {
             this.endTurn()
+        }
+        if ( ev.key == "m" ) {
+            if ( this.music && !this.musicPlaying ) {
+                vacation.play()
+                vacation.loop = true
+                this.musicPlaying = true;
+            } else {
+                vacation.pause()
+                this.musicPlaying = false
+            }
         }
     }
 
