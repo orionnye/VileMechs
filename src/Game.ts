@@ -14,6 +14,8 @@ import Unit from "./gameobjects/Unit"
 import content from "*.css"
 const vacationurl = require('./www/audio/Vacation.mp3')
 let vacation = new Audio(vacationurl)
+const knockurl = require('./www/audio/Knock.mp3')
+let knock = new Audio(knockurl)
 
 
 type Team = { name: string, flipUnits: boolean }
@@ -166,11 +168,13 @@ export default class Game {
         }
         if ( ev.key == "m" ) {
             if ( this.music && !this.musicPlaying ) {
-                vacation.play()
-                vacation.loop = true
+                // vacation.play()
+                // vacation.loop = true
+                knock.play()
+                knock.loop = true
                 this.musicPlaying = true;
             } else {
-                vacation.pause()
+                knock.pause()
                 this.musicPlaying = false
             }
         }
@@ -199,8 +203,8 @@ export default class Game {
 
         g.drawRect( musicPos, musicDim, "rgba(100, 100, 100, 0.8)" )
         let musicBang = this.musicPlaying? "!" : "?"
-        g.setFont( 15, "pixel" )
-        g.drawText( musicPos.add(new Vector(5, 20)), "MUSIC", "red" )
+        g.setFont( 30, "impact" )
+        g.drawText( musicPos.add(new Vector(5, 13)), "Music", "red" )
         g.setFont( 25, "pixel" )
         g.drawText( musicPos.add(new Vector(77, 14)), musicBang, "red" )
         g.setFont( 10, "pixel" )
