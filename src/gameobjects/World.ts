@@ -175,7 +175,7 @@ export default class World {
                     let path = findPath( this, selectedUnit.pos, cell, 100 )
                     if ( path ) {
                         path.length = Math.min( path.length, selectedUnit.speed )
-                        selectedUnit.move( path )
+                        selectedUnit.walkPath( path )
                     }
                 }
             },

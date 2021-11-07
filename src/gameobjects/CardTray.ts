@@ -1,7 +1,7 @@
 import Card from "./Card"
 import Game from "../Game"
 import Graphics from "../Graphics"
-import { clamp } from "../math/math"
+import { clamp, lerp } from "../math/math"
 import Matrix from "../math/Matrix"
 import { Vector } from "../math/Vector"
 import Scene, { SceneNode } from "../Scene"
@@ -50,20 +50,24 @@ export default class CardTray {
     }
 
     lerpCards( alpha ) {
+        let flipRate = 0.5
         let unit = Game.instance.selectedUnit()
         if ( unit ) {
             let hand = unit.hand, draw = unit.draw, discard = unit.discard
             hand.cards.forEach( ( card, i ) => {
                 let targetPos = this.handPosition( hand.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
+                card.yRotation = lerp( card.yRotation, 0, alpha * flipRate )
             } )
             draw.cards.forEach( ( card, i ) => {
                 let targetPos = this.drawPosition( draw.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
+                card.yRotation = lerp( card.yRotation, Math.PI, alpha * flipRate )
             } )
             discard.cards.forEach( ( card, i ) => {
                 let targetPos = this.discardPosition( discard.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
+                card.yRotation = lerp( card.yRotation, Math.PI, alpha * flipRate )
             } )
         }
     }
@@ -85,13 +89,13 @@ export default class CardTray {
     drawPosition( handLength: number, cardIndex: number ) {
         let screenSize = Game.instance.screenDimensions()
         let stride = 3, width = stride * handLength
-        let drawBase = new Vector( 20 - width, screenSize.y - Card.dimensions.y/1.2 )
+        let drawBase = new Vector( 20 - width, screenSize.y - Card.dimensions.y / 1.2 )
         return drawBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
     discardPosition( handLength: number, cardIndex: number ) {
         let screenSize = Game.instance.screenDimensions()
         let stride = 3, width = stride * handLength
-        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width, screenSize.y - Card.dimensions.y/1.2 )
+        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width, screenSize.y - Card.dimensions.y / 1.2 )
         return discardBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
 

@@ -49,19 +49,19 @@ export default class Unit {
         this.pos = pos
         this.maxSpeed = 6
         this.speed = this.maxSpeed
-        
+
         this.energy = 3
         this.maxEnergy = 3
-        
+
         this.health = 10
         this.maxHealth = 10
         this.hand.max = 4
 
         //default deck
         //2 repair
-        this.draw.add(CardTypes.repair, 1)
+        this.draw.add( CardTypes.repair, 1 )
         //2 sprint
-        this.draw.add(CardTypes.sprint, 2)
+        this.draw.add( CardTypes.sprint, 2 )
     }
 
     // Model
@@ -85,12 +85,16 @@ export default class Unit {
     }
 
     move( path: Vector[] ) {
-        if ( this.hasMovedThisTurn )
-            throw new Error( "Should not be trying to move when a unit has already moved this turn." )
-        this.hasMovedThisTurn = true
         this.pos = path[ path.length - 1 ]
         this.walkAnimStep = 0
         this.walkAnimPath = path
+    }
+
+    walkPath( path: Vector[] ) {
+        if ( this.hasMovedThisTurn )
+            throw new Error( "Should not be trying to move when a unit has already moved this turn." )
+        this.hasMovedThisTurn = true
+        this.move( path )
     }
 
     cardCycle() {
@@ -103,8 +107,8 @@ export default class Unit {
         //extra shuffle and draw if the drawpile was a bit low
         if ( hand.length < hand.max ) {
             //empty discard into draw
-            discard.fill(draw)
-            draw.fill(hand)
+            discard.fill( draw )
+            draw.fill( hand )
         }
     }
 

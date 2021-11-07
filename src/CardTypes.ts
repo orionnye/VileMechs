@@ -32,20 +32,21 @@ const purple = getImg( require( "./www/images/cards/backing/purple.png" ) )
 
 export type CardType = {
     name: string,
-    description: string,
+    getDescription: ( card: Card ) => string,
     color: string,
     sprite: HTMLImageElement,
     backing: HTMLImageElement,
     canApplyToEmptyTiles: boolean,
     getTilesInRange: ( user: Unit ) => Vector[]
     onApply?: ( user: Unit ) => void
-    onApplyToTile?: ( user: Unit, pos: Vector, target?: Unit ) => void
+    onApplyToTile?: ( user: Unit, pos: Vector, target?: Unit ) => void,
+    [ index: string ]: any
 }
 
 const CardTypes: { [ name: string ]: CardType } = {
     laser: {
         name: "Laser",
-        description: "Deal 8 damage \n to target",
+        getDescription: card => `Deal 8 damage to target`,
         color: "#f54242",
         sprite: laser,
         backing: metal,
@@ -58,7 +59,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     ore: {
         name: "Ore",
-        description: "Shiny Stone that \n might prove useful \n after the battle... \nUse to remove",
+        getDescription: card => "Shiny Stone that might prove useful after the battle... Use to remove",
         color: "#aaaaaa",
         sprite: ore,
         backing: black,
@@ -74,7 +75,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     tentacle: {
         name: "Tentacle Pull",
-        description: "Pull target to you\nfrom 5 tiles away.\nTake 1 damage",
+        getDescription: card => "Pull target to you from 5 tiles away. Take 1 damage",
         color: "#aaaaaa",
         sprite: tentacle,
         backing: purple,
@@ -85,20 +86,21 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.addEnergy( -1 )
             if ( target ) {
                 //Chaining Ternary functions are weird man
-                let xShift = (user.pos.x < target.pos.x) ?
-                    user.pos.x + 1 : (user.pos.x == target.pos.x) ?
-                    user.pos.x : user.pos.x - 1
-                let yShift = (user.pos.y < target.pos.y) ?
-                    user.pos.y + 1 : (user.pos.y == target.pos.y) ?
-                    user.pos.y : user.pos.y - 1
-                target.pos = new Vector(xShift, yShift)
+                let xShift = ( user.pos.x < target.pos.x ) ?
+                    user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
+                        user.pos.x : user.pos.x - 1
+                let yShift = ( user.pos.y < target.pos.y ) ?
+                    user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
+                        user.pos.y : user.pos.y - 1
+                let newPos = new Vector( xShift, yShift )
+                let path = [ target.pos, newPos ]
+                target.move( path )
             }
         }
     },
     bouldertoss: {
         name: "Boulder Toss",
-        // description: "Place a Mountain \n and deal 3 damage",
-        description: linesplit("Place a Mountain and deal 3 damage broh"),
+        getDescription: card => "Place a Mountain and deal 3 damage broh",
         color: "#885555",
         sprite: boulder,
         backing: brown,
@@ -115,7 +117,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     mine: {
         name: "Mine",
-        description: "Destroy a Mountain \nand deal 10 damage",
+        getDescription: card => "Destroy a Mountain and deal 10 damage",
         color: "#000000",
         sprite: mine,
         backing: green,
@@ -139,7 +141,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     repair: {
         name: "Auto-Repair",
-        description: "Heal yourself or \n a nearby unit for \n 7 health",
+        getDescription: card => "Heal yourself or a nearby unit for 7 health",
         color: "#32a852",
         sprite: repair,
         backing: metal,
@@ -152,7 +154,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     sprint: {
         name: "Sprint",
-        description: "Take 2 damage and\n double target\n mobility this turn",
+        getDescription: card => "Take 2 damage and double target mobility this turn",
         color: "#0000aa",
         sprite: sprint,
         backing: metal,
@@ -168,7 +170,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     claw: {
         name: "Claw",
-        description: "Deal 1 damage, \n+ any health \ncurrently missing\n Range 3\n 0 Energy",
+        getDescription: card => "Deal 1 damage, + any health currently missing Range 3 0 Energy",
         color: "#0000aa",
         sprite: claw,
         backing: flesh,
@@ -178,13 +180,13 @@ const CardTypes: { [ name: string ]: CardType } = {
             // user.energy -= 1
             if ( target ) {
                 let bonusDMG = user.maxHealth - user.health
-                target.health -= (1 + bonusDMG)
+                target.health -= ( 1 + bonusDMG )
             }
         }
     },
     acid: {
         name: "Acid",
-        description: "Melts Armor,\n target maxHealth -= 3\ntarget speed += 1\n userEnergy -= 1\n range = 7",
+        getDescription: card => "Melts Armor, target maxHealth -= 3 target speed += 1 userEnergy -= 1 range = 7",
         color: "#0000aa",
         sprite: acid,
         backing: purple,
@@ -201,7 +203,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     frost: {
         name: "Frost",
-        description: "Deals damage = to \n targets missing health \nuserHealth -= 2 \n range = 8\n userEnergy -= 1",
+        getDescription: card => "Deals damage = to targets missing health userHealth -= 2 range = 8 userEnergy -= 1",
         color: "#0000aa",
         sprite: frost,
         backing: metal,
@@ -210,7 +212,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( user, pos, target ) => {
             user.energy -= 1
             user.health -= 2
-            
+
             //deals damage to target based on previously sustained damage
             if ( target ) {
                 let damage = target.maxHealth - target.health
@@ -218,21 +220,6 @@ const CardTypes: { [ name: string ]: CardType } = {
             }
         }
     }
-}
-
-// Returns a string with \n every ~17 characters
-function linesplit(input: string) {
-    let n = 17
-    let linebreak = "\n"
-    let outstring = ""
-    let splitnum = Math.floor(input.length / n)
-    for (let i = 0; i <= splitnum; i++) {
-        outstring += input.slice(outstring.length - i*linebreak.length, n*i) + linebreak
-    }
-    if (input.length % n > 0) {
-        outstring += input.slice((input.length - (input.length % n)), (input.length))
-    }
-    return outstring
 }
 
 export default CardTypes
