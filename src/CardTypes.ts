@@ -31,31 +31,33 @@ const metal = getImg( require( "./www/images/cards/backing/metal.png" ) )
 const purple = getImg( require( "./www/images/cards/backing/purple.png" ) )
 
 export type CardType = {
-    name: string,
-    getDescription: ( card: Card ) => string,
-    color: string,
-    sprite: HTMLImageElement,
-    backing: HTMLImageElement,
-    canApplyToEmptyTiles: boolean,
-    getTilesInRange: ( user: Unit ) => Vector[]
-    onApply?: ( user: Unit ) => void
-    onApplyToTile?: ( user: Unit, pos: Vector, target?: Unit ) => void,
+    name: string
+    getDescription: ( card: Card ) => string
+    color: string
+    sprite: HTMLImageElement
+    backing: HTMLImageElement
+    canApplyToEmptyTiles: boolean
+    getTilesInRange: ( card: Card, user: Unit ) => Vector[]
+    onApplyToTile?: ( card: Card, user: Unit, pos: Vector, target?: Unit ) => void
+
     [ index: string ]: any
 }
 
 const CardTypes: { [ name: string ]: CardType } = {
     laser: {
         name: "Laser",
-        getDescription: card => `Deal 8 damage to target`,
+        getDescription: card => `Deal ${ card.type.damage } damage to target`,
         color: "#f54242",
         sprite: laser,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => rookStyleTargets( user.pos, { range: 5 } ),
-        onApplyToTile: ( user, pos, target ) => {
-            target?.addHealth( -8 )
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: 5 } ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            target?.addHealth( -card.type.damage )
             user?.addEnergy( -1 )
-        }
+        },
+
+        damage: 8
     },
     ore: {
         name: "Ore",
@@ -64,8 +66,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: ore,
         backing: black,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 0 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 0 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             // console.log(user.hand)
             user.addEnergy( -1 )
             // target?.addMaxHealth( 2 )
@@ -75,13 +77,13 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     tentacle: {
         name: "Tentacle Pull",
-        getDescription: card => "Pull target to you from 5 tiles away. Take 1 damage",
+        getDescription: card => `Pull target to you from ${ card.type.range } tiles away.`,
         color: "#aaaaaa",
         sprite: tentacle,
         backing: purple,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 5 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 1, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
             // console.log(user.hand)
             user.addEnergy( -1 )
             if ( target ) {
@@ -96,7 +98,9 @@ const CardTypes: { [ name: string ]: CardType } = {
                 let path = [ target.pos, newPos ]
                 target.move( path )
             }
-        }
+        },
+
+        range: 5
     },
     bouldertoss: {
         name: "Boulder Toss",
@@ -105,8 +109,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: boulder,
         backing: brown,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 3, 6 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 3, 6 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
             world.map.set( pos, 1 )
@@ -122,8 +126,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: mine,
         backing: green,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 1 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 1, 1 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
             // console.log(world.map.get(pos))
@@ -146,8 +150,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: repair,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 1 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             target?.addHealth( 7 )
             user?.addEnergy( -1 )
         }
@@ -159,8 +163,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: sprint,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 1 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             user?.addHealth( -2 )
             user?.addEnergy( -1 )
             if ( target ) {
@@ -175,8 +179,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: claw,
         backing: flesh,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 1, 3 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 1, 3 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             // user.energy -= 1
             if ( target ) {
                 let bonusDMG = user.maxHealth - user.health
@@ -191,8 +195,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: acid,
         backing: purple,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 7 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 7 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             user.energy -= 1
 
             if ( target ) {
@@ -208,8 +212,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: frost,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( user ) => targetsWithinRange( user.pos, 0, 1 ),
-        onApplyToTile: ( user, pos, target ) => {
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 1 ),
+        onApplyToTile: ( card, user, pos, target ) => {
             user.energy -= 1
             user.health -= 2
 

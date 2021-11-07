@@ -58,13 +58,13 @@ export default class Card {
     }
 
     getTilesInRange( user: Unit ) {
-        return this.type.getTilesInRange( user )
+        return this.type.getTilesInRange( this, user )
     }
 
     apply( user: Unit, pos: Vector, target?: Unit ) {
         const type = this.type
         if ( type.onApplyToTile )
-            type.onApplyToTile( user, pos, target )
+            type.onApplyToTile( this, user, pos, target )
     }
 }
 

@@ -36,6 +36,17 @@ export default class CardTray {
     onSelectUnit() {
         this.deselect()
         this.lerpCards( 1 )
+
+        let unit = Game.instance.selectedUnit()
+        if ( unit ) {
+            let { hand, draw, discard } = unit
+            let decks = [ hand, draw, discard ]
+            for ( let deck of decks ) {
+                for ( let card of deck.cards ) {
+                    card.yRotation = Math.PI / 2
+                }
+            }
+        }
     }
 
     update() {
@@ -53,7 +64,7 @@ export default class CardTray {
         let flipRate = 0.5
         let unit = Game.instance.selectedUnit()
         if ( unit ) {
-            let hand = unit.hand, draw = unit.draw, discard = unit.discard
+            let { hand, draw, discard } = unit
             hand.cards.forEach( ( card, i ) => {
                 let targetPos = this.handPosition( hand.length, i )
                 card.pos = card.pos.lerp( targetPos, alpha )
