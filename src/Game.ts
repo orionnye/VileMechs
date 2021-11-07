@@ -192,6 +192,22 @@ export default class Game {
         } else {
             Scene.render( g.c, this.scene, false )
         }
+
+        //music Display
+        let musicDim = new Vector(100, 100)
+        let musicPos = new Vector(window.innerWidth-100, 0)
+
+        g.drawRect( musicPos, musicDim, "rgba(100, 100, 100, 0.8)" )
+        let musicBang = this.musicPlaying? "!" : "?"
+        g.setFont( 15, "pixel" )
+        g.drawText( musicPos.add(new Vector(5, 20)), "MUSIC", "red" )
+        g.setFont( 25, "pixel" )
+        g.drawText( musicPos.add(new Vector(77, 14)), musicBang, "red" )
+        g.setFont( 10, "pixel" )
+        g.drawText( musicPos.add(new Vector(5, 50)), "press 'M'", "black" )
+        g.drawText( musicPos.add(new Vector(5, 70)), "to toggle", "black" )
+        // console.log(window.innerWidth)
+
         if ( this.showFPS ) {
             g.setFont( 24, "impact" )
             g.drawText( Vector.one.scale( 2 ), this.clock.averageFPS.toFixed( 2 ), "red" )
