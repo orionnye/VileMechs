@@ -1,7 +1,7 @@
 {
   "name": "vilemechs",
   "version": "1.0.0",
-  "description": "Pulling together multiple projects to make a game. It's gonna be messy so here's the first attempt.",
+  "description": "",
   "scripts": {
     "watch": "parcel src/index.html",
     "deploy": "npm-run-all deploy:*",

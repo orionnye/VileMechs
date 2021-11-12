@@ -12,10 +12,10 @@ import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
 import Unit from "./gameobjects/Unit"
 import content from "*.css"
-const vacationurl = require('./www/audio/Vacation.mp3')
-let vacation = new Audio(vacationurl)
-const knockurl = require('./www/audio/Knock.mp3')
-let knock = new Audio(knockurl)
+const vacationurl = require( './www/audio/Vacation.mp3' )
+let vacation = new Audio( vacationurl )
+const knockurl = require( './www/audio/Knock.mp3' )
+let knock = new Audio( knockurl )
 
 
 type Team = { name: string, flipUnits: boolean }
@@ -40,13 +40,13 @@ export default class Game {
     music = true
     musicPlaying = false
 
-    
+
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
         { name: "Choden Warriors", flipUnits: true }
     ]
     turn = 0
-    
+
     constructor() {
         Game.instance = this
         window.addEventListener( "click", ev => this.onClick( ev ) )
@@ -198,18 +198,18 @@ export default class Game {
         }
 
         //music Display
-        let musicDim = new Vector(100, 100)
-        let musicPos = new Vector(window.innerWidth-100, 0)
+        let musicDim = new Vector( 100, 100 )
+        let musicPos = new Vector( window.innerWidth - 100, 0 )
 
         g.drawRect( musicPos, musicDim, "rgba(100, 100, 100, 0.8)" )
-        let musicBang = this.musicPlaying? "!" : "?"
+        let musicBang = this.musicPlaying ? "!" : "?"
         g.setFont( 30, "impact" )
-        g.drawText( musicPos.add(new Vector(5, 13)), "Music", "red" )
+        g.drawText( musicPos.add( new Vector( 5, 13 ) ), "Music", "red" )
         g.setFont( 25, "pixel" )
-        g.drawText( musicPos.add(new Vector(77, 14)), musicBang, "red" )
+        g.drawText( musicPos.add( new Vector( 77, 14 ) ), musicBang, "red" )
         g.setFont( 10, "pixel" )
-        g.drawText( musicPos.add(new Vector(5, 50)), "press 'M'", "black" )
-        g.drawText( musicPos.add(new Vector(5, 70)), "to toggle", "black" )
+        g.drawText( musicPos.add( new Vector( 5, 50 ) ), "press 'M'", "black" )
+        g.drawText( musicPos.add( new Vector( 5, 70 ) ), "to toggle", "black" )
         // console.log(window.innerWidth)
 
         if ( this.showFPS ) {
