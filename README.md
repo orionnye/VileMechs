@@ -13,6 +13,9 @@ Spaces:
 # Setup
 
    ```git clone https://github.com/orionnye/VileMechs.git```
+   
    ```cd VileMechs```
+   
    ```npm install parcel```
+   
    ```parcel src/index.html```
