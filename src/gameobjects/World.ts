@@ -8,9 +8,7 @@ import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
 import { Treant, Chrome, Flesh } from "./RigTypes"
-
-const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
-const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
+import * as Tiles from "../map/Tiles"
 
 export default class World {
     static tileSize = 32
@@ -33,16 +31,17 @@ export default class World {
 
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize( 0.2 )
+            this.map.randomize( 0.2, Tiles.GrassHill )
+            this.map.randomize( 0.01, Tiles.AncientMech )
             for ( let unit of this.units ) {
-                this.map.set( unit.pos, 0 )
+                this.map.set( unit.pos, Tiles.Grass )
             }
         } else {
             //custom map
-            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), 1 )
-            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), 0 )
-            this.map.set( new Vector( 4, 3 ), 0 )
-            this.map.set( new Vector( 5, 6 ), 0 )
+            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
+            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), Tiles.Grass )
+            this.map.set( new Vector( 4, 3 ), Tiles.Grass )
+            this.map.set( new Vector( 5, 6 ), Tiles.Grass )
         }
     }
 
@@ -141,11 +140,8 @@ export default class World {
             for ( let x = 0; x < map.width; x++ ) {
                 let currentPos = new Vector( x * tileSize, y * tileSize )
                 let tile = map.getFromXY( x, y )
-                if ( tile.content == map.wall ) {
-                    g.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
-                } else {
-                    g.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
-                }
+                // g.c.drawImage( tile.texture, currentPos.x, currentPos.y )
+                tile.render( currentPos.x, currentPos.y )
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
                     let currentText = x.toString() + ", " + y.toString()
