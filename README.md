@@ -16,6 +16,8 @@ Spaces:
    
    ```cd VileMechs```
    
-   ```npm install parcel```
+   ```yarn install```
    
-   ```parcel src/index.html```
+# Running
+   
+   ```yarn watch```
