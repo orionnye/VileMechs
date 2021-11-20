@@ -11,6 +11,8 @@ import { Treant, Chrome, Flesh } from "./RigTypes"
 
 const hillTileImg = getImg( require( "../www/images/tiles/flat/hill5.png" ) )
 const grassTileImg = getImg( require( "../www/images/tiles/flat/grass.png" ) )
+const shallowTileImg = getImg( require( "../www/images/tiles/flat/ShallowWater.png" ) )
+const deepTileImg = getImg( require( "../www/images/tiles/flat/DeepWater.png" ) )
 
 export default class World {
     static tileSize = 32
@@ -19,7 +21,7 @@ export default class World {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor() {
-        this.map = new Grid( 15, 15 )
+        this.map = new Grid( 25, 25 )
         this.units = [
             new Flesh( new Vector( 1, 1 ), 0 ),
             new Treant( new Vector( 2, 2 ), 0 ),
@@ -33,10 +35,11 @@ export default class World {
 
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize( 0.2 )
-            for ( let unit of this.units ) {
-                this.map.set( unit.pos, 0 )
-            }
+            this.map.randomize2( 0.2 )
+            // for ( let unit of this.units ) {
+            //     this.map.set( unit.pos, 0 )
+            // }
+            this.map.placeUnits(this.units)
         } else {
             //custom map
             this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), 1 )
@@ -141,10 +144,19 @@ export default class World {
             for ( let x = 0; x < map.width; x++ ) {
                 let currentPos = new Vector( x * tileSize, y * tileSize )
                 let tile = map.getFromXY( x, y )
-                if ( tile.content == map.wall ) {
-                    g.c.drawImage( hillTileImg, currentPos.x, currentPos.y )
-                } else {
-                    g.c.drawImage( grassTileImg, currentPos.x, currentPos.y )
+                switch(tile.content){
+                    case map.wall:{
+                        g.c.drawImage( hillTileImg, currentPos.x, currentPos.y );
+                        break;}
+                    case map.shallowWater:{
+                        g.c.drawImage( shallowTileImg, currentPos.x, currentPos.y );
+                        break;}
+                    case map.deepWater:{
+                        g.c.drawImage( deepTileImg, currentPos.x, currentPos.y );
+                        break;}
+                    default:{
+                        g.c.drawImage( grassTileImg, currentPos.x, currentPos.y );
+                        break;}
                 }
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
