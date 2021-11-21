@@ -137,7 +137,9 @@ export default class Unit {
     // View
     render( animate = true, showName = true ) {
         let g = Graphics.instance
-        let frame = animate ? getFrameNumber( 2, 2 ) : 0
+        let nFrames = this.sprite.height / 32
+        let frame = animate ? getFrameNumber( 2 * nFrames / 2, nFrames ) : 0
+        // let frame = animate ? getFrameNumber( 2, 2 ) : 0
 
         let isWalking = animate && this.isWalking()
         if ( isWalking ) {
