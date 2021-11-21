@@ -156,4 +156,7 @@ export default class Grid {
     isEmpty( pos: Vector ) {
         return this.get( pos ).getTraversalCost() < Infinity
     }
+    getElevation( pos: Vector ) {
+        return this.get( pos )?.getElevation() ?? 0
+    }
 }

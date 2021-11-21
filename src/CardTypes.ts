@@ -238,27 +238,36 @@ export function randomCardType() {
 // Target generation
 function targetsAlongLine(
     pos: Vector, delta: Vector,
-    { range = Infinity, ignoreObstacles = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
+        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {
     let world = Game.instance.world
+    let elevation0 = world.map.getElevation( pos )
     for ( let i = 1; i <= range; i++ ) {
         let p2 = pos.add( delta.scale( i ) )
-        let walkable = world.map.contains( p2 ) && ( ignoreObstacles || world.isWalkable( p2, false ) )
+        let inBounds = world.map.contains( p2 )
         let hitsUnit = world.getUnit( p2 ) !== undefined
-        if ( !walkable )
+        if ( !inBounds )
             break
+        // let walkable = inBounds && ( ignoreObstacles || world.isWalkable( p2, false ) )
+        // if ( !walkable )
+        //     break
         result.push( p2 )
         if ( !ignoreObstacles && hitsUnit )
             break
+        if ( !ignoreElevation ) {
+            let elevation = world.map.getElevation( p2 )
+            if ( elevation > elevation0 )
+                break
+        }
     }
     return result
 }
 
 function rookStyleTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
+        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {
     targetsAlongLine( pos, new Vector( 1, 0 ), { range, ignoreObstacles, result } )
     targetsAlongLine( pos, new Vector( -1, 0 ), { range, ignoreObstacles, result } )
@@ -269,8 +278,8 @@ function rookStyleTargets(
 
 function bishopStyleTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
+        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {
     targetsAlongLine( pos, new Vector( 1, 0 ), { range, ignoreObstacles, result } )
     targetsAlongLine( pos, new Vector( -1, 0 ), { range, ignoreObstacles, result } )
