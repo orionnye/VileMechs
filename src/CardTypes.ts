@@ -5,6 +5,7 @@ import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
 import { findPath } from "./pathfinding"
+import * as Tiles from "./map/Tiles"
 
 //I have no idea why this requires one period but it does
 //Ores
@@ -131,7 +132,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             // console.log(pos)
             let world = Game.instance.world
             // console.log(world.map.get(pos))
-            if ( world.map.get( pos ).content == 1 ) {
+            if ( world.map.get( pos ) == Tiles.GrassHill ) {
                 world.map.set( pos, 0 )
                 for ( let i = 0; i < 2; i++ ) {
                     let card = new Card()
