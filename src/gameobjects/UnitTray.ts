@@ -15,7 +15,7 @@ export default class UnitTray {
             if ( ev.key == "Tab" ) {
                 ev.preventDefault()
                 //another player permission switch
-                if (Game.instance.isPlayerTurn()) {
+                if (!Game.instance.isAITurn()) {
                     this.cycleUnits()
                 }
             }

@@ -38,8 +38,6 @@ export default class Unit {
     walkAnimRate: number = 10 // Tiles per second
     walkAnimPath?: Vector[]
 
-    hasMovedThisTurn: boolean = false
-
     constructor( pos, teamNumber, sprite: HTMLImageElement = mechSheet ) {
         this.sprite = sprite
         this.name = names[ randomFloor( names.length ) ]
@@ -91,10 +89,13 @@ export default class Unit {
     }
 
     walkPath( path: Vector[] ) {
-        if ( this.hasMovedThisTurn )
-            throw new Error( "Should not be trying to move when a unit has already moved this turn." )
-        this.hasMovedThisTurn = true
-        this.move( path )
+        // if ( this.hasMovedThisTurn )
+        //     throw new Error( "Should not be trying to move when a unit has already moved this turn." )
+        // this.hasMovedThisTurn = true
+        if (this.energy > 0) {
+            this.move( path )
+            this.energy -= 1
+        }
     }
 
     cardCycle() {
@@ -112,12 +113,11 @@ export default class Unit {
         }
     }
 
-    canMove() { return !this.isWalking() && !this.hasMovedThisTurn }
+    canMove() { return !this.isWalking() }
     isWalking() { return this.walkAnimPath != undefined }
 
     onEndTurn() {
         //Stat Reset
-        this.hasMovedThisTurn = false
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
         this.cardCycle()

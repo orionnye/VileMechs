@@ -132,7 +132,7 @@ export default class CardTray {
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
             onHover: () => { 
-                if ( !this.isPickingTarget && Game.instance.isPlayerTurn()) {
+                if ( !this.isPickingTarget && !Game.instance.isAITurn()) {
                     this.selectIndex( i )
                 }
             },

@@ -40,11 +40,13 @@ export default class Game {
     music = true
     musicPlaying = false
     playerTeamNumber = 0
-    enemyTeamName = "Choden Warriors"
+    aiTeamNumbers = [-1]
 
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
-        { name: this.enemyTeamName, flipUnits: true }
+        { name: "Choden Warriors", flipUnits: true },
+        // { name: "Thermate Embalmers", flipUnits: false },
+        // { name: "Frozen Meyers", flipUnits: true }
     ]
     turn = 0
 
@@ -60,7 +62,7 @@ export default class Game {
     }
 
     //----------------MODEL------------------
-    isPlayerTurn() { return this.turn == this.playerTeamNumber }
+    isAITurn() { return this.aiTeamNumbers.includes(this.turn)}
     playerUnits() { return this.world.units.filter( unit => unit.teamNumber == this.turn ) }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
@@ -108,37 +110,54 @@ export default class Game {
         }
         this.turn++
         this.turn %= this.teams.length
-        if (!this.isPlayerTurn()) {
+        //---------------------ENEMY AI-------------------------
+        if (this.isAITurn()) {
             console.log("Enemy turn")
             console.log("taking enemy action")
-            for ( let unit of this.world.units ) {
-                if (unit.teamNumber !== this.playerTeamNumber) {
+            this.world.units.forEach(unit => {
+                if (unit.teamNumber == this.turn) {
                     // select enemy unit
                     window.setTimeout(() => {
-                        console.log("selecting enemy Unit")
-                        this.unitTray.selectUnit( unit );
-                        this.onSelectUnit()
-                    }, 500)
-                    // move
-                    window.setTimeout(() => {
-                        console.log(unit.pos)
-                        unit.pos = unit.pos.add(new Vector(0, -1))
-                    }, 1000)
-                    // selecting a card
-                    window.setTimeout(() => {
-                        console.log(unit.hand.cards[0])
-                        this.cardTray.selectIndex(0)
-                    }, 1500)
-                    //using card
-                    window.setTimeout(() => {
-                        this.applyCardAt(unit.pos)
-                    }, 2000)
-                    console.log("ending turn for unit:", unit)
+                        window.setTimeout(() => {
+                            console.log("selecting enemy Unit:", unit)
+                            this.unitTray.selectUnit( unit );
+                            this.onSelectUnit()
+                        }, 500)
+                        // selecting a card
+                        window.setTimeout(() => {
+                            // console.log(unit.hand.cards[0])
+                            // this.cardTray.selectIndex(0)
+                        }, 650)
+                        //using card
+                        window.setTimeout(() => {
+                            // this.applyCardAt(unit.pos)
+                        }, 800)
+                        // move
+                        window.setTimeout(() => {
+                            console.log(unit.pos)
+                            unit.pos = unit.pos.add(new Vector(0, -1))
+                        }, 1000)
+                        // selecting a card
+                        window.setTimeout(() => {
+                            console.log(unit.hand.cards[0])
+                            this.cardTray.selectIndex(0)
+                        }, 1500)
+                        //using card
+                        window.setTimeout(() => {
+                            this.applyCardAt(unit.pos)
+                        }, 2000)
+                        //ending unit turn
+                        window.setTimeout(() => {
+                            console.log("ending turn for unit:", unit)
+                            unit.onEndTurn()
+                        }, 2500)
+                    }, 300)
                 }
-            }
+            })
+            // ending team turn
             window.setTimeout(() => {
                 this.endTurn()
-            }, 2000);
+            }, 3500);
         }
 
         this.unitTray.deselect()
@@ -161,7 +180,7 @@ export default class Game {
     //---------------------------User Input---------------------------
     onClick( ev: MouseEvent ) {
         //switch that shuts off player input during enemy turn
-        if (this.isPlayerTurn()) {
+        if (!this.isAITurn()) {
             let cursor = this.input.cursor
             let { node, point } = Scene.pick( this.scene, cursor )
             if ( node && !this.input.keys.get( "shift" ) ) {
@@ -205,7 +224,7 @@ export default class Game {
             this.goBack()
         if ( ev.key == "Enter" ) {
             //stops you from skipping enemies turn
-            if (this.teams[this.turn].name !== this.enemyTeamName) {
+            if (!this.isAITurn()) {
                 this.endTurn()
             }
         }

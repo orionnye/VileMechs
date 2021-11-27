@@ -19,11 +19,20 @@ export default class World {
     constructor() {
         this.map = new Grid( 25, 25 )
         this.units = [
-            new Flesh( new Vector( 1, 1 ), 0 ),
-            new Treant( new Vector( 2, 2 ), 0 ),
+            new Chrome( new Vector( 1, 1 ), 0 ),
+            new Chrome( new Vector( 2, 2 ), 0 ),
             new Chrome( new Vector( 3, 1 ), 0 ),
             new Chrome( new Vector( 4, 2 ), 0 ),
             new Jelly( new Vector( 12, 12 ), 1 ),
+            new Jelly( new Vector( 12, 12 ), 1 ),
+            new Jelly( new Vector( 12, 12 ), 1 ),
+            new Jelly( new Vector( 12, 12 ), 1 ),
+            // new Flesh( new Vector( 5, 5), 2 ),
+            // new Flesh( new Vector( 5, 5), 2 ),
+            // new Flesh( new Vector( 5, 5), 2 ),
+            // new Treant( new Vector(4, 4), 3 ),
+            // new Treant( new Vector(4, 4), 3 ),
+            // new Treant( new Vector(4, 2), 3 )
         ]
 
         let randomTerrain = true
@@ -84,11 +93,11 @@ export default class World {
         let cursor = this.tileSpaceCursor()
         let selectedUnit = Game.instance.unitTray.selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-        let playerTurn = Game.instance.isPlayerTurn()
+        let AITurn = Game.instance.isAITurn()
         this.drawMap()
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() && playerTurn) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() && !AITurn) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length
