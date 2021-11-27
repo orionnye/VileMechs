@@ -20,7 +20,7 @@ export default class Camera {
         this.position = new Vector( 350, 350 )
         this.velocity = new Vector( 0, 0 )
         //soomlevel should be 0
-        this.zoomLevel = -4
+        this.zoomLevel = -2
         this.rotation = 0
     }
 

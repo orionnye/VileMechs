@@ -19,14 +19,14 @@ export default class World {
     constructor() {
         this.map = new Grid( 25, 25 )
         this.units = [
+            new Flesh( new Vector( 12, 12 ), 0 ),
+            new Treant( new Vector( 12, 12 ), 0 ),
             new Chrome( new Vector( 1, 1 ), 0 ),
             new Chrome( new Vector( 2, 2 ), 0 ),
-            new Chrome( new Vector( 3, 1 ), 0 ),
-            new Chrome( new Vector( 4, 2 ), 0 ),
-            new Jelly( new Vector( 12, 12 ), 1 ),
-            new Jelly( new Vector( 12, 12 ), 1 ),
-            new Jelly( new Vector( 12, 12 ), 1 ),
-            new Jelly( new Vector( 12, 12 ), 1 ),
+            new Flesh( new Vector( 12, 12 ), 1 ),
+            new Treant( new Vector( 12, 12 ), 1 ),
+            new Chrome( new Vector( 3, 1 ), 1 ),
+            new Chrome( new Vector( 4, 2 ), 1 ),
             // new Flesh( new Vector( 5, 5), 2 ),
             // new Flesh( new Vector( 5, 5), 2 ),
             // new Flesh( new Vector( 5, 5), 2 ),
