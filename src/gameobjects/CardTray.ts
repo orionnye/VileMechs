@@ -131,7 +131,11 @@ export default class CardTray {
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
-            onHover: () => { if ( !this.isPickingTarget ) this.selectIndex( i ) },
+            onHover: () => { 
+                if ( !this.isPickingTarget && Game.instance.isPlayerTurn()) {
+                    this.selectIndex( i )
+                }
+            },
             onClick: () => {
                 let isSelectedCard = this.index == i
                 if ( this.isPickingTarget && isSelectedCard ) {

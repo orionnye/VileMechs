@@ -39,11 +39,12 @@ export default class Game {
     clock = new Clock()
     music = true
     musicPlaying = false
-
+    playerTeamNumber = 0
+    enemyTeamName = "Choden Warriors"
 
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
-        { name: "Choden Warriors", flipUnits: true }
+        { name: this.enemyTeamName, flipUnits: true }
     ]
     turn = 0
 
@@ -58,7 +59,8 @@ export default class Game {
         this.moveCamToFirstUnit()
     }
 
-    // Model
+    //----------------MODEL------------------
+    isPlayerTurn() { return this.turn == this.playerTeamNumber }
     playerUnits() { return this.world.units.filter( unit => unit.teamNumber == this.turn ) }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
@@ -99,35 +101,65 @@ export default class Game {
         }
     }
     endTurn() {
+        console.log("Ending turn")
         for ( let unit of this.world.units ) {
             if ( unit.teamNumber == this.turn )
                 unit.onEndTurn()
         }
         this.turn++
         this.turn %= this.teams.length
+        if (!this.isPlayerTurn()) {
+            console.log("Enemy turn")
+            console.log("taking enemy action")
+            for ( let unit of this.world.units ) {
+                if (unit.teamNumber !== this.playerTeamNumber) {
+                    //select enemy unit
+                    window.setTimeout(() => {
+                        console.log("selecting enemy Unit")
+                        this.unitTray.selectUnit( unit );
+                        this.onSelectUnit()
+                    }, 100)
+                    //move
+                    window.setTimeout(() => {
+                        
+                    }, 100)
+                    //play cards
+                    console.log("ending turn for unit:", unit)
+                    unit.onEndTurn()
+                }
+            }
+            window.setTimeout(() => {
+                this.endTurn()
+            }, 5000);
+        }
 
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
     }
+    //----------------------UPDATE---------------------------- 
     update() {
         this.clock.nextFrame()
         this.world.update()
         this.cardTray.update()
         this.makeSceneNode()
         this.camera.update()
+
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )
-            node.onHover( node, point )
+        node.onHover( node, point )
     }
 
-    // Controls
+    //---------------------------User Input---------------------------
     onClick( ev: MouseEvent ) {
-        let cursor = this.input.cursor
-        let { node, point } = Scene.pick( this.scene, cursor )
-        if ( node && !this.input.keys.get( "shift" ) ) {
-            if ( node.onClick )
-                node.onClick( node, point )
+        //switch that shuts off player input during enemy turn
+        if (this.isPlayerTurn()) {
+            let cursor = this.input.cursor
+            let { node, point } = Scene.pick( this.scene, cursor )
+            if ( node && !this.input.keys.get( "shift" ) ) {
+                if ( node.onClick )
+                    node.onClick( node, point )
+            }
         }
     }
     onMousedown( ev: MouseEvent ) {
@@ -164,7 +196,10 @@ export default class Game {
         if ( ev.key == "Escape" )
             this.goBack()
         if ( ev.key == "Enter" ) {
-            this.endTurn()
+            //stops you from skipping enemies turn
+            if (this.teams[this.turn].name !== this.enemyTeamName) {
+                this.endTurn()
+            }
         }
         if ( ev.key == "m" ) {
             if ( this.music && !this.musicPlaying ) {
@@ -180,11 +215,11 @@ export default class Game {
         }
     }
 
-    // View
+    //--------------------------RENDER-----------------------------
     render() {
         let g = this.graphics
         g.c.imageSmoothingEnabled = false
-        g.c.fillStyle = "#5fb2de"
+        g.c.fillStyle = "#2b69f5"
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
         g.c.textBaseline = "top"
         let picked = Scene.pickNode( this.scene, this.input.cursor )

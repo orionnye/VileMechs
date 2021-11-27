@@ -23,10 +23,7 @@ export default class World {
             new Treant( new Vector( 2, 2 ), 0 ),
             new Chrome( new Vector( 3, 1 ), 0 ),
             new Chrome( new Vector( 4, 2 ), 0 ),
-            new Flesh( new Vector( 13, 13 ), 1 ),
-            new Treant( new Vector( 12, 12 ), 1 ),
-            new Chrome( new Vector( 11, 13 ), 1 ),
-            new Chrome( new Vector( 10, 12 ), 1 )
+            new Flesh( new Vector( 12, 12 ), 1 ),
         ]
 
         let randomTerrain = true
@@ -87,11 +84,11 @@ export default class World {
         let cursor = this.tileSpaceCursor()
         let selectedUnit = Game.instance.unitTray.selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-
+        let playerTurn = Game.instance.isPlayerTurn()
         this.drawMap()
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() ) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() && playerTurn) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length

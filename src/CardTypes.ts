@@ -114,7 +114,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
-            world.map.set( pos, 1 )
+            world.map.set( pos, Tiles.GrassHill )
             target?.addHealth( -3 )
             user?.addEnergy( -1 )
             //check if "ore" is in hand and scale with total. Then remove ores
@@ -133,7 +133,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             let world = Game.instance.world
             // console.log(world.map.get(pos))
             if ( world.map.get( pos ) == Tiles.GrassHill ) {
-                world.map.set( pos, 0 )
+                world.map.set( pos, Tiles.AncientMech )
                 for ( let i = 0; i < 2; i++ ) {
                     let card = new Card()
                     card.type = cardTypeList[ 1 ]
