@@ -7,6 +7,7 @@ import Unit from "./Unit"
 const treant = getImg( require( "../www/images/units/Vinecent2.png" ) )
 const chrome = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 const flesh = getImg( require( "../www/images/units/FleshBase.png" ) )
+const jelly = getImg( require( "../www/images/units/GellyMech.png" ) )
 
 export class Chrome extends Unit {
     constructor( pos, teamNumber ) {
@@ -53,6 +54,20 @@ export class Flesh extends Unit {
 
         this.draw.add( CardTypes.claw, 2 )
         this.draw.add( CardTypes.tentacle )
+
+        this.cardCycle()
+    }
+}
+export class Jelly extends Unit {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+        this.sprite = jelly
+
+        this.maxSpeed += 2
+        this.speed = this.maxSpeed
+
+        this.draw.cards = []
+        this.draw.add( CardTypes.sprint, 6 )
 
         this.cardCycle()
     }

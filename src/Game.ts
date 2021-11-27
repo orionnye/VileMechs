@@ -113,24 +113,32 @@ export default class Game {
             console.log("taking enemy action")
             for ( let unit of this.world.units ) {
                 if (unit.teamNumber !== this.playerTeamNumber) {
-                    //select enemy unit
+                    // select enemy unit
                     window.setTimeout(() => {
                         console.log("selecting enemy Unit")
                         this.unitTray.selectUnit( unit );
                         this.onSelectUnit()
-                    }, 100)
-                    //move
+                    }, 500)
+                    // move
                     window.setTimeout(() => {
-                        
-                    }, 100)
-                    //play cards
+                        console.log(unit.pos)
+                        unit.pos = unit.pos.add(new Vector(0, -1))
+                    }, 1000)
+                    // selecting a card
+                    window.setTimeout(() => {
+                        console.log(unit.hand.cards[0])
+                        this.cardTray.selectIndex(0)
+                    }, 1500)
+                    //using card
+                    window.setTimeout(() => {
+                        this.applyCardAt(unit.pos)
+                    }, 2000)
                     console.log("ending turn for unit:", unit)
-                    unit.onEndTurn()
                 }
             }
             window.setTimeout(() => {
                 this.endTurn()
-            }, 5000);
+            }, 2000);
         }
 
         this.unitTray.deselect()
