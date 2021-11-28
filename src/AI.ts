@@ -1,5 +1,7 @@
 import path from "path/posix"
+import { targetsWithinRange } from "./CardTypes"
 import Game from "./Game"
+import Card from "./gameobjects/Card"
 import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
@@ -29,14 +31,35 @@ export default class AI {
     //each function will call another function until the unit has run out of energy
     
     //the real AI will be the function at the end of each call, that determines what function should go next
-    think() {
-        for (let { energy } = this.unit; energy > 0; energy--) {
-            //perform an action for every energy point
-            console.log(energy)
-        }
+    thinkAggressive() {
+            let [ target, path ] = this.getClosestEnemyAndPath()
+            let [ attack, attackIndex ] = this.selectAttack()
+            let validTargets = this.getUnitsWithinRangeOf(attack)
+            //can attack?
+            console.log(validTargets.length > 0)
+            if (validTargets.length > 0) {
+                
+            } else {
+                //else, move to attack
+                this.move(path)
+            }
     }
-    getEnemyAndCard() {
+    getUnitsWithinRangeOf(card: Card) {
+        let { unit, world } = this
+        
+        let tilesInRange = card.type.getTilesInRange(card, unit)
+        let validTargets: Unit[] = []
+        tilesInRange.forEach(tile => {
+            world.units.forEach(target => {
+                if (target.pos.x == tile.x && target.pos.y == tile.y) {
+                    if (target.teamNumber !== unit.teamNumber) {
+                        validTargets.push(target)
+                    }
+                }
+            })
+        })
 
+        return validTargets
     }
 
     getClosestEnemyAndPath() {
@@ -79,25 +102,36 @@ export default class AI {
         })
         return [storedUnit, storedPath]
     }
+    selectAttack() {
+        let { unit } = this
+        let bestDamage = 0
+        let bestIndex
+        let bestCard
+        for (let i = 1; i < unit.hand.cards.length; i++) {
+            let card = unit.hand.cards[i]
+            if (bestIndex == undefined) {
+                bestIndex = i
+                bestCard = card
+                bestDamage = card.type.damage
+            }
+            if (card.type.damage > bestDamage) {
+                bestIndex = i
+                bestCard = card
+                bestDamage = card.type.damage
+            }
+        }
+        // console.log("selected best card:", bestCard )
+        return [ bestCard, bestIndex ]
+        // return bestIndex
+    }
     move(path: Vector[]) {
         //desired distance may be less than max move
         let walkableLength = Math.min( path.length, this.unit.speed )
         let walkablePath = path.slice( 0, walkableLength )
         this.unit.walkPath(walkablePath)
     }
-    selectAttack() {
-        let { unit } = this
-        let bestDamage = 0
-        let bestCard = unit.hand.cards[0]
-        for (let i = 1; i < unit.hand.cards.length; i++) {
-            let card = unit.hand.cards[i]
-            if (card.type.damage > bestDamage) {
-                bestCard = card
-                bestDamage = card.type.damage
-            }
-        }
-        console.log("selected best card:", bestCard )
-        return bestCard
+    attack(unit: Unit, card: Card) {
+        //use currently 
     }
     useCard() {
         console.log("using card", "NOT REALLY")

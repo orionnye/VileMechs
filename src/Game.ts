@@ -13,6 +13,7 @@ import Clock from "./common/Clock"
 import Unit from "./gameobjects/Unit"
 import content from "*.css"
 import AI from "./AI"
+import Card from "./gameobjects/Card"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -124,14 +125,25 @@ export default class Game {
                         this.onSelectUnit()
                         let ai = new AI(unit, 0, 0)
                         let [ target, path ] = ai.getClosestEnemyAndPath()
-                        console.log("Closest Enemy:", target)
-                        // if (target) {
-                        //     console.log("logging energy -1:", unit.energy)
-                        //     // move
-                        //     window.setTimeout(() => {
-                        //         // ai.move(path)
-                        //     }, 1000)
-                        // }
+                        // console.log("Closest Enemy:", target)
+                        if (target) {
+                            // move
+                            window.setTimeout(() => {
+
+                                let [ target, path ] = ai.getClosestEnemyAndPath()
+                                let [ attack, attackIndex ] = ai.selectAttack()
+                                let validTargets = ai.getUnitsWithinRangeOf(attack)
+                                //can attack?
+                                console.log(validTargets.length > 0)
+                                if (validTargets.length > 0) {
+                                    this.cardTray.selectIndex(attackIndex)
+                                    this.applyCardAt(validTargets[0].pos)
+                                } else if ( unit.energy > 0){
+                                    //else, move to attack
+                                    ai.move(path)
+                                }
+                            }, 200)
+                        }
 
                         // selecting a card
                         // window.setTimeout(() => {
@@ -144,16 +156,15 @@ export default class Game {
                         // }, 2000)
                         //ending unit turn
                         window.setTimeout(() => {
-                            console.log("ending turn for unit:", unit)
                             unit.onEndTurn()
-                        }, 2500)
+                        }, 100)
                     }, 300)
                 }
             })
             // ending team turn
             window.setTimeout(() => {
                 this.endTurn()
-            }, 3500);
+            }, 1000);
         }
 
         this.unitTray.deselect()

@@ -59,7 +59,7 @@ export default class Unit {
         //2 repair
         this.draw.add( CardTypes.repair, 1 )
         //2 sprint
-        this.draw.add( CardTypes.sprint, 2 )
+        this.draw.add( CardTypes.sprint, 1 )
     }
 
     // Model

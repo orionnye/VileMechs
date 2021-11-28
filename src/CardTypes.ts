@@ -208,7 +208,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1, 
         damage: 7,
-        range: 1.5,
+        range: 1,
         minDist: 0,
 
     },
@@ -230,12 +230,12 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 2,
-        range: 1.5,
+        range: 1,
         minDist: 0,
     },
     claw: {
         name: "Claw",
-        getDescription: card => `Deal ${card.type.damage} damage, + any health the user is missing`,
+        getDescription: card => `Deal ${card.type.damage} damage`,
         color: "#0000aa",
         sprite: claw,
         backing: flesh,
@@ -244,15 +244,15 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( card, user, pos, target ) => {
             user.energy -= card.type.cost
             if ( target ) {
-                let bonusDMG = user.maxHealth - user.health
-                card.type.damage = bonusDMG + 1
+                // let bonusDMG = user.maxHealth - user.health
+                // card.type.damage = bonusDMG + 1
                 target.health -= ( card.type.damage )
             }
         },
 
         cost: 1,
-        damage: 1,
-        range: 1.5,
+        damage: 5,
+        range: 1,
         minDist: 1,
     },
     acid: {
@@ -364,7 +364,7 @@ function bishopStyleTargets(
     targetsAlongLine( pos, new Vector( 0, -1 ), { range, ignoreObstacles, result } )
 }
 
-function targetsWithinRange( pos: Vector, minDist: number, maxDist: number, result: Vector[] = [] ) {
+export function targetsWithinRange( pos: Vector, minDist: number, maxDist: number, result: Vector[] = [] ) {
     for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
         for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
             let r = Math.abs( dx ) + Math.abs( dy )

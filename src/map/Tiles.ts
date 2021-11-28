@@ -8,7 +8,7 @@ export const GrassHill = new BasicTile( {
     name: "grassHill", traversalCost: Infinity, elevation: 1, texture: getImg( require( "../www/images/tiles/flat/hill5.png" ) )
 } )
 export const WaterShallow = new BasicTile( {
-    name: "waterShallow", traversalCost: 2, elevation: -1, texture: getImg( require( "../www/images/tiles/flat/ShallowWater.png" ) )
+    name: "waterShallow", traversalCost: Infinity, elevation: -1, texture: getImg( require( "../www/images/tiles/flat/ShallowWater.png" ) )
 } )
 export const WaterDeep = new BasicTile( {
     name: "waterDeep", traversalCost: Infinity, elevation: -2, texture: getImg( require( "../www/images/tiles/flat/DeepWater.png" ) )

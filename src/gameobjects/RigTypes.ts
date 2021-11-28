@@ -37,8 +37,9 @@ export class Treant extends Unit {
         this.maxEnergy += 1
         this.energy = this.maxEnergy
 
-        this.draw.add( CardTypes.bouldertoss, 2 )
-        this.draw.add( CardTypes.mine )
+        this.draw.cards = []
+        this.draw.add( CardTypes.bouldertoss, 4 )
+        this.draw.add( CardTypes.mine, 3 )
 
         this.cardCycle()
     }
@@ -52,8 +53,8 @@ export class Flesh extends Unit {
         this.maxSpeed += 2
         this.speed = this.maxSpeed
 
-        this.draw.add( CardTypes.claw, 5 )
-        this.draw.add( CardTypes.tentacle )
+        this.draw.add( CardTypes.claw, 3 )
+        this.draw.add( CardTypes.tentacle, 2 )
 
         this.cardCycle()
     }
