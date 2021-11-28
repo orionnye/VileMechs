@@ -1,6 +1,9 @@
+import path from "path/posix"
 import Game from "./Game"
 import Unit from "./gameobjects/Unit"
 import World from "./gameobjects/World"
+import { Vector } from "./math/Vector"
+import { findPath } from "./pathfinding"
 
 export default class AI {
     //stats
@@ -9,7 +12,7 @@ export default class AI {
     //access
     unit: Unit
     world: World
-    constructor(unit, fear, hunger) {
+    constructor(unit: Unit, fear: number, hunger: number) {
         //----------Stats--------
         //fear chance will be tested against a random number upon taking damage or being pushed on
         //fear will prioritize running away
@@ -26,15 +29,78 @@ export default class AI {
     //each function will call another function until the unit has run out of energy
     
     //the real AI will be the function at the end of each call, that determines what function should go next
+    think() {
+        for (let { energy } = this.unit; energy > 0; energy--) {
+            //perform an action for every energy point
+            console.log(energy)
+        }
+    }
+    getEnemyAndCard() {
 
-    //test function push
-    selectBestCard() {
-        console.log("selecting best card", "NOT REALLY" )
-        this.useCard()
+    }
+
+    getClosestEnemyAndPath() {
+        // console.log("apple")
+        let lowScore
+        let storedUnit
+        let storedPath
+        this.world.units.forEach( unit => {
+            if ( unit.teamNumber !== this.unit.teamNumber ) {
+                //pathfinding will never work directly passing unit.pos in, because the units occupies both spaces
+                //As a pathfinding workaround, checking all four adjacent tiles
+                for (let i = -1; i < 2; i=i+2) {
+                    // TESTING Y
+                    let path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(0, i)), 100 )
+                    // Testing X
+                    if (!path) {
+                        path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(i, 0)), 100 )
+                    }
+                    //corner Pathfinding 
+                    // else if (!path) {
+                    //     path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(i, i)), 100 )
+                    // } else if (!path) {
+                    //     path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(-i, i)), 100 )
+                    // }
+
+                    //first undefined bar assignment
+                    if (path) {
+                        if (lowScore == undefined) {
+                            lowScore = path.length
+                            storedUnit = unit
+                            storedPath = path
+                        } else if (path.length < lowScore) {
+                            lowScore = path.length
+                            storedUnit = unit
+                            storedPath = path
+                        }
+                    }
+                }
+            }
+        })
+        return [storedUnit, storedPath]
+    }
+    move(path: Vector[]) {
+        //desired distance may be less than max move
+        let walkableLength = Math.min( path.length, this.unit.speed )
+        let walkablePath = path.slice( 0, walkableLength )
+        this.unit.walkPath(walkablePath)
+    }
+    selectAttack() {
+        let { unit } = this
+        let bestDamage = 0
+        let bestCard = unit.hand.cards[0]
+        for (let i = 1; i < unit.hand.cards.length; i++) {
+            let card = unit.hand.cards[i]
+            if (card.type.damage > bestDamage) {
+                bestCard = card
+                bestDamage = card.type.damage
+            }
+        }
+        console.log("selected best card:", bestCard )
+        return bestCard
     }
     useCard() {
         console.log("using card", "NOT REALLY")
-
     }
 
 }

@@ -22,6 +22,7 @@ const tentacle = getImg( require( "./www/images/cards/icon/tentacle.png" ) )
 const claw = getImg( require( "./www/images/cards/icon/claw.png" ) )
 const acid = getImg( require( "./www/images/cards/icon/acid.png" ) )
 const frost = getImg( require( "./www/images/cards/icon/frost.png" ) )
+const jelly = getImg( require( "./www/images/cards/icon/jelly.png" ) )
 
 //Card Background
 const flesh = getImg( require( "./www/images/cards/backing/flesh.png" ) )
@@ -41,6 +42,11 @@ export type CardType = {
     getTilesInRange: ( card: Card, user: Unit ) => Vector[]
     onApplyToTile?: ( card: Card, user: Unit, pos: Vector, target?: Unit ) => void
 
+    cost: number,
+    damage: number,
+    range: number,
+    minDist: number,
+
     [ index: string ]: any
 }
 
@@ -52,13 +58,16 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: laser,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: 5 } ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             target?.addHealth( -card.type.damage )
-            user?.addEnergy( -1 )
+            user.energy -= card.type.cost
         },
 
-        damage: 8
+        cost: 1,
+        damage: 8,
+        range: 8,
+        minDist: 2,
     },
     ore: {
         name: "Ore",
@@ -67,14 +76,19 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: ore,
         backing: black,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 0 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(user.hand)
-            user.addEnergy( -1 )
             // target?.addMaxHealth( 2 )
             //look for the card in the users Discard Pile and remove it
             user.discard.cards.pop()
-        }
+            user.energy -= card.type.cost
+        },
+
+        cost: 1,
+        damage: 0,
+        range: 0,
+        minDist: 0,
     },
     tentacle: {
         name: "Tentacle Pull",
@@ -83,51 +97,81 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: tentacle,
         backing: purple,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 1, card.type.range ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(user.hand)
-            user.addEnergy( -1 )
             if ( target ) {
                 //Chaining Ternary functions are weird man
                 let xShift = ( user.pos.x < target.pos.x ) ?
-                    user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
-                        user.pos.x : user.pos.x - 1
+                user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
+                user.pos.x : user.pos.x - 1
                 let yShift = ( user.pos.y < target.pos.y ) ?
-                    user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
-                        user.pos.y : user.pos.y - 1
+                user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
+                user.pos.y : user.pos.y - 1
                 let newPos = new Vector( xShift, yShift )
                 let path = [ target.pos, newPos ]
                 target.move( path )
             }
+            user.energy -= card.type.cost
         },
 
-        range: 5
+        cost: 1,
+        damage: 0,
+        range: 5,
+        minDist: 1,
+    },
+    bubbletoss: {
+        name: "Bubble Toss",
+        getDescription: card => `create shallow water and deal ${card.type.damage} damage`,
+        color: "#885555",
+        sprite: jelly,
+        backing: purple,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            // console.log(pos)
+            let world = Game.instance.world
+            world.map.set( pos, Tiles.WaterShallow )
+            target?.addHealth( -card.type.damage )
+            user.energy -= card.type.cost
+        },
+
+        cost: 1,
+        damage: 3,
+        range: 8,
+        minDist: 2,
+
     },
     bouldertoss: {
         name: "Boulder Toss",
-        getDescription: card => "Place a Mountain and deal 3 damage broh",
+        getDescription: card => `Place a Mountain and deal ${card.type.damage} damage`,
         color: "#885555",
         sprite: boulder,
         backing: brown,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 3, 6 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
             world.map.set( pos, Tiles.GrassHill )
-            target?.addHealth( -3 )
-            user?.addEnergy( -1 )
+            target?.addHealth( -card.type.damage )
+            user.energy -= card.type.cost
             //check if "ore" is in hand and scale with total. Then remove ores
-        }
+        },
+
+        cost: 1,
+        damage: 3,
+        range: 6,
+        minDist: 3,
     },
     mine: {
         name: "Mine",
-        getDescription: card => "Destroy a Mountain and deal 10 damage",
+        getDescription: card => `Destroy a Mountain and deal ${card.type.damage} damage`,
         color: "#000000",
         sprite: mine,
         backing: green,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 1, 1 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
@@ -136,94 +180,127 @@ const CardTypes: { [ name: string ]: CardType } = {
                 world.map.set( pos, Tiles.AncientMech )
                 for ( let i = 0; i < 2; i++ ) {
                     let card = new Card()
-                    card.type = cardTypeList[ 1 ]
+                    card.type = CardTypes.ore
                     user.draw.cards.push( card )
                 }
             }
-            target?.addHealth( -10 )
-            user?.addEnergy( -1 )
-        }
+            target?.addHealth( -card.type.damage )
+            user.energy -= card.type.cost
+        },
+
+        cost: 1,
+        damage: 10,
+        range: 1,
+        minDist: 1,
     },
     repair: {
         name: "Auto-Repair",
-        getDescription: card => "Heal yourself or a nearby unit for 7 health",
+        getDescription: card => `Heal unit for ${card.type.damage} health`,
         color: "#32a852",
         sprite: repair,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 1 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            target?.addHealth( 7 )
-            user?.addEnergy( -1 )
-        }
+            target?.addHealth( card.type.damage )
+            user.energy -= card.type.cost
+        },
+
+        cost: 1, 
+        damage: 7,
+        range: 1.5,
+        minDist: 0,
+
     },
     sprint: {
         name: "Sprint",
-        getDescription: card => "Take 2 damage and double target mobility this turn",
+        getDescription: card => `Take ${card.type.damage} damage and double unit speed`,
         color: "#0000aa",
         sprite: sprint,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 1 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user?.addHealth( -2 )
-            user?.addEnergy( -1 )
+            user?.addHealth( -card.type.damage )
+            user.energy -= card.type.cost
             if ( target ) {
                 target.speed += target.maxSpeed
             }
-        }
+        },
+
+        cost: 1,
+        damage: 2,
+        range: 1.5,
+        minDist: 0,
     },
     claw: {
         name: "Claw",
-        getDescription: card => "Deal 1 damage, + any health currently missing Range 3 0 Energy",
+        getDescription: card => `Deal ${card.type.damage} damage, + any health the user is missing`,
         color: "#0000aa",
         sprite: claw,
         backing: flesh,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 1, 3 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            // user.energy -= 1
+            user.energy -= card.type.cost
             if ( target ) {
                 let bonusDMG = user.maxHealth - user.health
-                target.health -= ( 1 + bonusDMG )
+                card.type.damage = bonusDMG + 1
+                target.health -= ( card.type.damage )
             }
-        }
+        },
+
+        cost: 1,
+        damage: 1,
+        range: 1.5,
+        minDist: 1,
     },
     acid: {
         name: "Acid",
-        getDescription: card => "Melts Armor, target maxHealth -= 3 target speed += 1 userEnergy -= 1 range = 7",
+        getDescription: card => `Melts Armor, target maxHealth -= ${card.type.damage} target speed += 1`,
         color: "#0000aa",
         sprite: acid,
         backing: purple,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 7 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.energy -= 1
+            user.energy -= card.type.cost
 
             if ( target ) {
-                target.maxHealth -= 3
-                target.speed += 1
+                target.maxHealth -= card.type.damage
+                target.maxSpeed += 2
             }
-        }
+        },
+
+        cost: 1,
+        damage: 3,
+        range: 7,
+        minDist: 0,
     },
     frost: {
         name: "Frost",
-        getDescription: card => "Deals damage = to targets missing health userHealth -= 2 range = 8 userEnergy -= 1",
+        getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
         color: "#0000aa",
         sprite: frost,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, 0, 1 ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.energy -= 1
-            user.health -= 2
-
+            user.energy -= card.type.cost
+            // user.health -= 2
+            
             //deals damage to target based on previously sustained damage
             if ( target ) {
                 let damage = target.maxHealth - target.health
-                target.health -= damage
+                card.type.damage = damage
+                target.health -= card.type.damage
             }
-        }
+        },
+
+        cost: 1,
+        damage: 2,
+        range: 3,
+        minDist: 1,
     }
 }
 

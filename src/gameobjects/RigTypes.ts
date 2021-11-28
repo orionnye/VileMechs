@@ -52,23 +52,53 @@ export class Flesh extends Unit {
         this.maxSpeed += 2
         this.speed = this.maxSpeed
 
-        this.draw.add( CardTypes.claw, 2 )
+        this.draw.add( CardTypes.claw, 5 )
         this.draw.add( CardTypes.tentacle )
 
         this.cardCycle()
     }
 }
+
 export class Jelly extends Unit {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
         this.sprite = jelly
-
+        
         this.maxSpeed += 2
         this.speed = this.maxSpeed
-
+        
         this.draw.cards = []
-        this.draw.add( CardTypes.sprint, 6 )
-
+        this.draw.add( CardTypes.bubbletoss, 6 )
+        this.draw.add( CardTypes.tentacle, 2 )
+        
+        this.cardCycle()
+    }
+}
+export class FleshBot extends Unit {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+        this.sprite = flesh
+        
+        this.maxSpeed += 2
+        this.speed = this.maxSpeed
+        
+        this.draw.cards = []
+        this.draw.add( CardTypes.claw, 3)
+        
+        this.cardCycle()
+    }
+}
+export class JellyBot extends Unit {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+        this.sprite = jelly
+        
+        this.maxSpeed += 2
+        this.speed = this.maxSpeed
+        
+        this.draw.cards = []
+        this.draw.add( CardTypes.bubbletoss, 3 )
+        
         this.cardCycle()
     }
 }

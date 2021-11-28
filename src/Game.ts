@@ -12,6 +12,7 @@ import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
 import Unit from "./gameobjects/Unit"
 import content from "*.css"
+import AI from "./AI"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -40,13 +41,13 @@ export default class Game {
     music = true
     musicPlaying = false
     playerTeamNumber = 0
-    aiTeamNumbers = [-1]
+    aiTeamNumbers = [-1, 1]
 
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
         { name: "Choden Warriors", flipUnits: true },
         // { name: "Thermate Embalmers", flipUnits: false },
-        // { name: "Frozen Meyers", flipUnits: true }
+        // { name: "Frozen Meyers", flipUnits: true },
     ]
     turn = 0
 
@@ -110,42 +111,37 @@ export default class Game {
         }
         this.turn++
         this.turn %= this.teams.length
-        //---------------------ENEMY AI-------------------------
+
         if (this.isAITurn()) {
+            //------------------------ENEMY AI-----------------------------
             console.log("Enemy turn")
-            console.log("taking enemy action")
             this.world.units.forEach(unit => {
                 if (unit.teamNumber == this.turn) {
-                    // select enemy unit
                     window.setTimeout(() => {
-                        window.setTimeout(() => {
-                            console.log("selecting enemy Unit:", unit)
-                            this.unitTray.selectUnit( unit );
-                            this.onSelectUnit()
-                        }, 500)
+                        // select unit to focus on
+                        // console.log("selecting enemy Unit:", unit)
+                        this.unitTray.selectUnit( unit );
+                        this.onSelectUnit()
+                        let ai = new AI(unit, 0, 0)
+                        let [ target, path ] = ai.getClosestEnemyAndPath()
+                        console.log("Closest Enemy:", target)
+                        // if (target) {
+                        //     console.log("logging energy -1:", unit.energy)
+                        //     // move
+                        //     window.setTimeout(() => {
+                        //         // ai.move(path)
+                        //     }, 1000)
+                        // }
+
                         // selecting a card
-                        window.setTimeout(() => {
-                            // console.log(unit.hand.cards[0])
-                            // this.cardTray.selectIndex(0)
-                        }, 650)
-                        //using card
-                        window.setTimeout(() => {
-                            // this.applyCardAt(unit.pos)
-                        }, 800)
-                        // move
-                        window.setTimeout(() => {
-                            console.log(unit.pos)
-                            unit.pos = unit.pos.add(new Vector(0, -1))
-                        }, 1000)
-                        // selecting a card
-                        window.setTimeout(() => {
-                            console.log(unit.hand.cards[0])
-                            this.cardTray.selectIndex(0)
-                        }, 1500)
-                        //using card
-                        window.setTimeout(() => {
-                            this.applyCardAt(unit.pos)
-                        }, 2000)
+                        // window.setTimeout(() => {
+                        //     console.log(unit.hand.cards[0])
+                        //     this.cardTray.selectIndex(0)
+                        // }, 1500)
+                        // //using card
+                        // window.setTimeout(() => {
+                        //     this.applyCardAt(unit.pos)
+                        // }, 2000)
                         //ending unit turn
                         window.setTimeout(() => {
                             console.log("ending turn for unit:", unit)
