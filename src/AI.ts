@@ -9,132 +9,161 @@ import { findPath } from "./pathfinding"
 
 export default class AI {
     //stats
-    fear: number
-    hunger: number
-    //access
-    unit: Unit
-    world: World
-    constructor(unit: Unit, fear: number, hunger: number) {
-        //----------Stats--------
-        //fear chance will be tested against a random number upon taking damage or being pushed on
-        //fear will prioritize running away
-        this.fear = fear
-        //hunger chance will be tested every turn near an edible objective ie: Space-whale bodies or other mech corpses
-        // hunger will prioritize non-player entities
-        this.hunger = hunger
+    thinking: boolean = false
 
-        //---------ACCESS----------
-        this.unit = unit
-        this.world = Game.instance.world
+    constructor() {
+        this.thinking = false
     }
-    //here are a list of AI functions
-    //each function will call another function until the unit has run out of energy
     
-    //the real AI will be the function at the end of each call, that determines what function should go next
-    thinkAggressive() {
-            let [ target, path ] = this.getClosestEnemyAndPath()
-            let [ attack, attackIndex ] = this.selectAttack()
-            let validTargets = this.getUnitsWithinRangeOf(attack)
-            //can attack?
-            console.log(validTargets.length > 0)
-            if (validTargets.length > 0) {
-                
-            } else {
-                //else, move to attack
-                this.move(path)
-            }
-    }
-    getUnitsWithinRangeOf(card: Card) {
-        let { unit, world } = this
+    think( unit: Unit ) {
+        let world = Game.instance.world
         
-        let tilesInRange = card.type.getTilesInRange(card, unit)
-        let validTargets: Unit[] = []
-        tilesInRange.forEach(tile => {
-            world.units.forEach(target => {
-                if (target.pos.x == tile.x && target.pos.y == tile.y) {
-                    if (target.teamNumber !== unit.teamNumber) {
-                        validTargets.push(target)
+        //ensure it doesnt end it's turn exposed
+        let idealSpot = this.idealSpot(unit)
+        let attack = this.bestAttack(unit)
+        let defends = this.defendCardsFor(unit)
+        let game = Game.instance
+        let target = this.bestTargetOf(unit, attack)
+        if (target) {
+            game.cardTray.selectIndex(unit.hand.cards.indexOf(attack))
+            game.applyCardAt(target.pos)
+        } else if (idealSpot) {
+            let path = findPath(world, unit.pos, idealSpot)
+            if (path) {
+                let walkableLength = Math.min( path.length, unit.speed )
+                path.length = walkableLength
+                unit.walkPath(path)
+            }
+        } else if (defends.length > 0) {
+
+        } else {
+            //if no attacks or defends or place to move, just eat energy
+            unit.energy -= 1
+        }
+    }
+
+    //---------------------UTILITY FUNCTIONS------------------------------
+    getEnemiesOf(unit: Unit) {
+        let enemies: Unit[] = []
+        Game.instance.world.units.forEach(target => {
+            if (target.teamNumber !== unit.teamNumber) {
+                enemies.push(target)
+            }
+        })
+        return enemies
+    }
+    //-------offensive--------
+    attackCardsFor(unit: Unit) {
+        //CARD CLONES, we are not mutating or passing actual cards
+        let attacks = unit.hand.cards.map( card => {
+            if (card.type.damage > 0) {
+                return card
+            }
+        })
+        return attacks
+    }
+    bestAttack(unit) {
+        let best
+        let attacks = this.attackCardsFor(unit)
+        if (attacks.length > 0) {
+            attacks.forEach(card => {
+                if (card) {
+                    let targets = this.possibleTargets(unit, card)
+                    if (best == undefined) {
+                        best = card
+                    } else if (targets.length > 0 && best.type.damage < card.type.damage) {
+                        best = card
                     }
+                }
+            });
+        }
+        return best
+    }
+    bestTargetOf(unit: Unit, card: Card) {
+        let enemies = this.possibleTargets(unit, card)
+        let best
+        if (enemies.length > 0) {
+            enemies.forEach(enemy => {
+                if (best == undefined) {
+                    best = enemy
+                } else if (enemy.health < best.health) {
+                    best = enemy
+                }
+            })
+        }
+        return best
+    }
+    possibleTargets(unit: Unit, card: Card) {
+        let tiles = card.type.getTilesInRange(card, unit)
+        let targets: Unit[] = []
+        let enemies = this.getEnemiesOf(unit)
+        enemies.forEach( enemy => {
+            tiles.forEach(tile => {
+                if (tile.x == enemy.pos.x && tile.y == enemy.pos.y) {
+                    targets.push(enemy)
                 }
             })
         })
-
-        return validTargets
+        return targets
     }
 
-    getClosestEnemyAndPath() {
-        // console.log("apple")
-        let lowScore
-        let storedUnit
-        let storedPath
-        this.world.units.forEach( unit => {
-            if ( unit.teamNumber !== this.unit.teamNumber ) {
-                //pathfinding will never work directly passing unit.pos in, because the units occupies both spaces
-                //As a pathfinding workaround, checking all four adjacent tiles
-                for (let i = -1; i < 2; i=i+2) {
-                    // TESTING Y
-                    let path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(0, i)), 100 )
-                    // Testing X
-                    if (!path) {
-                        path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(i, 0)), 100 )
-                    }
-                    //corner Pathfinding 
-                    // else if (!path) {
-                    //     path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(i, i)), 100 )
-                    // } else if (!path) {
-                    //     path = findPath( this.world, this.unit.pos, unit.pos.add(new Vector(-i, i)), 100 )
-                    // }
-
-                    //first undefined bar assignment
-                    if (path) {
-                        if (lowScore == undefined) {
-                            lowScore = path.length
-                            storedUnit = unit
-                            storedPath = path
-                        } else if (path.length < lowScore) {
-                            lowScore = path.length
-                            storedUnit = unit
-                            storedPath = path
-                        }
-                    }
-                }
+    //-------defensive-------
+    defendCardsFor(unit: Unit) {
+        //CARD CLONES, we are not mutating or passing actual cards
+        let defends = unit.hand.cards.map( card => {
+            if (card.type.damage < 0) {
+                return card
             }
         })
-        return [storedUnit, storedPath]
-    }
-    selectAttack() {
-        let { unit } = this
-        let bestDamage = 0
-        let bestIndex
-        let bestCard
-        for (let i = 1; i < unit.hand.cards.length; i++) {
-            let card = unit.hand.cards[i]
-            if (bestIndex == undefined) {
-                bestIndex = i
-                bestCard = card
-                bestDamage = card.type.damage
-            }
-            if (card.type.damage > bestDamage) {
-                bestIndex = i
-                bestCard = card
-                bestDamage = card.type.damage
-            }
-        }
-        // console.log("selected best card:", bestCard )
-        return [ bestCard, bestIndex ]
-        // return bestIndex
-    }
-    move(path: Vector[]) {
-        //desired distance may be less than max move
-        let walkableLength = Math.min( path.length, this.unit.speed )
-        let walkablePath = path.slice( 0, walkableLength )
-        this.unit.walkPath(walkablePath)
-    }
-    attack(unit: Unit, card: Card) {
-        //use currently 
-    }
-    useCard() {
-        console.log("using card", "NOT REALLY")
+        return defends
     }
 
+    //---------------------MOBILITY FUNCTIONS------------------------------
+    idealDistanceFor(unit: Unit) {
+        let attacks = this.attackCardsFor(unit)
+        let mean = 0
+        if (attacks.length > 0) {
+            attacks.forEach( card => {
+                mean += card!.type.range
+            })
+            mean = mean / attacks.length
+        }
+        return mean
+    }
+
+    idealSpot(unit) {
+        let game = Game.instance
+        let world = game.world
+
+        //  Possible OPTIMIZATION
+        //      make idealSpot factor in distance from enemies so it prefers single targets
+        //      Or reject spots that are within reach of multiple enemies
+        //  NECESSARY OPTIMIZATION
+        //      We need to select a few cards to optimize for, otherwise we arent actually checking if we're in range
+        
+        //must find ideal distance
+        let idealDist = this.idealDistanceFor(unit)
+        //store closestTile
+        let closest
+        world.units.forEach( enemy => {
+            if (enemy.teamNumber !== unit.teamNumber) {
+                let tiles = targetsWithinRange(enemy.pos, 0, idealDist)
+                tiles.forEach(tile => {
+                    let tilePath = findPath(world, unit.pos, tile)
+                    if (tilePath) {
+                        if (closest == undefined) {
+                            //if unnasigned and validPath
+                            closest = tile
+                        } else {
+                            let closestPath = findPath(world, unit.pos, closest)
+                            if (tilePath.length < closestPath!.length) {
+                                closest = tile
+                            }
+                        }
+                    }
+                })
+            }
+        })
+        return closest
+    }
 }

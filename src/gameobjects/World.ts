@@ -25,7 +25,11 @@ export default class World {
             new Chrome( new Vector( 2, 2 ), 0 ),
             
             new FleshBot( new Vector( 12, 12 ), 1 ),
-            // new JellyBot( new Vector( 2, 2 ), 1 ),
+            new FleshBot( new Vector( 12, 12 ), 1 ),
+            new JellyBot( new Vector( 12, 12 ), 1 ),
+            new JellyBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 12, 12 ), 1 ),
             // new Treant( new Vector( 12, 12 ), 1 ),
             // new Chrome( new Vector( 3, 1 ), 1 ),
             // new Chrome( new Vector( 4, 2 ), 1 )
@@ -33,7 +37,7 @@ export default class World {
 
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize2( 0.2 )
+            this.map.randomize2( 0 )
             // for ( let unit of this.units ) {
             //     this.map.set( unit.pos, 0 )
             // }

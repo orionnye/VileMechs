@@ -43,6 +43,7 @@ export default class Game {
     musicPlaying = false
     playerTeamNumber = 0
     aiTeamNumbers = [-1, 1]
+    ai = new AI()
 
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
@@ -114,51 +115,18 @@ export default class Game {
         this.turn %= this.teams.length
 
         if (this.isAITurn()) {
-            //------------------------ENEMY AI-----------------------------
             console.log("Enemy turn")
+            let enemyCount = 0
+            let delay = 500
             this.world.units.forEach(unit => {
                 if (unit.teamNumber == this.turn) {
-                    window.setTimeout(() => {
-                        // select unit to focus on
-                        // console.log("selecting enemy Unit:", unit)
-                        this.unitTray.selectUnit( unit );
-                        this.onSelectUnit()
-                        let ai = new AI(unit, 0, 0)
-                        let [ target, path ] = ai.getClosestEnemyAndPath()
-                        // console.log("Closest Enemy:", target)
-                        if (target) {
-                            // move
-                            window.setTimeout(() => {
-
-                                let [ target, path ] = ai.getClosestEnemyAndPath()
-                                let [ attack, attackIndex ] = ai.selectAttack()
-                                let validTargets = ai.getUnitsWithinRangeOf(attack)
-                                //can attack?
-                                console.log(validTargets.length > 0)
-                                if (validTargets.length > 0) {
-                                    this.cardTray.selectIndex(attackIndex)
-                                    this.applyCardAt(validTargets[0].pos)
-                                } else if ( unit.energy > 0){
-                                    //else, move to attack
-                                    ai.move(path)
-                                }
-                            }, 200)
-                        }
-
-                        // selecting a card
-                        // window.setTimeout(() => {
-                        //     console.log(unit.hand.cards[0])
-                        //     this.cardTray.selectIndex(0)
-                        // }, 1500)
-                        // //using card
-                        // window.setTimeout(() => {
-                        //     this.applyCardAt(unit.pos)
-                        // }, 2000)
-                        //ending unit turn
-                        window.setTimeout(() => {
-                            unit.onEndTurn()
-                        }, 100)
-                    }, 300)
+                    enemyCount += 1
+                    this.unitTray.selectUnit( unit );
+                    this.onSelectUnit()
+                    //------------------------ENEMY AI-----------------------------
+                    for (let i = unit.energy; i > 0; i--) {
+                        this.ai.think(unit)
+                    }
                 }
             })
             // ending team turn
@@ -172,6 +140,11 @@ export default class Game {
     }
     //----------------------UPDATE---------------------------- 
     update() {
+        this.world.units.forEach(unit => {
+            if (this.aiTeamNumbers.includes(unit.teamNumber)) {
+
+            }
+        })
         this.clock.nextFrame()
         this.world.update()
         this.cardTray.update()

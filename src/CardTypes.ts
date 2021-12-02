@@ -137,10 +137,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         },
 
         cost: 1,
-        damage: 3,
-        range: 8,
-        minDist: 2,
-
+        damage: 2,
+        range: 5,
+        minDist: 2
     },
     bouldertoss: {
         name: "Boulder Toss",
@@ -206,7 +205,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.energy -= card.type.cost
         },
 
-        cost: 1, 
+        cost: 1,
         damage: 7,
         range: 1,
         minDist: 0,
@@ -251,7 +250,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         },
 
         cost: 1,
-        damage: 5,
+        damage: 3,
         range: 1,
         minDist: 1,
     },
@@ -288,7 +287,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( card, user, pos, target ) => {
             user.energy -= card.type.cost
             // user.health -= 2
-            
             //deals damage to target based on previously sustained damage
             if ( target ) {
                 let damage = target.maxHealth - target.health

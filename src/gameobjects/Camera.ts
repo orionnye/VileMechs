@@ -74,6 +74,13 @@ export default class Camera {
             this.velocity.x += acceleration
             this.targetPosition = undefined
         }
+        let rotationSpeed = 0.01
+        if ( input.keys.get( "]" ) ) {
+            this.rotation += rotationSpeed
+        }
+        if ( input.keys.get( "[" ) ) {
+            this.rotation -= rotationSpeed
+        }
 
         this.position = this.position.add( this.velocity )
         this.velocity = this.velocity.scale( this.velocityDecay )

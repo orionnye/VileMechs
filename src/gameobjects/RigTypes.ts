@@ -80,7 +80,7 @@ export class FleshBot extends Unit {
         super( pos, teamNumber )
         this.sprite = flesh
         
-        this.maxSpeed += 2
+        this.maxSpeed = 4
         this.speed = this.maxSpeed
         
         this.draw.cards = []
