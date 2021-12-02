@@ -14,7 +14,10 @@ export default class UnitTray {
         window.addEventListener( "keydown", ( ev ) => {
             if ( ev.key == "Tab" ) {
                 ev.preventDefault()
-                this.cycleUnits()
+                //another player permission switch
+                if (!Game.instance.isAITurn()) {
+                    this.cycleUnits()
+                }
             }
         } )
     }

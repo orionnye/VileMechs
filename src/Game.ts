@@ -12,6 +12,8 @@ import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
 import Unit from "./gameobjects/Unit"
 import content from "*.css"
+import AI from "./AI"
+import Card from "./gameobjects/Card"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -39,11 +41,15 @@ export default class Game {
     clock = new Clock()
     music = true
     musicPlaying = false
-
+    playerTeamNumber = 0
+    aiTeamNumbers = [-1, 1]
+    ai = new AI()
 
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
-        { name: "Choden Warriors", flipUnits: true }
+        { name: "Choden Warriors", flipUnits: true },
+        // { name: "Thermate Embalmers", flipUnits: false },
+        // { name: "Frozen Meyers", flipUnits: true },
     ]
     turn = 0
 
@@ -58,7 +64,8 @@ export default class Game {
         this.moveCamToFirstUnit()
     }
 
-    // Model
+    //----------------MODEL------------------
+    isAITurn() { return this.aiTeamNumbers.includes(this.turn)}
     playerUnits() { return this.world.units.filter( unit => unit.teamNumber == this.turn ) }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
@@ -99,6 +106,7 @@ export default class Game {
         }
     }
     endTurn() {
+        console.log("Ending turn")
         for ( let unit of this.world.units ) {
             if ( unit.teamNumber == this.turn )
                 unit.onEndTurn()
@@ -106,28 +114,59 @@ export default class Game {
         this.turn++
         this.turn %= this.teams.length
 
+        if (this.isAITurn()) {
+            console.log("Enemy turn")
+            let enemyCount = 0
+            let delay = 500
+            this.world.units.forEach(unit => {
+                if (unit.teamNumber == this.turn) {
+                    enemyCount += 1
+                    this.unitTray.selectUnit( unit );
+                    this.onSelectUnit()
+                    //------------------------ENEMY AI-----------------------------
+                    for (let i = unit.energy; i > 0; i--) {
+                        this.ai.think(unit)
+                    }
+                }
+            })
+            // ending team turn
+            window.setTimeout(() => {
+                this.endTurn()
+            }, 1000);
+        }
+
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
     }
+    //----------------------UPDATE---------------------------- 
     update() {
+        this.world.units.forEach(unit => {
+            if (this.aiTeamNumbers.includes(unit.teamNumber)) {
+
+            }
+        })
         this.clock.nextFrame()
         this.world.update()
         this.cardTray.update()
         this.makeSceneNode()
         this.camera.update()
+
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )
-            node.onHover( node, point )
+        node.onHover( node, point )
     }
 
-    // Controls
+    //---------------------------User Input---------------------------
     onClick( ev: MouseEvent ) {
-        let cursor = this.input.cursor
-        let { node, point } = Scene.pick( this.scene, cursor )
-        if ( node && !this.input.keys.get( "shift" ) ) {
-            if ( node.onClick )
-                node.onClick( node, point )
+        //switch that shuts off player input during enemy turn
+        if (!this.isAITurn()) {
+            let cursor = this.input.cursor
+            let { node, point } = Scene.pick( this.scene, cursor )
+            if ( node && !this.input.keys.get( "shift" ) ) {
+                if ( node.onClick )
+                    node.onClick( node, point )
+            }
         }
     }
     onMousedown( ev: MouseEvent ) {
@@ -164,7 +203,10 @@ export default class Game {
         if ( ev.key == "Escape" )
             this.goBack()
         if ( ev.key == "Enter" ) {
-            this.endTurn()
+            //stops you from skipping enemies turn
+            if (!this.isAITurn()) {
+                this.endTurn()
+            }
         }
         if ( ev.key == "m" ) {
             if ( this.music && !this.musicPlaying ) {
@@ -180,11 +222,11 @@ export default class Game {
         }
     }
 
-    // View
+    //--------------------------RENDER-----------------------------
     render() {
         let g = this.graphics
         g.c.imageSmoothingEnabled = false
-        g.c.fillStyle = "#5fb2de"
+        g.c.fillStyle = "#2b69f5"
         g.c.fillRect( 0, 0, g.size.x, g.size.y )
         g.c.textBaseline = "top"
         let picked = Scene.pickNode( this.scene, this.input.cursor )

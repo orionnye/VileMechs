@@ -15,30 +15,33 @@ import CardTypes from "../CardTypes"
 const mechSheet = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 
 export default class Unit {
+    //assets
     sprite: HTMLImageElement
 
-    name: string
-    teamNumber: number
-    pos: Vector
+    //stats
     speed: number
     maxSpeed: number
     energy: number
     maxEnergy: number
-    color: string
     health: number
     maxHealth: number
-
-    hurtTime: number = 0
-
+    pos: Vector
+    
+    //team
+    teamNumber: number
+    
+    //Cards
     draw: Deck = new Deck()
     hand: Deck = new Deck()
     discard: Deck = new Deck()
-
+    
+    //visualStats
+    color: string
+    name: string
+    hurtTime: number = 0
     walkAnimStep: number = 0
     walkAnimRate: number = 10 // Tiles per second
     walkAnimPath?: Vector[]
-
-    hasMovedThisTurn: boolean = false
 
     constructor( pos, teamNumber, sprite: HTMLImageElement = mechSheet ) {
         this.sprite = sprite
@@ -47,7 +50,7 @@ export default class Unit {
         this.color = "red"
 
         this.pos = pos
-        this.maxSpeed = 6
+        this.maxSpeed = 5
         this.speed = this.maxSpeed
 
         this.energy = 3
@@ -61,7 +64,7 @@ export default class Unit {
         //2 repair
         this.draw.add( CardTypes.repair, 1 )
         //2 sprint
-        this.draw.add( CardTypes.sprint, 2 )
+        this.draw.add( CardTypes.sprint, 1 )
     }
 
     // Model
@@ -91,10 +94,13 @@ export default class Unit {
     }
 
     walkPath( path: Vector[] ) {
-        if ( this.hasMovedThisTurn )
-            throw new Error( "Should not be trying to move when a unit has already moved this turn." )
-        this.hasMovedThisTurn = true
-        this.move( path )
+        // if ( this.hasMovedThisTurn )
+        //     throw new Error( "Should not be trying to move when a unit has already moved this turn." )
+        // this.hasMovedThisTurn = true
+        if (this.energy > 0) {
+            this.move( path )
+            this.energy -= 1
+        }
     }
 
     cardCycle() {
@@ -112,12 +118,11 @@ export default class Unit {
         }
     }
 
-    canMove() { return !this.isWalking() && !this.hasMovedThisTurn }
+    canMove() { return !this.isWalking() }
     isWalking() { return this.walkAnimPath != undefined }
 
     onEndTurn() {
         //Stat Reset
-        this.hasMovedThisTurn = false
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
         this.cardCycle()

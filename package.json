@@ -31,6 +31,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "browserslist": "4.18.1",
     "simplex-noise": "^3.0.0"
   }
 }

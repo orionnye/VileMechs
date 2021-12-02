@@ -74,7 +74,7 @@ export default class Grid {
 
 
                 if ( Math.hypot( ( x - ( w / 2 ) ), ( y - ( h / 2 ) ) ) > radialTest2 && Math.hypot( ( x - ( w / 2 ) ), ( y - ( h / 2 ) ) ) > radialTest ) {
-                    console.log( `(${ x },${ y })=deep` )
+                    // console.log( `(${ x },${ y })=deep` )
                     this.setFromXY( x, y, Tiles.WaterDeep )
                 }
                 else if ( Math.hypot( ( x - ( w / 2 ) ), ( y - ( h / 2 ) ) ) > radialTest ) {
@@ -94,7 +94,8 @@ export default class Grid {
     }
     placeUnits( units: Unit[] ) {
         for ( let iter = 0; iter < units.length; iter++ ) {
-            if ( iter < ( units.length / 2 ) ) {//first half of units top left
+            if ( units[ iter ].teamNumber == 0 ) {
+                //first half of units top left
                 this.placeUnit( units, units[ iter ], true )
             }
             else {//second half of units bottom right

@@ -16,9 +16,11 @@ export default class Camera {
     lastDragPosition?: Vector
 
     constructor() {
-        this.position = new Vector( 0, 0 )
+        //position should be 0, 0
+        this.position = new Vector( 350, 350 )
         this.velocity = new Vector( 0, 0 )
-        this.zoomLevel = 0
+        //soomlevel should be 0
+        this.zoomLevel = -2
         this.rotation = 0
     }
 
@@ -71,6 +73,13 @@ export default class Camera {
         if ( input.keys.get( "d" ) ) {
             this.velocity.x += acceleration
             this.targetPosition = undefined
+        }
+        let rotationSpeed = 0.01
+        if ( input.keys.get( "]" ) ) {
+            this.rotation += rotationSpeed
+        }
+        if ( input.keys.get( "[" ) ) {
+            this.rotation -= rotationSpeed
         }
 
         this.position = this.position.add( this.velocity )

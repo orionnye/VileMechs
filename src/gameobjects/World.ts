@@ -7,7 +7,7 @@ import Game from "../Game"
 import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
-import { Treant, Chrome, Flesh } from "./RigTypes"
+import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot } from "./RigTypes"
 import * as Tiles from "../map/Tiles"
 
 export default class World {
@@ -19,19 +19,25 @@ export default class World {
     constructor() {
         this.map = new Grid( 25, 25 )
         this.units = [
-            new Flesh( new Vector( 1, 1 ), 0 ),
-            new Treant( new Vector( 2, 2 ), 0 ),
-            new Chrome( new Vector( 3, 1 ), 0 ),
-            new Chrome( new Vector( 4, 2 ), 0 ),
-            new Flesh( new Vector( 13, 13 ), 1 ),
-            new Treant( new Vector( 12, 12 ), 1 ),
-            new Chrome( new Vector( 11, 13 ), 1 ),
-            new Chrome( new Vector( 10, 12 ), 1 )
+            new Flesh( new Vector( 12, 12 ), 0 ),
+            new Treant( new Vector( 12, 12 ), 0 ),
+            new Chrome( new Vector( 1, 1 ), 0 ),
+            new Chrome( new Vector( 2, 2 ), 0 ),
+            
+            new FleshBot( new Vector( 12, 12 ), 1 ),
+            new FleshBot( new Vector( 12, 12 ), 1 ),
+            new JellyBot( new Vector( 12, 12 ), 1 ),
+            new JellyBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 12, 12 ), 1 ),
+            // new Treant( new Vector( 12, 12 ), 1 ),
+            // new Chrome( new Vector( 3, 1 ), 1 ),
+            // new Chrome( new Vector( 4, 2 ), 1 )
         ]
 
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize2( 0.2 )
+            this.map.randomize2( 0 )
             // for ( let unit of this.units ) {
             //     this.map.set( unit.pos, 0 )
             // }
@@ -87,11 +93,11 @@ export default class World {
         let cursor = this.tileSpaceCursor()
         let selectedUnit = Game.instance.unitTray.selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-
+        let AITurn = Game.instance.isAITurn()
         this.drawMap()
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() ) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() && !AITurn) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length

@@ -26,7 +26,7 @@ function getMoves( tilePairity: number, useDiagonals = false ) {
     //  to a preference for zigzagging paths over large L-shaped paths.
 }
 
-export function findPath( world: World, origin: Vector, destination: Vector, maxDepth = 4 ) {
+export function findPath( world: World, origin: Vector, destination: Vector, maxDepth = 100 ) {
     type Node = { pos: Vector, parent: Node | null }
     function makeNode( pos: Vector, parent: Node | null ): Node {
         return { pos, parent }
