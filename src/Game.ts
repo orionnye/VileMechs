@@ -14,6 +14,7 @@ import Unit from "./gameobjects/Unit"
 import content from "*.css"
 import AI from "./AI"
 import Card from "./gameobjects/Card"
+import CardTypes from "./CardTypes"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -42,14 +43,13 @@ export default class Game {
     music = true
     musicPlaying = false
     playerTeamNumber = 0
-    aiTeamNumbers = [-1, 1]
+    aiTeamNumbers = [-1]
     ai = new AI()
 
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
         { name: "Choden Warriors", flipUnits: true },
-        // { name: "Thermate Embalmers", flipUnits: false },
-        // { name: "Frozen Meyers", flipUnits: true },
+        // { name: "Thermate Embalmers", flipUnits: false }
     ]
     turn = 0
 
@@ -94,7 +94,7 @@ export default class Game {
         let card = this.selectedCard()
         this.cardTray.deselect()
         if ( unit && card ) {
-            if ( unit.energy > 0 ) {
+            if ( unit.energy >= card.type.cost ) {
                 let index = unit.hand.cards.indexOf( card )
                 if ( index < 0 )
                     throw new Error( "Selected card is not in selected unit's hand." )
@@ -107,13 +107,15 @@ export default class Game {
     }
     endTurn() {
         console.log("Ending turn")
-        for ( let unit of this.world.units ) {
-            if ( unit.teamNumber == this.turn )
-                unit.onEndTurn()
-        }
         this.turn++
         this.turn %= this.teams.length
-
+        //Health ReCapped at turn start
+        this.world.units.forEach( unit => {
+            //turnStart
+            if (unit.teamNumber == this.turn) {
+                unit.statReset()
+            }
+        })
         if (this.isAITurn()) {
             console.log("Enemy turn")
             let enemyCount = 0
@@ -140,11 +142,6 @@ export default class Game {
     }
     //----------------------UPDATE---------------------------- 
     update() {
-        this.world.units.forEach(unit => {
-            if (this.aiTeamNumbers.includes(unit.teamNumber)) {
-
-            }
-        })
         this.clock.nextFrame()
         this.world.update()
         this.cardTray.update()

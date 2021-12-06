@@ -41,18 +41,27 @@ export default class Card {
             // Front face
             g.c.drawImage( this.type.backing, 0, 0, Card.dimensions.x, Card.dimensions.y, 0, 0, Card.dimensions.x, Card.dimensions.y )
             //graphic
-            g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 2, 0, Card.dimensions.x, Card.dimensions.y )
+            g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 7, 7, Card.dimensions.x*0.75, Card.dimensions.y*0.75 )
+            //background boxing
+            let costDimensions = new Vector(10, 10)
+            let costPos = new Vector(0, 5)
+            g.drawRect(costPos, costDimensions, this.type.color)
+            g.drawRect(new Vector(0, 0), new Vector(Card.dimensions.x, 8), this.type.color)
             //title
             g.setFont( 5, "pixel2" )
             g.drawText( new Vector( 3, 1 ), this.type.name, "#f0ead8" )
+            //Cost Display
+            g.setFont(Card.dimensions.x/6, "pixel2")
+            g.drawText(costPos.add(new Vector(3, 0)), this.type.cost.toString(), "white")
 
             //card description
-            g.drawRect( new Vector( 4, 40 ), new Vector( 40, 20 ), "grey" )
+            g.drawRect( new Vector( 4, 40 ), new Vector( 40, 20 ), this.type.color )
             let description = this.type.getDescription( this )
             let lines = getLines( description, 17 )
             lines.forEach( ( line, index ) => {
-                g.setFont( 3, "pixel2" )
-                g.drawText( new Vector( 6, 42 + index * 3 ), line, "#f0ead8" )
+                g.setFont( 5, "ariel" )
+                // g.setFont( 3, "pixel2" )
+                g.drawText( new Vector( 6, 42 + index * 4 ), line, "#f0ead8" )
             } )
         }
     }

@@ -34,6 +34,7 @@ export default class Unit {
     draw: Deck = new Deck()
     hand: Deck = new Deck()
     discard: Deck = new Deck()
+    drawSpeed: number = 5
     
     //visualStats
     color: string
@@ -58,7 +59,9 @@ export default class Unit {
 
         this.health = 10
         this.maxHealth = 10
-        this.hand.max = 4
+        
+        this.drawSpeed = 4
+        this.hand.max = 5
 
         //default deck
         //2 repair
@@ -69,16 +72,18 @@ export default class Unit {
 
     // Model
     addHealth( amount: number ) {
-        //REWORK THIS TO DEFAULT TO CURRENT VALUE RATHER THAN RESETTING TO MAXHEALTH When Exceeding 
         this.health += amount
-        this.health = clamp( 0, this.maxHealth, this.health )
         if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
     }
     addMaxHealth( amount: number ) {
         this.maxHealth += amount
         if ( amount < 0 )
-            this.hurtTime += Math.sqrt( -amount + 1 ) * .1
+            this.hurtTime += Math.sqrt( -amount + 1 ) * .2
+    }
+    capHealth() {
+        let { health, maxHealth } = this
+        this.health = maxHealth < health ? maxHealth : health
     }
     addSpeed( amount: number ) {
         this.speed += amount
@@ -86,17 +91,26 @@ export default class Unit {
     addEnergy( amount: number ) {
         this.energy += amount
     }
+    drawCard( amount: number ) {
+        for (let i = 0; i < amount; i++) {
+            if (this.draw.length > 0) {
+                let card = <Card> this.draw.cards.pop()
+                this.hand.cards.push(card)
+            } else {
+                this.discard.fill(this.draw)
+                if (this.draw.length > 0) {
+                    this.drawCard( amount )
+                }
+            }
+        }
+    }
 
     move( path: Vector[] ) {
         this.pos = path[ path.length - 1 ]
         this.walkAnimStep = 0
         this.walkAnimPath = path
     }
-
     walkPath( path: Vector[] ) {
-        // if ( this.hasMovedThisTurn )
-        //     throw new Error( "Should not be trying to move when a unit has already moved this turn." )
-        // this.hasMovedThisTurn = true
         if (this.energy > 0) {
             this.move( path )
             this.energy -= 1
@@ -104,27 +118,42 @@ export default class Unit {
     }
 
     cardCycle() {
-        let { draw, hand, discard } = this
-        //empty hand
-        hand.fill( discard )
-        //fill hand
-        draw.fill( hand )
+        let { draw, hand, discard, drawSpeed } = this
 
-        //extra shuffle and draw if the drawpile was a bit low
-        if ( hand.length < hand.max ) {
-            //empty discard into draw
-            discard.fill( draw )
-            draw.fill( hand )
+        //empty hand into discard
+        console.log("emptying Hand into discard")
+        hand.fill( discard )
+        console.log("hand length:", this.hand.length)
+        
+        //fill hand from draw pile
+        console.log("Filling Hand from draw")
+        draw.fill( hand, drawSpeed )
+        console.log("hand length:", this.hand.length)
+
+        if ( draw.length == 0 ) {
+            this.discard.fill(this.draw)
         }
+        if ( hand.length < drawSpeed ) {
+            console.log("UNDERFILLED HAND!!!!")
+            let missingCards = drawSpeed - this.hand.length
+            console.log("filling hand:", missingCards)
+            this.draw.fill(this.hand, missingCards)
+        }
+        // if ( this.hand.length < this.drawSpeed ) {
+        //     this.hand.cards = []
+        // }
+
+        console.log("-----------------END OF CYCLE-----------------")
     }
 
     canMove() { return !this.isWalking() }
     isWalking() { return this.walkAnimPath != undefined }
 
-    onEndTurn() {
+    statReset() {
         //Stat Reset
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
+        this.capHealth()
         this.cardCycle()
     }
 
