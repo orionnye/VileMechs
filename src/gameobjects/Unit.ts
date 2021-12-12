@@ -10,7 +10,7 @@ import Game from "../Game"
 import Scene, { SceneNode } from "../Scene"
 import World from "./World"
 import { Deck } from "./Deck"
-import CardTypes from "../CardTypes"
+import CardTypes, { CardType } from "../CardTypes"
 
 const mechSheet = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 
@@ -34,6 +34,7 @@ export default class Unit {
     draw: Deck = new Deck()
     hand: Deck = new Deck()
     discard: Deck = new Deck()
+    drawSpeed: number
     
     //visualStats
     color: string
@@ -58,7 +59,9 @@ export default class Unit {
 
         this.health = 10
         this.maxHealth = 10
-        this.hand.max = 4
+        
+        this.drawSpeed = 4
+        this.hand.max = 8
 
         //default deck
         //2 repair
@@ -69,16 +72,18 @@ export default class Unit {
 
     // Model
     addHealth( amount: number ) {
-        //REWORK THIS TO DEFAULT TO CURRENT VALUE RATHER THAN RESETTING TO MAXHEALTH When Exceeding 
         this.health += amount
-        this.health = clamp( 0, this.maxHealth, this.health )
         if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
     }
     addMaxHealth( amount: number ) {
         this.maxHealth += amount
         if ( amount < 0 )
-            this.hurtTime += Math.sqrt( -amount + 1 ) * .1
+            this.hurtTime += Math.sqrt( -amount + 1 ) * .2
+    }
+    capHealth() {
+        let { health, maxHealth } = this
+        this.health = maxHealth < health ? maxHealth : health
     }
     addSpeed( amount: number ) {
         this.speed += amount
@@ -86,17 +91,40 @@ export default class Unit {
     addEnergy( amount: number ) {
         this.energy += amount
     }
+    //Card management
+    gainCard( cardType: CardType, count: number = 1 ) {
+        for (let i = count; i > 0; i--) {
+            if (this.hand.length < this.hand.max) {
+                this.hand.add( cardType )
+            } else {
+                this.discard.add( cardType )
+            }
+        }
+    }
+    drawCard( amount: number ) {
+        for (let i = amount; i > 0; i--) {
+            // console.log("being Called")
+            if (this.draw.length > 0) {
+                let card = <Card> this.draw.cards.pop()
+                // console.log("DrawPile Exists:", card.type.name)
+                this.hand.cards.push(card)
+            } else {
+                this.discard.emptyInto(this.draw)
+                if (this.draw.length > 0 ) {
+                    let card = <Card> this.draw.cards.pop()
+                    // console.log("DrawPile Doesnt Exists:", card.type.name)
+                    this.hand.cards.push(card)
+                }
+            }
+        }
+    }
 
     move( path: Vector[] ) {
         this.pos = path[ path.length - 1 ]
         this.walkAnimStep = 0
         this.walkAnimPath = path
     }
-
     walkPath( path: Vector[] ) {
-        // if ( this.hasMovedThisTurn )
-        //     throw new Error( "Should not be trying to move when a unit has already moved this turn." )
-        // this.hasMovedThisTurn = true
         if (this.energy > 0) {
             this.move( path )
             this.energy -= 1
@@ -104,27 +132,31 @@ export default class Unit {
     }
 
     cardCycle() {
-        let { draw, hand, discard } = this
-        //empty hand
-        hand.fill( discard )
-        //fill hand
-        draw.fill( hand )
+        let { draw, hand, discard, drawSpeed } = this
+        let totalCards = hand.length + draw.length + discard.length
 
-        //extra shuffle and draw if the drawpile was a bit low
-        if ( hand.length < hand.max ) {
-            //empty discard into draw
-            discard.fill( draw )
-            draw.fill( hand )
+        //empty hand into discard
+        discard.fillFrom(hand)
+        //fill hand from draw pile
+        hand.fillTill(draw, drawSpeed)
+
+        //empty remaining cards from hand into discardPile
+        if (hand.length < drawSpeed) {
+            //fill draw pile from discard
+            draw.fillFrom(discard)
+            //fill hand from draw pile
+            hand.fillTill(draw, drawSpeed)
         }
     }
 
     canMove() { return !this.isWalking() }
     isWalking() { return this.walkAnimPath != undefined }
 
-    onEndTurn() {
+    statReset() {
         //Stat Reset
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
+        this.capHealth()
         this.cardCycle()
     }
 

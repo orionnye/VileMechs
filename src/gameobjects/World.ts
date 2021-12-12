@@ -19,22 +19,23 @@ export default class World {
     constructor() {
         this.map = new Grid( 25, 25 )
         this.units = [
+            new Chrome( new Vector( 1, 1 ), 0 ),
             new Flesh( new Vector( 12, 12 ), 0 ),
             new Treant( new Vector( 12, 12 ), 0 ),
-            new Chrome( new Vector( 1, 1 ), 0 ),
             new Chrome( new Vector( 2, 2 ), 0 ),
             
-            new FleshBot( new Vector( 12, 12 ), 1 ),
-            new FleshBot( new Vector( 12, 12 ), 1 ),
-            new JellyBot( new Vector( 12, 12 ), 1 ),
-            new JellyBot( new Vector( 12, 12 ), 1 ),
             // new FleshBot( new Vector( 12, 12 ), 1 ),
             // new FleshBot( new Vector( 12, 12 ), 1 ),
-            // new Treant( new Vector( 12, 12 ), 1 ),
-            // new Chrome( new Vector( 3, 1 ), 1 ),
-            // new Chrome( new Vector( 4, 2 ), 1 )
+            // new JellyBot( new Vector( 12, 12 ), 1 ),
+            // new JellyBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 12, 12 ), 1 ),
+            new Treant( new Vector( 12, 12 ), 1 ),
+            new Chrome( new Vector( 3, 1 ), 1 ),
+            new Chrome( new Vector( 4, 2 ), 1 )
         ]
 
+        // let randomTerrain = false
         let randomTerrain = true
         if ( randomTerrain ) {
             this.map.randomize2( 0 )
