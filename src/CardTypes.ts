@@ -54,6 +54,7 @@ export type CardType = {
 }
 
 const CardTypes: { [ name: string ]: CardType } = {
+    //------------------------------- CHROME -----------------------------
     laser: {
         name: "Laser",
         getDescription: card => `Deal ${ card.type.damage } damage to target`,
@@ -98,7 +99,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.hand.add(CardTypes.energyArmor, 2)
+            user.gainCard(CardTypes.energyArmor, 2)
             user.energy -= card.type.cost
         },
 
@@ -109,7 +110,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     chargeBeam: {
         name: "Charge Beam",
-        getDescription: card => `Reduce incoming damage by ${ card.type.damage }`,
+        getDescription: card => `Deal ${ card.type.damage } X Energy Armor Total, Exhaust all Energy Armor`,
         color: "#6BB5FF",
         sprite: chargeBeam,
         backing: metal,
@@ -117,15 +118,26 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             //count energy Armor in Hand, remove it
+            let armorCount = user.hand.typeCount(CardTypes.energyArmor)
+            console.log("ARMOR COUNT:", armorCount)
+            for (let i = armorCount; i > 0; i--) {
+                user.hand.cards.forEach( (card, index) => {
+                    if ( card.type == CardTypes.energyArmor ) {
+                        user.hand.cards.splice(index, 1)
+                    }
+                })
+            }
+            target?.addHealth( -card.type.damage * armorCount )
             //stack damage and apply to enemy
             user.energy -= card.type.cost
         },
 
         cost: 3,
-        damage: 0,
+        damage: 6,
         range: 9,
         minDist: 0,
     },
+    //------------------------------- CURRENCY -----------------------------
     ore: {
         name: "Ore",
         getDescription: card => "$$$... -Exhaustive",
@@ -146,6 +158,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 0,
         minDist: 0,
     },
+    //------------------------------- ELDRITCH -----------------------------
     tentacle: {
         name: "Tentacle Pull",
         getDescription: card => `Pull target to you from ${ card.type.range } tiles away.`,
@@ -196,6 +209,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 5,
         minDist: 2
     },
+    //------------------------------- EARTH -----------------------------
     bouldertoss: {
         name: "Boulder Toss",
         getDescription: card => `Place a Mountain Deal ${card.type.damage} damage`,
@@ -247,6 +261,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 1,
     },
+    //------------------------------- UNIVERSAL -----------------------------
     repair: {
         name: "Repair-Kit",
         getDescription: card => `Heal unit for ${card.type.damage} health, -Exhaustive`,
@@ -291,6 +306,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 0,
         minDist: 0,
     },
+    //------------------------------- FLESH -----------------------------
     claw: {
         name: "Claw",
         getDescription: card => `Deal ${card.type.damage} damage`,
@@ -335,6 +351,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 7,
         minDist: 0,
     },
+    //------------------------------- THERMAL -----------------------------
     frost: {
         name: "Frost",
         getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,

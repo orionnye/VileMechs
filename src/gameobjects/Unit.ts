@@ -10,7 +10,7 @@ import Game from "../Game"
 import Scene, { SceneNode } from "../Scene"
 import World from "./World"
 import { Deck } from "./Deck"
-import CardTypes from "../CardTypes"
+import CardTypes, { CardType } from "../CardTypes"
 
 const mechSheet = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 
@@ -34,7 +34,7 @@ export default class Unit {
     draw: Deck = new Deck()
     hand: Deck = new Deck()
     discard: Deck = new Deck()
-    drawSpeed: number = 5
+    drawSpeed: number
     
     //visualStats
     color: string
@@ -61,7 +61,7 @@ export default class Unit {
         this.maxHealth = 10
         
         this.drawSpeed = 4
-        this.hand.max = 5
+        this.hand.max = 8
 
         //default deck
         //2 repair
@@ -91,15 +91,29 @@ export default class Unit {
     addEnergy( amount: number ) {
         this.energy += amount
     }
+    //Card management
+    gainCard( cardType: CardType, count: number = 1 ) {
+        for (let i = count; i > 0; i--) {
+            if (this.hand.length < this.hand.max) {
+                this.hand.add( cardType )
+            } else {
+                this.discard.add( cardType )
+            }
+        }
+    }
     drawCard( amount: number ) {
-        for (let i = 0; i < amount; i++) {
+        for (let i = amount; i > 0; i--) {
+            // console.log("being Called")
             if (this.draw.length > 0) {
                 let card = <Card> this.draw.cards.pop()
+                // console.log("DrawPile Exists:", card.type.name)
                 this.hand.cards.push(card)
             } else {
-                this.discard.fill(this.draw)
-                if (this.draw.length > 0) {
-                    this.drawCard( amount )
+                this.discard.emptyInto(this.draw)
+                if (this.draw.length > 0 ) {
+                    let card = <Card> this.draw.cards.pop()
+                    // console.log("DrawPile Doesnt Exists:", card.type.name)
+                    this.hand.cards.push(card)
                 }
             }
         }
@@ -119,31 +133,20 @@ export default class Unit {
 
     cardCycle() {
         let { draw, hand, discard, drawSpeed } = this
+        let totalCards = hand.length + draw.length + discard.length
 
         //empty hand into discard
-        console.log("emptying Hand into discard")
-        hand.fill( discard )
-        console.log("hand length:", this.hand.length)
-        
+        discard.fillFrom(hand)
         //fill hand from draw pile
-        console.log("Filling Hand from draw")
-        draw.fill( hand, drawSpeed )
-        console.log("hand length:", this.hand.length)
+        hand.fillTill(draw, drawSpeed)
 
-        if ( draw.length == 0 ) {
-            this.discard.fill(this.draw)
+        //empty remaining cards from hand into discardPile
+        if (hand.length < drawSpeed) {
+            //fill draw pile from discard
+            draw.fillFrom(discard)
+            //fill hand from draw pile
+            hand.fillTill(draw, drawSpeed)
         }
-        if ( hand.length < drawSpeed ) {
-            console.log("UNDERFILLED HAND!!!!")
-            let missingCards = drawSpeed - this.hand.length
-            console.log("filling hand:", missingCards)
-            this.draw.fill(this.hand, missingCards)
-        }
-        // if ( this.hand.length < this.drawSpeed ) {
-        //     this.hand.cards = []
-        // }
-
-        console.log("-----------------END OF CYCLE-----------------")
     }
 
     canMove() { return !this.isWalking() }

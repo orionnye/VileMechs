@@ -51,18 +51,67 @@ export class Deck {
             this.insertAtRandom(card)
         }
     }
-    fill( that: Deck, amount: number = this.length ) {
-        let { cards } = this
-        // console.log("Requested:", amount, "available:", this.length)
-        if (amount > this.length) {
-            amount = this.length
+    addCard(card) {
+        if (this.cards.length < this.max) {
+            this.cards.push(card);
         }
-        for ( let i = 0; i < amount; i++ ) {
-            // console.log("amount:", amount, "i:", i)
-            if (that.length < amount) {
-                let card = <Card> cards.pop()
-                console.log("pushed:", card.type.name)
-                that.cards.push( card )
+    }
+    addCards( cards ) {
+        cards.forEach(card => {
+            this.addCard(card);
+        });
+    }
+    addCardsatRandom(cards) {
+        cards.forEach(card => {
+            this.insertAtRandom(card);
+        });
+    }
+
+    removeCards(desired) {
+        let count = desired > this.length ? this.length : desired;
+        let cards: Card[] = [];
+        for (let i = 0; i < count; i++) {
+            cards.push(this.cards.pop()!)
+        }
+        return cards;
+    }
+    emptyInto(deck: Deck) {
+        if (this.length > 0) {
+            deck.addCards(this.removeCards(this.length));
+        } else {
+            console.log("Deck already empty:", deck)
+        }
+    }
+
+    fillFrom(deck: Deck) {
+        let {max, length} = this;
+        if (length < max) {
+            // console.log("Filling Hand");
+            let drawTotal = length == max ? max : max - length;
+            this.addCards(deck.removeCards(drawTotal));
+        } else {
+            console.log("already full:", deck)
+        }
+    }
+    fillTill(deck: Deck, cap: number = this.length) {
+        let { length } = this;
+        cap = cap < this.max ? cap : this.max
+        if (length < cap) {
+            console.log("Filling Hand");
+            let drawTotal = length == cap ? cap : cap - length;
+            this.addCards(deck.removeCards(drawTotal));
+        } else {
+            console.log("Already full:", deck)
+        }
+    }
+    drawTill(that: Deck, amount: number) {
+        if (amount > that.length) {
+            amount = that.length
+        }
+        for (let i = 0; i < amount; i++) {
+            if (that.cards.length > 0) {
+                let card = that.cards.pop()!
+                this.cards.push(card)
             }
         }
     }

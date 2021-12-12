@@ -14,17 +14,20 @@ export class Chrome extends Unit {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
         this.sprite = chrome
-
-        this.maxHealth += 3
-        this.health = this.maxHealth
-
+        
         this.draw.cards = []
-        this.hand.add( CardTypes.shieldCharge, 1 )
-        this.hand.add( CardTypes.energyArmor, 3 )
-        this.draw.add( CardTypes.energyArmor, 3 )
-        // this.draw.add( CardTypes.sprint, 1 )
+        
+        //custom stats
+        this.maxHealth += 3
+        this.drawSpeed = 4
+        this.maxEnergy = 3
+        //custom cards
+        this.draw.add( CardTypes.repair, 1 )
+        this.draw.add( CardTypes.shieldCharge, 2 )
+        this.draw.add( CardTypes.laser, 2 )
+        this.draw.add( CardTypes.chargeBeam, 1 )
 
-        this.cardCycle()
+        this.statReset()
     }
     // Damage reception overload to check for any energy armor and reduce damage recieved
     addHealth( amount: number ) {
