@@ -212,13 +212,13 @@ export default class Unit {
                 name = name.slice( 0, maxLength - 3 ) + "..."
             g.drawTextBox( new Vector( 0, 32 ), name, { textColor: "#c2c2c2", boxColor: "#696969", alignY: TextAlignY.bottom } )
         }
-
+        //Unit Stat Display
         if ( !isWalking ) {
             g.setFont( 4, "impact" )
             let healthText = this.health.toString().padStart( 2, "0" )
             let energyText = this.energy.toString().padStart( 2, "0" )
             let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
-            g.drawTextBox( new Vector( boxDims.x, 0 ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
+            g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
         }
     }
 

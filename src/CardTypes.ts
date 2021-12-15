@@ -110,7 +110,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     chargeBeam: {
         name: "Charge Beam",
-        getDescription: card => `Deal ${ card.type.damage } X Energy Armor Total, Exhaust all Energy Armor`,
+        getDescription: card => `Deal ${ card.type.damage }xEnergy Armor Total, -Exhaust all Energy Armor`,
         color: "#6BB5FF",
         sprite: chargeBeam,
         backing: metal,

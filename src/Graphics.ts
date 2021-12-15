@@ -35,6 +35,18 @@ export default class Graphics {
         this.c.beginPath()
         this.c.strokeRect( pos.x, pos.y, size.x, size.y )
     }
+    strokeCircle( pos: Vector, radius: number, color: string = "black" ) {
+        this.c.beginPath()
+        this.c.arc(pos.x, pos.y, radius, 0, 2 * Math.PI)
+        this.c.strokeStyle = color
+        this.c.stroke()
+    }
+    fillCircle( pos: Vector, radius: number, color: string = "black" ) {
+        this.c.beginPath()
+        this.c.arc(pos.x, pos.y, radius, 0, 2 * Math.PI)
+        this.c.fillStyle = color
+        this.c.fill()
+    }
 
     makePath( path: Vector[] ) {
         if ( path.length == 0 )

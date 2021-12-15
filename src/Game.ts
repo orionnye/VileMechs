@@ -43,7 +43,7 @@ export default class Game {
     music = true
     musicPlaying = false
     playerTeamNumber = 0
-    aiTeamNumbers = [-1]
+    aiTeamNumbers = [ -1 ]
     ai = new AI()
 
     teams: Team[] = [
@@ -265,7 +265,7 @@ export default class Game {
             onRenderPost: () => {
                 let center = this.screenCenter()
                 g.setFont( 6, "pixel" )
-                g.drawTextBox( new Vector( center.x, 0 ), this.teams[ this.turn ].name, { textColor: "#c2c2c2", boxColor: "#696969", alignX: TextAlignX.center } )
+                g.drawTextBox( new Vector( center.x, 0 ), this.teams[ this.turn ].name, { textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center } )
             },
             content: () => {
                 world.makeSceneNode()

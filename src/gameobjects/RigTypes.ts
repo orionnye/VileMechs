@@ -18,7 +18,8 @@ export class Chrome extends Unit {
         this.draw.cards = []
         
         //custom stats
-        this.maxHealth += 3
+        this.maxHealth = 13
+        this.health = this.maxHealth
         this.drawSpeed = 4
         this.maxEnergy = 3
         //custom cards
