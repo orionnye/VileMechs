@@ -17,22 +17,15 @@ export default class World {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor() {
-        this.map = new Grid( 25, 25 )
+        this.map = new Grid( 20, 20 )
         this.units = [
-            new Chrome( new Vector( 1, 1 ), 0 ),
-            new Flesh( new Vector( 12, 12 ), 0 ),
-            new Treant( new Vector( 12, 12 ), 0 ),
-            new Chrome( new Vector( 2, 2 ), 0 ),
-            
-            // new FleshBot( new Vector( 12, 12 ), 1 ),
-            // new FleshBot( new Vector( 12, 12 ), 1 ),
+            new Chrome( new Vector( 0, 0 ), 0 ),
+            new Flesh( new Vector( 0, 1 ), 0 ),
+            // new Treant( new Vector( 0, 0 ), 0 ),
+            // new Chrome( new Vector( 0, 0 ), 0 ),
+            new FleshBot( new Vector( 5, 5 ), 1 ),
+            new FleshBot( new Vector( 4, 5 ), 1 ),
             // new JellyBot( new Vector( 12, 12 ), 1 ),
-            // new JellyBot( new Vector( 12, 12 ), 1 ),
-            // new FleshBot( new Vector( 12, 12 ), 1 ),
-            // new FleshBot( new Vector( 12, 12 ), 1 ),
-            new Treant( new Vector( 12, 12 ), 1 ),
-            new Chrome( new Vector( 3, 1 ), 1 ),
-            new Chrome( new Vector( 4, 2 ), 1 )
         ]
 
         // let randomTerrain = false

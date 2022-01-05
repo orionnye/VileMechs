@@ -29,6 +29,7 @@ export default class Unit {
     
     //team
     teamNumber: number
+    done: boolean
     
     //Cards
     draw: Deck = new Deck()
@@ -49,6 +50,7 @@ export default class Unit {
         this.name = names[ randomFloor( names.length ) ]
         this.teamNumber = teamNumber
         this.color = "red"
+        this.done = false
 
         this.pos = pos
         this.maxSpeed = 5
@@ -118,7 +120,16 @@ export default class Unit {
             }
         }
     }
-
+    discardCard( amount: number = 1 ) {
+        for (let i = amount; i > 0; i--) {
+            // console.log("being Called")
+            if (this.hand.length > 0) {
+                let card = <Card> this.hand.cards.pop()
+                // console.log("DrawPile Exists:", card.type.name)
+                this.discard.cards.push(card)
+            }
+        }
+    }
     move( path: Vector[] ) {
         this.pos = path[ path.length - 1 ]
         this.walkAnimStep = 0
@@ -158,6 +169,14 @@ export default class Unit {
         this.speed = this.maxSpeed
         this.capHealth()
         this.cardCycle()
+    }
+    statCap() {
+        //Stat Cut Off
+        this.energy = this.maxEnergy
+        this.speed = this.maxSpeed
+        this.capHealth()
+        this.cardCycle()
+        this.done = false
     }
 
     update() {
@@ -217,8 +236,10 @@ export default class Unit {
             g.setFont( 4, "impact" )
             let healthText = this.health.toString().padStart( 2, "0" )
             let energyText = this.energy.toString().padStart( 2, "0" )
+            let speedText = this.speed.toString().padStart( 2, "0" )
             let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
-            g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
+            let nextBoxDims = g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
+            g.drawTextBox( new Vector( 0, nextBoxDims.y+boxDims.y ), speedText, { textColor: "#999999", boxColor: "#2525ff" } )
         }
     }
 

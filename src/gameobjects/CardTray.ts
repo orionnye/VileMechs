@@ -55,7 +55,8 @@ export default class CardTray {
         if ( this.hasCardSelected() && !this.isPickingTarget ) {
             let now = Date.now()
             let dt = now - lastSelectTime
-            if ( dt > CardTray.selectionTimeout )
+            //another player switch
+            if ( dt > CardTray.selectionTimeout && !Game.instance.isAITurn())
                 this.selectIndex( -1 )
         }
     }

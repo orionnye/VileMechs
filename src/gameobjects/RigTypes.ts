@@ -35,7 +35,7 @@ export class Chrome extends Unit {
         let { energyArmor } = CardTypes
         let reduction = 0
         if (amount < 0) {
-            console.log(this.hand.typeCount(energyArmor))
+            // console.log(this.hand.typeCount(energyArmor))
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
             this.hand.cards.forEach( (card, index) => {
                 if (card.type == energyArmor && reduction < Math.abs(amount)) {
@@ -44,7 +44,7 @@ export class Chrome extends Unit {
                 }
             })
         }
-        console.log( "Reduction:", reduction )
+        // console.log( "Reduction:", reduction )
         this.health += amount + reduction
     }
 }
@@ -108,7 +108,8 @@ export class FleshBot extends Flesh {
         this.speed = this.maxSpeed
         
         this.draw.cards = []
-        this.draw.add( CardTypes.claw, 3)
+        this.hand.cards = []
+        this.draw.add( CardTypes.claw, 5)
         
         this.cardCycle()
     }

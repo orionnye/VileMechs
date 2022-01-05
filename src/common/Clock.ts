@@ -11,6 +11,9 @@ export default class Clock {
         this.averageFPS = 0
         this.dt = 16
     }
+    get dtSeconds() {
+        return this.dt / 1000
+    }
     nextFrame() {
         let now = performance.now()
         let dt = now - this.lastFrame

@@ -113,7 +113,7 @@ export default class UnitTray {
                                 //Health Display
                                 let healthPipBox = new Vector(3, 5)
                                 let healthBox = new Vector(unit.maxHealth*healthPipBox.x, 10)
-                                let healthPos = new Vector(32, 2)
+                                let healthPos = new Vector(38, 2)
                                 let inactiveHealth = "rgba(255, 0, 0, 0.2)"
                                 let excessHealth = "rgba(255, 180, 180, 1)"
                                 
@@ -121,8 +121,10 @@ export default class UnitTray {
                                 g.drawRect(textPos, new Vector(healthBox.x+ healthPipBox.x*2, 7), "#661111")
 
                                 g.setFont( 5, "impact" )
-                                let healthText = unit.maxHealth.toString().padStart( 2, "0" )
-                                g.drawTextBox( textPos.add(new Vector(-1, 0.5)), healthText, { padding: 1, textColor: "#000000", boxColor: "#f84a32" } )
+                                let maxHealthText = unit.maxHealth.toString().padStart( 2, "0" )
+                                let healthText = unit.health.toString().padStart( 2, "0" )
+                                // g.drawTextBox( textPos.add(new Vector(-1, 0.5)), maxHealthText, { padding: 1, textColor: "#000000", boxColor: "#f84a32" } )
+                                g.drawTextBox( textPos.add(new Vector(-1, 0.5)), healthText, { padding: 1, textColor: "#ffffff", boxColor: "#f84a32" } )
                                 
                                 for (let h = Math.max(unit.health, unit.maxHealth); h > 0; h--) {
                                     let nextPipPos = healthPos.add(new Vector(h*healthPipBox.x - healthPipBox.x, 0))
@@ -151,26 +153,28 @@ export default class UnitTray {
                                 //Energy Display
                                 let energyPipBox = new Vector(3, 5)
                                 let energyBox = new Vector(unit.maxEnergy*energyPipBox.x, 10)
-                                let energyPos = new Vector(32, 10)
-                                let inactiveEnergy = "rgba(0, 0, 0, 255, 1)"
-                                let excessEnergy = "rgba(180, 180, 255, 1)"
+                                let energyPos = new Vector(38, 9)
+                                let excessEnergy = "#9cdbad"
                                 
                                 let energyTextPos = energyPos.add(new Vector(-6, -2))
-                                g.drawRect(energyTextPos, new Vector(energyBox.x+ energyPipBox.x*2, 7), "#111166")
+                                g.drawRect(energyTextPos, new Vector(energyBox.x+ energyPipBox.x*2, 7), "#1d6725")
 
                                 g.setFont( 5, "impact" )
-                                let energyText = unit.maxEnergy.toString().padStart( 2, "0" )
-                                g.drawTextBox( energyTextPos.add(new Vector(-1, 0.5)), energyText, { padding: 1, textColor: "#000000", boxColor: "#324af8" } )
+                                let energyMaxText = unit.maxEnergy.toString().padStart( 2, "0" )
+                                let energyText = unit.energy.toString().padStart( 2, "0" )
+                                g.drawTextBox( energyTextPos.add(new Vector(-2, 0.5)), energyText, { padding: 1, textColor: "#ffffff", boxColor: "#2d8745" } )
+                                // g.drawTextBox( energyTextPos.add(new Vector(-2, -0.5)), energyMaxText, { padding: 1, textColor: "#000000", boxColor: "#324af8" } )
 
                                 for (let e = Math.max(unit.energy, unit.maxEnergy); e > 0; e--) {
                                     let nextPipPos = energyPos.add(new Vector(e*energyPipBox.x - energyPipBox.x, 0))
                                     if (e <= unit.maxEnergy) {
                                         if (e <= unit.energy) {
-                                            let noiseScale = 0.5
+                                            let noiseScale = 0.1
                                             let noise = new Vector(Math.random()*noiseScale, Math.random()*noiseScale)
-                                            let hexColorStrength = Math.floor((Math.random()*29 + 230)).toString(16)
                                             let filledPipPos = nextPipPos.add(noise)
-                                            g.drawRect(filledPipPos, energyPipBox, `#6f6f${hexColorStrength}`)
+
+                                            let hexColorStrength = Math.floor((Math.random()*20 + 230)).toString(16)
+                                            g.drawRect(filledPipPos, energyPipBox, `#2f${hexColorStrength}2F`)
                                             g.c.lineWidth = 0.2
                                             g.strokeRect(filledPipPos, energyPipBox, "black")
                                         } else {

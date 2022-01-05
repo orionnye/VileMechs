@@ -43,7 +43,7 @@ export default class Game {
     music = true
     musicPlaying = false
     playerTeamNumber = 0
-    aiTeamNumbers = [ -1 ]
+    aiTeamNumbers = [ -1, 1 ]
     ai = new AI()
 
     teams: Team[] = [
@@ -113,41 +113,59 @@ export default class Game {
         this.world.units.forEach( unit => {
             //turnStart
             if (unit.teamNumber == this.turn) {
-                unit.statReset()
+                unit.statCap()
             }
         })
-        if (this.isAITurn()) {
-            console.log("Enemy turn")
-            let enemyCount = 0
-            let delay = 500
-            this.world.units.forEach(unit => {
-                if (unit.teamNumber == this.turn) {
-                    enemyCount += 1
-                    this.unitTray.selectUnit( unit );
-                    this.onSelectUnit()
-                    //------------------------ENEMY AI-----------------------------
-                    for (let i = unit.energy; i > 0; i--) {
-                        this.ai.think(unit)
-                    }
-                }
-            })
-            // ending team turn
-            window.setTimeout(() => {
-                this.endTurn()
-            }, 1000);
-        }
-
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
     }
-    //----------------------UPDATE---------------------------- 
+    //----------------------UPDATE----------------------------
     update() {
         this.clock.nextFrame()
+        //enemy AI
+        if (this.isAITurn()) {
+            let aiTurn = false
+            
+            if (this.selectedUnit() == undefined) {
+                console.log("FINDING")
+                this.world.units.forEach( unit => {
+                    if (unit.teamNumber == this.turn && !this.ai.isDone(unit)) {
+                        aiTurn = true
+                        this.unitTray.selectUnit( unit );
+                        this.onSelectUnit()
+                    }
+                })
+            } else {
+                //Trigger to keep aiTurn active as long as ai has cards
+                aiTurn = true
+                if (this.ai.startTime == undefined) {
+                    this.ai.startTime = Date.now()
+                    //selecting Unit for control
+                }
+                //AI DELAY
+                let actionDelay = 500
+                //Taking delayed Action!
+                if (Date.now() - this.ai.startTime >= actionDelay) {
+                    let unit = this.selectedUnit()!
+                    if ( !this.ai.isDone(unit) ) {
+                        console.log("thinking")
+                        this.ai.think(unit)
+                    } else {
+                        this.unitTray.deselect()
+                    }
+                }
+            }
+            if (!aiTurn) {
+                this.endTurn()
+            }
+        }
         this.world.update()
         this.cardTray.update()
         this.makeSceneNode()
         this.camera.update()
 
+
+        //user Input Display
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )

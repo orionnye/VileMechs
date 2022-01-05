@@ -17,10 +17,10 @@ export default class Camera {
 
     constructor() {
         //position should be 0, 0
-        this.position = new Vector( 350, 350 )
+        this.position = new Vector( 600, 600 )
         this.velocity = new Vector( 0, 0 )
         //soomlevel should be 0
-        this.zoomLevel = -2
+        this.zoomLevel = -3
         this.rotation = 0
     }
 

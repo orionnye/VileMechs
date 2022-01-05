@@ -280,7 +280,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 7,
-        range: 1,
+        range: 0,
         minDist: 0,
 
     },

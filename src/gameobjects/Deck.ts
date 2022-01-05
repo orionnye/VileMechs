@@ -97,7 +97,7 @@ export class Deck {
         let { length } = this;
         cap = cap < this.max ? cap : this.max
         if (length < cap) {
-            console.log("Filling Hand");
+            // console.log("Filling Hand");
             let drawTotal = length == cap ? cap : cap - length;
             this.addCards(deck.removeCards(drawTotal));
         } else {
