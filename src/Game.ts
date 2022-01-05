@@ -143,7 +143,7 @@ export default class Game {
                     //selecting Unit for control
                 }
                 //AI DELAY
-                let actionDelay = 500
+                let actionDelay = 700
                 //Taking delayed Action!
                 if (Date.now() - this.ai.startTime >= actionDelay) {
                     let unit = this.selectedUnit()!

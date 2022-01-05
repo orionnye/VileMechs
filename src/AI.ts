@@ -36,14 +36,19 @@ export default class AI {
             let enemies = this.getEnemiesOf(unit)
             let target = this.bestTargetOf(unit, card!)
             let idealSpot = this.idealSpot(unit, card)
+            let friendly = this.friendlySpace(unit)
 
             if (card?.type.cost <= unit.energy && target !== undefined) {
                 //Step TWO, if an enemy is within range, use Card
                 game.applyCardAt(target.pos)
             }
-            else if (!unit.isWalking() && enemies.length > 0) {
+            else if (enemies.length > 0) {
                 // Step THREE, if no enemies in range, move into range
-                this.moveTowards(unit, idealSpot)
+                if (!unit.isWalking() && idealSpot !== undefined) {
+                    this.moveTowards(unit, idealSpot)
+                }
+            } else if (friendly !== undefined){
+                this.moveTowards(unit, friendly)
             }
         }
         //resetting the timer
@@ -111,6 +116,33 @@ export default class AI {
         world.units.forEach( enemy => {
             if (enemy.teamNumber !== unit.teamNumber) {
                 let tiles = targetsWithinRange(enemy.pos, 0, idealDist)
+                tiles.forEach(tile => {
+                    let tilePath = findPath(world, unit.pos, tile)
+                    if (tilePath) {
+                        if (closest == undefined) {
+                            //if unnasigned and validPath
+                            closest = tile
+                        } else {
+                            let closestPath = findPath(world, unit.pos, closest)
+                            if (tilePath.length < closestPath!.length) {
+                                closest = tile
+                            }
+                        }
+                    }
+                })
+            }
+        })
+        return closest
+    }
+    friendlySpace(unit) {
+        let game = Game.instance
+        let world = game.world
+
+        let sightDistance = 20
+        let closest
+        world.units.forEach( friend => {
+            if (friend.teamNumber == unit.teamNumber) {
+                let tiles = targetsWithinRange(friend.pos, 0, sightDistance)
                 tiles.forEach(tile => {
                     let tilePath = findPath(world, unit.pos, tile)
                     if (tilePath) {

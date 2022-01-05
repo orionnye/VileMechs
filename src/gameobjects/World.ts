@@ -21,11 +21,11 @@ export default class World {
         this.units = [
             new Chrome( new Vector( 0, 0 ), 0 ),
             new Flesh( new Vector( 0, 1 ), 0 ),
-            // new Treant( new Vector( 0, 0 ), 0 ),
-            // new Chrome( new Vector( 0, 0 ), 0 ),
+            new Treant( new Vector( 0, 0 ), 0 ),
+            new Chrome( new Vector( 0, 0 ), 0 ),
             new FleshBot( new Vector( 5, 5 ), 1 ),
             new FleshBot( new Vector( 4, 5 ), 1 ),
-            // new JellyBot( new Vector( 12, 12 ), 1 ),
+            new JellyBot( new Vector( 12, 12 ), 1 ),
         ]
 
         // let randomTerrain = false
