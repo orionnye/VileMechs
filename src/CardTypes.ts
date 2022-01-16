@@ -153,7 +153,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.energy -= card.type.cost
         },
 
-        cost: 1,
+        cost: 0,
         damage: 0,
         range: 0,
         minDist: 0,
@@ -332,7 +332,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     acid: {
         name: "Acid",
         getDescription: card => `Melts Armor, target maxHealth -= ${card.type.damage} target speed += 1`,
-        color: "#0000aa",
+        color: "#32a852",
         sprite: acid,
         backing: purple,
         canApplyToEmptyTiles: false,
@@ -341,14 +341,15 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.energy -= card.type.cost
 
             if ( target ) {
-                target.addMaxHealth(card.type.damage)
+                target.addMaxHealth(-card.type.damage)
                 target.maxSpeed += 2
+                target.addHealth(-2)
             }
         },
 
         cost: 1,
         damage: 3,
-        range: 7,
+        range: 5,
         minDist: 0,
     },
     //------------------------------- THERMAL -----------------------------

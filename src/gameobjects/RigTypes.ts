@@ -80,6 +80,7 @@ export class Flesh extends Unit {
 
         this.draw.add( CardTypes.claw, 3 )
         this.draw.add( CardTypes.tentacle, 2 )
+        this.draw.add( CardTypes.acid, 2)
 
         this.cardCycle()
     }
