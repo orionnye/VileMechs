@@ -18,7 +18,7 @@ export class Chrome extends Unit {
         this.draw.cards = []
         
         //custom stats
-        this.maxHealth = 13
+        this.maxHealth = 12
         this.health = this.maxHealth
         this.drawSpeed = 4
         this.maxEnergy = 3
@@ -53,8 +53,11 @@ export class Treant extends Unit {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
         this.sprite = treant
-
-        this.maxSpeed -= 2
+        
+        //Treant Stats
+        this.maxHealth = 11
+        this.health = this.maxHealth
+        this.maxSpeed = 4
         this.speed = this.maxSpeed
 
         this.drawSpeed = 5
@@ -63,8 +66,9 @@ export class Treant extends Unit {
         this.energy = this.maxEnergy
 
         this.draw.cards = []
-        this.draw.add( CardTypes.bouldertoss, 4 )
-        this.draw.add( CardTypes.mine, 3 )
+        this.draw.add( CardTypes.bouldertoss, 3 )
+        this.draw.add( CardTypes.mine, 2 )
+        this.draw.add( CardTypes.repair, 1 )
 
         this.cardCycle()
     }
@@ -75,7 +79,10 @@ export class Flesh extends Unit {
         super( pos, teamNumber )
         this.sprite = flesh
 
-        this.maxSpeed += 2
+        // Flesh Stats
+        this.maxHealth = 9
+        this.health = this.maxHealth
+        this.maxSpeed = 6
         this.speed = this.maxSpeed
 
         this.draw.add( CardTypes.claw, 3 )
@@ -91,7 +98,10 @@ export class Jelly extends Unit {
         super( pos, teamNumber )
         this.sprite = jelly
         
-        this.maxSpeed += 2
+        //Jelly Stats
+        this.maxHealth = 8
+        this.health = this.maxHealth
+        this.maxSpeed = 7
         this.speed = this.maxSpeed
         
         this.draw.cards = []
@@ -105,7 +115,10 @@ export class FleshBot extends Flesh {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
 
-        this.maxSpeed = 4
+        //Fleshbot Stats
+        this.maxHealth = 15
+        this.health = this.maxHealth
+        this.maxSpeed = 5
         this.speed = this.maxSpeed
         
         this.draw.cards = []
@@ -120,11 +133,13 @@ export class JellyBot extends Jelly {
         super( pos, teamNumber )
         this.sprite = jelly
         
-        this.maxSpeed += 2
+        //JellyBot Stats
+        this.maxSpeed = 5
         this.speed = this.maxSpeed
         
         this.draw.cards = []
         this.draw.add( CardTypes.bubbletoss, 3 )
+        this.draw.add( CardTypes.tentacle, 1 )
         
         this.cardCycle()
     }
