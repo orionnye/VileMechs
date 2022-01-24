@@ -127,11 +127,11 @@ export default class Game {
             let aiTurn = false
             
             if (this.selectedUnit() == undefined) {
-                console.log("FINDING")
+                // console.log("FINDING")
                 this.world.units.forEach( unit => {
                     if (unit.teamNumber == this.turn && !this.ai.isDone(unit)) {
                         aiTurn = true
-                        this.unitTray.selectUnit( unit );
+                        this.unitTray.selectUnit( unit )
                         this.onSelectUnit()
                     }
                 })

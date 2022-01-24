@@ -27,6 +27,7 @@ export default class AI {
         let game = Game.instance
         let world = game.world
         let card = game.selectedCard()
+        let energyconsumed = 0
         
         //Step ONE, select a card if available
         if ( card == undefined ) {
@@ -41,15 +42,22 @@ export default class AI {
             if (card?.type.cost <= unit.energy && target !== undefined) {
                 //Step TWO, if an enemy is within range, use Card
                 game.applyCardAt(target.pos)
+                energyconsumed += card.type.cost
             }
             else if (enemies.length > 0) {
                 // Step THREE, if no enemies in range, move into range
                 if (!unit.isWalking() && idealSpot !== undefined) {
                     this.moveTowards(unit, idealSpot)
+                    energyconsumed += 1
                 }
             } else if (friendly !== undefined){
                 this.moveTowards(unit, friendly)
+                energyconsumed += 1
             }
+            if (energyconsumed == 0 && unit.energy > 0) {
+                unit.energy -= 1;
+            }
+            console.log("Energy Consumed:", energyconsumed)
         }
         //resetting the timer
         this.startTime = Date.now()
