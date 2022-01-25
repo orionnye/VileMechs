@@ -83,15 +83,15 @@ export default class Unit {
         if ( amount < 0 )
             this.hurtTime += Math.sqrt( -amount + 1 ) * .2
     }
-    capHealth() {
-        let { health, maxHealth } = this
-        this.health = maxHealth < health ? maxHealth : health
-    }
     addSpeed( amount: number ) {
         this.speed += amount
     }
     addEnergy( amount: number ) {
         this.energy += amount
+    }
+    capHealth() {
+        let { health, maxHealth } = this
+        this.health = maxHealth < health ? maxHealth : health
     }
     //Card management
     gainCard( cardType: CardType, count: number = 1 ) {
@@ -167,8 +167,11 @@ export default class Unit {
         //Stat Reset
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
-        this.capHealth()
+        this.health = this.maxHealth
+        this.draw.fillFrom(this.hand)
+        this.draw.fillFrom(this.discard)
         this.cardCycle()
+        this.done = false
     }
     statCap() {
         //Stat Cut Off

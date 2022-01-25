@@ -32,11 +32,10 @@ export default class Game {
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
-
-    world = new World()
+    world : World
     unitTray = new UnitTray()
     cardTray = new CardTray()
-
+    
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
@@ -45,15 +44,18 @@ export default class Game {
     playerTeamNumber = 0
     aiTeamNumbers = [ -1, 1 ]
     ai = new AI()
-
+    
+    
     teams: Team[] = [
         { name: "Drunken Scholars", flipUnits: false },
         { name: "Choden Warriors", flipUnits: true },
         // { name: "Thermate Embalmers", flipUnits: false }
     ]
     turn = 0
+    isPlayerDone = false
 
-    constructor() {
+    constructor(world: World) {
+        this.world = world
         Game.instance = this
         window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
@@ -67,6 +69,7 @@ export default class Game {
     //----------------MODEL------------------
     isAITurn() { return this.aiTeamNumbers.includes(this.turn)}
     playerUnits() { return this.world.units.filter( unit => unit.teamNumber == this.turn ) }
+    enemyUnits() { return this.world.units.filter( unit => this.aiTeamNumbers.includes( unit.teamNumber ) ) }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
     isPickingTarget() { return this.cardTray.isPickingTarget }
@@ -118,6 +121,18 @@ export default class Game {
         })
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
+        if (this.isGameOver) {
+            console.log("GAME OVER")
+            // console.log("EnemyUnits:", this.playerUnits)
+            this.isPlayerDone = true
+            this.turn = 0
+        }
+    }
+    get isGameOver() {
+        if (this.enemyUnits().length == 0) {
+            return true
+        }
+        return false
     }
     //----------------------UPDATE----------------------------
     update() {
@@ -125,7 +140,7 @@ export default class Game {
         //enemy AI
         if (this.isAITurn()) {
             let aiTurn = false
-            
+
             if (this.selectedUnit() == undefined) {
                 // console.log("FINDING")
                 this.world.units.forEach( unit => {
@@ -163,7 +178,6 @@ export default class Game {
         this.cardTray.update()
         this.makeSceneNode()
         this.camera.update()
-
 
         //user Input Display
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
@@ -287,7 +301,7 @@ export default class Game {
             },
             content: () => {
                 world.makeSceneNode()
-                unitTray.makeSceneNode()
+                unitTray.makeSceneNode(this.playerUnits())
                 if ( selectedUnit )
                     cardTray.makeSceneNode()
             }

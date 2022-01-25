@@ -31,6 +31,7 @@ export default class AI {
         
         //Step ONE, select a card if available
         if ( card == undefined ) {
+            energyconsumed = 1
             this.selectBestCard(unit)
         } else if (card !== undefined) {
             
@@ -54,10 +55,10 @@ export default class AI {
                 this.moveTowards(unit, friendly)
                 energyconsumed += 1
             }
-            if (energyconsumed == 0 && unit.energy > 0) {
-                unit.energy -= 1;
-            }
-            console.log("Energy Consumed:", energyconsumed)
+        }
+        if (energyconsumed == 0 && unit.energy > 0) {
+            unit.energy -= 1;
+            // console.log("Energy Consumed:", energyconsumed)
         }
         //resetting the timer
         this.startTime = Date.now()
