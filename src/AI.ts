@@ -31,6 +31,7 @@ export default class AI {
         
         //Step ONE, select a card if available
         if ( card == undefined ) {
+            energyconsumed = 1
             this.selectBestCard(unit)
         } else if (card !== undefined) {
             

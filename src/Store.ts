@@ -8,19 +8,26 @@ import { Deck } from "./gameobjects/Deck"
 import UnitTray from "./gameobjects/UnitTray"
 import World from "./gameobjects/World"
 import Graphics from "./Graphics"
+import { randomFloor } from "./math/math"
 import Matrix from "./math/Matrix"
 import { Vector } from "./math/Vector"
 import Scene, { PickingResult, SceneNode } from "./Scene"
 
 
-const BackgroundPixel1 = getImg( require( "./www/images/BackgroundPixel1.png" ) )
+const Jungle = getImg( require( "./www/images/BackgroundPixel1.png" ) )
+const Jungle2 = getImg( require( "./www/images/BackgroundPixel2.png" ) )
+const Swamp = getImg( require( "./www/images/BackgroundPixel3.png" ) )
+const Forest = getImg( require( "./www/images/BackgroundPixel4.png" ) )
+const Backgrounds = [ Jungle, Jungle2, Swamp, Forest]
 
 export default class Store {
     static instance: Store
+
     //-----STORE DATA------
     world: World
     static uiScale = 3
     static camVelocityDecay = 0.85
+
     graphics = new Graphics()
     camera = new Camera()
     input = new Input()
@@ -38,10 +45,13 @@ export default class Store {
     musicPlaying = false
     isPlayerDone = false
 
+    image
+
 
     constructor( world: World ) {
         Store.instance = this
         this.world = world
+        this.image = Backgrounds[Math.floor(Math.random()*4)];
         window.addEventListener( "click", ev => this.onClick( ev ) )
         // window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
         window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
@@ -54,6 +64,10 @@ export default class Store {
     //Utility Functions
     selectedUnit() { return this.unitTray.selectedUnit() }
     playerUnits() { return this.world.units.filter( unit => unit.teamNumber == 0 ) }
+    reset() {
+        this.stock = new Deck(5)
+        this.image = Backgrounds[Math.floor(Math.random()*4)]
+    }
 
     //---------------------------User Input---------------------------
     onClick( ev: MouseEvent ) {
@@ -64,8 +78,6 @@ export default class Store {
             if ( node.onClick )
                 node.onClick( node, point )
         }
-        // console.log("Trying to buy something!!!!")
-        // console.log(this.world.units)
     }
     onMouseup( ev: MouseEvent ) {
         this.camera.stopDragging()
@@ -97,8 +109,8 @@ export default class Store {
         g.c.imageSmoothingEnabled = false
         // g.c.fillStyle = "#636912"
         // g.c.fillRect( 0, 0, g.size.x, g.size.y )
-        
-        g.c.drawImage( BackgroundPixel1, 0, 0, BackgroundPixel1.width, BackgroundPixel1.height, 0, 0, g.size.x, g.size.y )
+
+        g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, g.size.x, g.size.y )
         g.c.textBaseline = "top"
         let picked = Scene.pickNode( this.scene, this.input.cursor )
         if ( this.showSceneDebug ) {
@@ -151,7 +163,8 @@ export default class Store {
                     onClick: () => {
                         // console.log("Unit:", unitTray.selectedUnit())
                         if (unitTray.selectedUnit()) {
-                            let copy = this.stock.cards.splice(i, 1)
+                            let copy = this.stock.cards.splice(i, 1)[0]
+                            // console.log("COPY:", copy[0])
                             unitTray.selectedUnit()?.draw.addCard(copy)
                             console.log("trying to buy!")
                         }
