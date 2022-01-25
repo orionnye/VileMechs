@@ -80,7 +80,7 @@ export class Flesh extends Unit {
 
         this.draw.add( CardTypes.claw, 3 )
         this.draw.add( CardTypes.tentacle, 2 )
-        this.draw.add( CardTypes.acid, 2)
+        // this.draw.add( CardTypes.acid, 2)
 
         this.cardCycle()
     }
@@ -105,7 +105,7 @@ export class FleshBot extends Flesh {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
 
-        this.maxSpeed = 4
+        this.maxSpeed = 6
         this.speed = this.maxSpeed
         
         this.draw.cards = []
@@ -115,13 +115,24 @@ export class FleshBot extends Flesh {
         this.cardCycle()
     }
 }
+export class Dummy extends Flesh {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+
+        this.maxSpeed = 10
+        this.speed = this.maxSpeed
+        
+        this.draw.cards = []
+        this.hand.cards = []
+        this.draw.add( CardTypes.repair, 5)
+        
+        this.cardCycle()
+    }
+}
 export class JellyBot extends Jelly {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
         this.sprite = jelly
-        
-        this.maxSpeed += 2
-        this.speed = this.maxSpeed
         
         this.draw.cards = []
         this.draw.add( CardTypes.bubbletoss, 3 )

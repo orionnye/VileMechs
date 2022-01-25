@@ -7,7 +7,7 @@ import Game from "../Game"
 import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
-import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot } from "./RigTypes"
+import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot, Dummy } from "./RigTypes"
 import * as Tiles from "../map/Tiles"
 
 export default class World {
@@ -23,9 +23,10 @@ export default class World {
             new Flesh( new Vector( 0, 1 ), 0 ),
             new Treant( new Vector( 0, 0 ), 0 ),
             new Jelly( new Vector( 0, 0 ), 0 ),
-            new FleshBot( new Vector( 5, 5 ), 1 ),
-            new FleshBot( new Vector( 4, 5 ), 1 ),
-            new JellyBot( new Vector( 12, 12 ), 1 ),
+            // new FleshBot( new Vector( 5, 5 ), 1 ),
+            // new FleshBot( new Vector( 4, 5 ), 1 ),
+            // new JellyBot( new Vector( 12, 12 ), 1 ),
+            // new Dummy( new Vector(0, 0), 1)
         ]
 
         // let randomTerrain = false

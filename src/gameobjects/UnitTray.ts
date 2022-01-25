@@ -71,9 +71,9 @@ export default class UnitTray {
         return units[ this.index ]
     }
 
-    makeSceneNode() {
-        let game = Game.instance
-        let units = game.playerUnits()
+    makeSceneNode(units: Unit[]) {
+        // let game = Game.instance
+        // let units = game.playerUnits()
         let selectedUnit = this.selectedUnit()
         let selectBoxDim = new Vector(50, 50)
         let g = Graphics.instance
