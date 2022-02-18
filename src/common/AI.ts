@@ -1,12 +1,13 @@
 //import path from "path/posix"
-import { targetsWithinRange } from "./CardTypes"
-import Game from "./Game"
-import Card from "./gameobjects/Card"
-import Unit from "./gameobjects/Unit"
-import World from "./gameobjects/World"
-import { randomFloor } from "./math/math"
-import { Vector } from "./math/Vector"
-import { findPath } from "./pathfinding"
+import { targetsWithinRange } from "../gameobjects/card/CardTypes"
+import Game from "../Game"
+// import Card from "./gameobjects/Card"
+import Unit from "../gameobjects/mech/Unit"
+import World from "../map/World"
+import { randomFloor } from "../math/math"
+import { Vector } from "../math/Vector"
+import { findPath } from "../map/pathfinding"
+import Card from "../gameobjects/card/Card"
 
 export default class AI {
     //stats

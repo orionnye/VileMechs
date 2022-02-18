@@ -2,7 +2,7 @@ import { Vector } from "../math/Vector"
 import Tile from "./Tile"
 import * as Tiles from "./Tiles"
 const { SimplexNoise } = require( 'simplex-noise' );
-import Unit from "../gameobjects/Unit"
+import Unit from "../gameobjects/mech/Unit"
 
 export default class Grid {
     private simplex = new SimplexNoise();

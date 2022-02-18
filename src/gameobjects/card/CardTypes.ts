@@ -1,39 +1,39 @@
-import { getImg } from "./common/utils"
-import Game from "./Game"
-import Card from "./gameobjects/Card"
-import Unit from "./gameobjects/Unit"
-import World from "./gameobjects/World"
-import { Vector } from "./math/Vector"
-import { findPath } from "./pathfinding"
-import * as Tiles from "./map/Tiles"
+import { getImg } from "../../common/utils"
+import Game from "../../Game"
+import Unit from "../mech/Unit"
+import World from "../../map/World"
+import { Vector } from "../../math/Vector"
+import { findPath } from "../../map/pathfinding"
+import * as Tiles from "../../map/Tiles"
+import Card from "./Card"
 
 //I have no idea why this requires one period but it does
 //Ores
-const ore = getImg( require( "./www/images/cards/ore/pustule.png" ) )
+const ore = getImg( require( "../../www/images/cards/ore/pustule.png" ) )
 
 //Action Icons
-const blank = getImg( require( "./www/images/cards/backing/card.png" ) )
-const sprint = getImg( require( "./www/images/cards/icon/sprint.png" ) )
-const mine = getImg( require( "./www/images/cards/icon/mine.png" ) )
-const repair = getImg( require( "./www/images/cards/icon/repair.png" ) )
-const laser = getImg( require( "./www/images/cards/icon/laser.png" ) )
-const boulder = getImg( require( "./www/images/cards/icon/boulder.png" ) )
-const tentacle = getImg( require( "./www/images/cards/icon/tentacle.png" ) )
-const claw = getImg( require( "./www/images/cards/icon/claw.png" ) )
-const acid = getImg( require( "./www/images/cards/icon/acid.png" ) )
-const frost = getImg( require( "./www/images/cards/icon/frost.png" ) )
-const jelly = getImg( require( "./www/images/cards/icon/jelly.png" ) )
-const energyArmor = getImg( require( "./www/images/cards/icon/energyArmor.png" ) )
-const shieldCharge = getImg( require( "./www/images/cards/icon/shieldCharge.png" ) )
-const chargeBeam = getImg( require( "./www/images/cards/icon/chargeBeam.png" ) )
+const blank = getImg( require( "../../www/images/cards/backing/card.png" ) )
+const sprint = getImg( require( "../../www/images/cards/icon/sprint.png" ) )
+const mine = getImg( require( "../../www/images/cards/icon/mine.png" ) )
+const repair = getImg( require( "../../www/images/cards/icon/repair.png" ) )
+const laser = getImg( require( "../../www/images/cards/icon/laser.png" ) )
+const boulder = getImg( require( "../../www/images/cards/icon/boulder.png" ) )
+const tentacle = getImg( require( "../../www/images/cards/icon/tentacle.png" ) )
+const claw = getImg( require( "../../www/images/cards/icon/claw.png" ) )
+const acid = getImg( require( "../../www/images/cards/icon/acid.png" ) )
+const frost = getImg( require( "../../www/images/cards/icon/frost.png" ) )
+const jelly = getImg( require( "../../www/images/cards/icon/jelly.png" ) )
+const energyArmor = getImg( require( "../../www/images/cards/icon/energyArmor.png" ) )
+const shieldCharge = getImg( require( "../../www/images/cards/icon/shieldCharge.png" ) )
+const chargeBeam = getImg( require( "../../www/images/cards/icon/chargeBeam.png" ) )
 
 //Card Background
-const flesh = getImg( require( "./www/images/cards/backing/flesh.png" ) )
-const black = getImg( require( "./www/images/cards/backing/BlackCardBase.png" ) )
-const brown = getImg( require( "./www/images/cards/backing/BrownCardBase.png" ) )
-const green = getImg( require( "./www/images/cards/backing/jungle.png" ) )
-const metal = getImg( require( "./www/images/cards/backing/metal.png" ) )
-const purple = getImg( require( "./www/images/cards/backing/purple.png" ) )
+const flesh = getImg( require( "../../www/images/cards/backing/flesh.png" ) )
+const black = getImg( require( "../../www/images/cards/backing/BlackCardBase.png" ) )
+const brown = getImg( require( "../../www/images/cards/backing/BrownCardBase.png" ) )
+const green = getImg( require( "../../www/images/cards/backing/jungle.png" ) )
+const metal = getImg( require( "../../www/images/cards/backing/metal.png" ) )
+const purple = getImg( require( "../../www/images/cards/backing/purple.png" ) )
 
 export type CardType = {
     name: string

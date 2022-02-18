@@ -1,5 +1,5 @@
-import { Vector } from "./math/Vector"
-import World from "./gameobjects/World"
+import { Vector } from "../math/Vector"
+import World from "./World"
 
 const offsetOrderings = [
     [ //  Horizontal-first ordering

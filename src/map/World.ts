@@ -1,14 +1,14 @@
-import Unit from "./Unit"
-import Grid from "../map/Grid"
-import Graphics from "../Graphics"
+import Unit from "../gameobjects/mech/Unit"
+import Grid from "./Grid"
+import Graphics from "../common/Graphics"
 import { Vector } from "../math/Vector"
-import { findPath } from "../pathfinding"
+import { findPath } from "./pathfinding"
 import Game from "../Game"
 import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
-import Scene, { SceneNode } from "../Scene"
-import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot, Dummy } from "./RigTypes"
-import * as Tiles from "../map/Tiles"
+import Scene, { SceneNode } from "../common/Scene"
+import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot, Dummy } from "../gameobjects/mech/RigTypes"
+import * as Tiles from "./Tiles"
 
 export default class World {
     static tileSize = 32

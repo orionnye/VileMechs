@@ -1,10 +1,9 @@
 import Game from "./Game"
-import { Deck } from "./gameobjects/Deck"
-import { FleshBot, JellyBot } from "./gameobjects/RigTypes"
-import World from "./gameobjects/World"
+import { FleshBot, JellyBot } from "./gameobjects/mech/RigTypes"
+import World from "./map/World"
 import { randomFloor } from "./math/math"
 import { Vector } from "./math/Vector"
-import Store from "./Store"
+import Store from "./stages/Store"
 let world = new World()
 let game = new Game(world)
 let store = new Store(world)

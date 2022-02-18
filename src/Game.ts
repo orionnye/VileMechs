@@ -1,20 +1,19 @@
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
-import World from './gameobjects/World'
+import World from './map/World'
 import Input from "./common/Input"
-import Graphics, { TextAlignX } from "./Graphics"
-import "./GlobalTypes"
-import UnitTray from './gameobjects/UnitTray'
-import { PickingResult, SceneNode } from "./Scene"
-import Scene from "./Scene"
-import CardTray from "./gameobjects/CardTray"
+import Graphics, { TextAlignX } from "./common/Graphics"
+import "./common/GlobalTypes"
+import { PickingResult, SceneNode } from "./common/Scene"
+import Scene from "./common/Scene"
 import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
-import Unit from "./gameobjects/Unit"
+import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
-import AI from "./AI"
-import Card from "./gameobjects/Card"
-import CardTypes from "./CardTypes"
+import AI from "./common/AI"
+import CardTypes from "./gameobjects/card/CardTypes"
+import UnitTray from "./gameobjects/ui/UnitTray"
+import CardTray from "./gameobjects/ui/CardTray"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )

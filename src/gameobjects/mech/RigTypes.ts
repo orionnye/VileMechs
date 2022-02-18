@@ -1,14 +1,12 @@
-import CardTypes from "../CardTypes"
-import { getImg } from "../common/utils"
-import Card from "./Card"
-import { Deck } from "./Deck"
+import CardTypes from "../card/CardTypes"
+import { getImg } from "../../common/utils"
 import Unit from "./Unit"
 
 // const treant = getImg( require( "../www/images/units/Vinecent1.png" ) )
-const treant = getImg( require( "../www/images/units/Vinecent2.png" ) )
-const chrome = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
-const flesh = getImg( require( "../www/images/units/FleshBase.png" ) )
-const jelly = getImg( require( "../www/images/units/GellyMech.png" ) )
+const treant = getImg( require( "../../www/images/units/Vinecent2.png" ) )
+const chrome = getImg( require( "../../www/images/units/MinigunMech_sheet.png" ) )
+const flesh = getImg( require( "../../www/images/units/FleshBase.png" ) )
+const jelly = getImg( require( "../../www/images/units/GellyMech.png" ) )
 
 export class Chrome extends Unit {
     constructor( pos, teamNumber ) {

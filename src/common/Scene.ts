@@ -1,6 +1,6 @@
-import { contains } from "./math/math"
-import Matrix from "./math/Matrix"
-import { Vector } from "./math/Vector"
+import { contains } from "../math/math"
+import Matrix from "../math/Matrix"
+import { Vector } from "../math/Vector"
 
 export interface SceneNode {
     localMatrix: Matrix

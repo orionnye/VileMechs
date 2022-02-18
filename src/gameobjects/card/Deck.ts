@@ -1,7 +1,6 @@
+import { Vector } from "../../math/Vector";
 import Card from "./Card";
-import Game from "../Game"
-import { Vector } from "../math/Vector";
-import CardTypes, { CardType } from "../CardTypes";
+import { CardType } from "./CardTypes";
 
 export class Deck {
 
