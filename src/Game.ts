@@ -14,13 +14,12 @@ import AI from "./common/AI"
 import CardTypes from "./gameobjects/card/CardTypes"
 import UnitTray from "./gameobjects/ui/UnitTray"
 import CardTray from "./gameobjects/ui/CardTray"
+import Team from "./gameobjects/mech/Team"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
 
-
-type Team = { name: string, flipUnits: boolean }
 
 export default class Game {
     static instance: Game
@@ -44,11 +43,10 @@ export default class Game {
     aiTeamNumbers = [ -1, 1 ]
     ai = new AI()
     
-    
     teams: Team[] = [
-        { name: "Drunken Scholars", flipUnits: false },
-        { name: "Choden Warriors", flipUnits: true },
-        // { name: "Thermate Embalmers", flipUnits: false }
+        new Team( "Drunken Scholars", false ),
+        new Team( "Choden Warriors", true ),
+        //new Team( "Thermate Embalmers", false )
     ]
     turn = 0
     isPlayerDone = false
@@ -67,8 +65,8 @@ export default class Game {
 
     //----------------MODEL------------------
     isAITurn() { return this.aiTeamNumbers.includes(this.turn)}
-    playerUnits() { return this.world.units.filter( unit => unit.teamNumber == this.turn ) }
-    enemyUnits() { return this.world.units.filter( unit => this.aiTeamNumbers.includes( unit.teamNumber ) ) }
+    playerUnits() { return this.world.teams[0].units }
+    enemyUnits() { return this.world.teams[1].units }
     selectedUnit() { return this.unitTray.selectedUnit() }
     selectedCard() { return this.cardTray.selectedCard() }
     isPickingTarget() { return this.cardTray.isPickingTarget }
@@ -112,12 +110,12 @@ export default class Game {
         this.turn++
         this.turn %= this.teams.length
         //Health ReCapped at turn start
-        this.world.units.forEach( unit => {
-            //turnStart
-            if (unit.teamNumber == this.turn) {
-                unit.statCap()
-            }
-        })
+        // this.world.units.forEach( unit => {
+        //     //turnStart
+        //     if (unit.teamNumber == this.turn) {
+        //         unit.statCap()
+        //     }
+        // })
         this.unitTray.deselect()
         this.moveCamToFirstUnit()
         if (this.isGameOver) {
@@ -142,13 +140,13 @@ export default class Game {
 
             if (this.selectedUnit() == undefined) {
                 // console.log("FINDING")
-                this.world.units.forEach( unit => {
-                    if (unit.teamNumber == this.turn && !this.ai.isDone(unit)) {
-                        aiTurn = true
-                        this.unitTray.selectUnit( unit )
-                        this.onSelectUnit()
-                    }
-                })
+                // this.world.units.forEach( unit => {
+                //     if (unit.teamNumber == this.turn && !this.ai.isDone(unit)) {
+                //         aiTurn = true
+                //         this.unitTray.selectUnit( unit )
+                //         this.onSelectUnit()
+                //     }
+                // })
             } else {
                 //Trigger to keep aiTurn active as long as ai has cards
                 aiTurn = true

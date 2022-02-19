@@ -9,24 +9,23 @@ import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../common/Scene"
 import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot, Dummy } from "../gameobjects/mech/RigTypes"
 import * as Tiles from "./Tiles"
+import Team from "../gameobjects/mech/Team"
 
 export default class World {
     static tileSize = 32
     map: Grid
-    units: Unit[]
+    
+    // units: Unit[]
+    teams: Team[]
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor() {
         this.map = new Grid( 20, 20 )
-        this.units = [
-            new Chrome( new Vector( 0, 0 ), 0 ),
-            new Flesh( new Vector( 0, 1 ), 0 ),
-            new Treant( new Vector( 0, 0 ), 0 ),
-            new Jelly( new Vector( 0, 0 ), 0 ),
-            new FleshBot( new Vector( 5, 5 ), 1 ),
-            new FleshBot( new Vector( 4, 5 ), 1 ),
-            new JellyBot( new Vector( 12, 12 ), 1 ),
-            // new Dummy( new Vector(0, 0), 1)
+
+        this.teams = [
+            new Team( "Drunken Scholars", false, 0 ),
+            new Team( "Choden Warriors", true, 1 ),
+            // new Team( "Thermate Embalmers", true, 2 )
         ]
 
         // let randomTerrain = false
@@ -36,7 +35,9 @@ export default class World {
             // for ( let unit of this.units ) {
             //     this.map.set( unit.pos, 0 )
             // }
-            this.map.placeUnits( this.units )
+            this.teams.forEach(team => {
+                this.map.placeUnits( team.units )
+            })
         } else {
             //custom map
             this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
@@ -48,9 +49,11 @@ export default class World {
 
     // Model
     getUnit( pos: Vector ) {
-        for ( let unit of this.units )
-            if ( unit.pos.equals( pos ) )
-                return unit
+        for (let team of this.teams ) {
+            for ( let unit of team.units )
+                if ( unit.pos.equals( pos ) )
+                    return unit
+        }
     }
 
     isWalkable( pos: Vector, checkUnits = true ) {
@@ -69,9 +72,9 @@ export default class World {
     }
 
     update() {
-        this.units = this.units.filter( unit => unit.health > 0 )
-        for ( let unit of this.units )
-            unit.update()
+        this.teams.forEach(team => {
+            team.update()
+        })
     }
 
     // View
@@ -155,7 +158,8 @@ export default class World {
     makeSceneNode() {
         let game = Game.instance
         let g = Graphics.instance
-        let { units } = this
+        // let { units } = this
+        let { teams } = this
         let { width, height } = this.map
         let selectedUnit = game.selectedUnit()
         let pickingTarget = game.isPickingTarget()
@@ -177,22 +181,8 @@ export default class World {
             },
             onRender: () => this.render(),
             content: () => {
-                units.forEach( ( unit, i ) => {
-                    Scene.node( {
-                        description: "unit",
-                        localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
-                        rect: { width: tileSize, height: tileSize },
-                        onClick: () => game.unitTray.toggleSelectUnit( unit ),
-                        onRender: ( node ) => {
-                            let hover = node == game.mouseOverData.node
-                            let isSelected = unit == selectedUnit
-                            if ( isSelected && !unit.isWalking() ) {
-                                g.c.shadowBlur = 10
-                                g.c.shadowColor = "black"
-                            }
-                            unit.render( true, isSelected || hover )
-                        }
-                    } )
+                teams.forEach( ( team, i ) => {
+                    team.makeSceneNode()
                 } )
                 if ( pickingTarget ) {
                     let card = game.selectedCard()
