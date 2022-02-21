@@ -5,6 +5,7 @@ import { lerp } from "../../math/math"
 import Matrix from "../../math/Matrix"
 import { Vector } from "../../math/Vector"
 import Card from "../card/Card"
+import Unit from "../mech/Unit"
 
 export default class CardTray {
     static selectionTimeout = 500
@@ -18,8 +19,7 @@ export default class CardTray {
 
     hasCardSelected() { return this.index > -1 }
 
-    selectedCard() {
-        let unit = Game.instance.selectedUnit()
+    selectedCard(unit: Unit) {
         return unit?.hand.cards[ this.index ]
     }
 
@@ -33,37 +33,30 @@ export default class CardTray {
         this.isPickingTarget = false
     }
 
-    onSelectUnit() {
+    onSelectUnit(unit: Unit) {
         this.deselect()
-        this.lerpCards( 1 )
-
-        let unit = Game.instance.selectedUnit()
-        if ( unit ) {
-            let { hand, draw, discard } = unit
-            let decks = [ hand, draw, discard ]
-            for ( let deck of decks ) {
-                for ( let card of deck.cards ) {
-                    card.yRotation = Math.PI / 2
-                }
+        this.lerpCards( unit, 1 )
+        let { hand, draw, discard } = unit
+        let decks = [ hand, draw, discard ]
+        for ( let deck of decks ) {
+            for ( let card of deck.cards ) {
+                card.yRotation = Math.PI / 2
             }
         }
     }
 
-    update() {
+    update(unit: Unit) {
         let { lastSelectTime } = this
-        this.lerpCards( .2 )
+        this.lerpCards(unit, .2 )
         if ( this.hasCardSelected() && !this.isPickingTarget ) {
             let now = Date.now()
             let dt = now - lastSelectTime
-            //another player switch
-            if ( dt > CardTray.selectionTimeout && !Game.instance.isAITurn())
-                this.selectIndex( -1 )
+            this.selectIndex( -1 )
         }
     }
 
-    lerpCards( alpha ) {
+    lerpCards( unit: Unit, alpha: number ) {
         let flipRate = 0.5
-        let unit = Game.instance.selectedUnit()
         if ( unit ) {
             let { hand, draw, discard } = unit
             hand.cards.forEach( ( card, i ) => {
@@ -111,11 +104,11 @@ export default class CardTray {
         return discardBase.addXY( cardIndex * 3, cardIndex * 3 )
     }
 
-    makeSceneNode() {
+    makeSceneNode( unit: Unit ) {
         let g = Graphics.instance
-        let hand = Game.instance.selectedUnit()?.hand
-        let draw = Game.instance.selectedUnit()?.draw
-        let discard = Game.instance.selectedUnit()?.discard
+        let hand = unit.hand
+        let draw = unit.draw
+        let discard = unit.discard
         if ( !hand || !draw || !discard ) return
 
         const marigin = CardTray.handMargin
@@ -132,10 +125,8 @@ export default class CardTray {
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
-            onHover: () => { 
-                if ( !this.isPickingTarget && !Game.instance.isAITurn()) {
-                    this.selectIndex( i )
-                }
+            onHover: () => {
+                this.selectIndex( i )
             },
             onClick: () => {
                 let isSelectedCard = this.index == i

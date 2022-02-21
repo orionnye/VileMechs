@@ -47,7 +47,7 @@ export default class Unit {
     walkAnimRate: number = 10 // Tiles per second
     walkAnimPath?: Vector[]
 
-    constructor( pos, teamNumber, sprite: HTMLImageElement = mechSheet ) {
+    constructor( pos, teamNumber = 0, sprite: HTMLImageElement = mechSheet ) {
         this.sprite = sprite
         this.name = names[ randomFloor( names.length ) ]
         this.teamNumber = teamNumber
@@ -196,7 +196,7 @@ export default class Unit {
     }
 
     // View
-    render( animate = true, showName = true ) {
+    render( animate = true, flip: boolean = false ) {
         let g = Graphics.instance
         let nFrames = this.sprite.height / 32
         let frame = animate ? getFrameNumber( 2 * nFrames / 2, nFrames ) : 0
@@ -215,7 +215,6 @@ export default class Unit {
         }
 
         let doShake = animate && this.hurtTime > 0
-        let flip = Game.instance.teams[ this.teamNumber ].flipUnits
         g.c.save()
         if ( doShake )
             g.vTranslate( Vector.lissajous( this.hurtTime, 13, 10, 2, 1, 0, 0 ) )
@@ -226,26 +225,31 @@ export default class Unit {
         g.drawSheetFrame( this.sprite, 32, 0, 0, frame )
         g.c.restore()
 
-        if ( showName && !isWalking ) {
-            g.c.shadowBlur = 0
-            // g.setFont( 3.5, "pixel" )
-            g.setFont( 4, "pixel2" )
-            let name = this.name
-            const maxLength = 8
-            if ( name.length > maxLength )
-                name = name.slice( 0, maxLength - 3 ) + "..."
-            g.drawTextBox( new Vector( 0, 32 ), name, { textColor: "#c2c2c2", boxColor: "#696969", alignY: TextAlignY.bottom } )
-        }
-        //Unit Stat Display
-        if ( !isWalking ) {
-            g.setFont( 4, "impact" )
-            let healthText = this.health.toString().padStart( 2, "0" )
-            let energyText = this.energy.toString().padStart( 2, "0" )
-            let speedText = this.speed.toString().padStart( 2, "0" )
-            let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
-            let nextBoxDims = g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
-            g.drawTextBox( new Vector( 0, nextBoxDims.y+boxDims.y ), speedText, { textColor: "#999999", boxColor: "#2525ff" } )
-        }
+        //NAME DISPLAY
+        // if ( showName && !isWalking ) {
+        //     this.renderName()
+        // }
+        // Unit Stat Display
+        // if ( !isWalking ) {
+        //     g.setFont( 4, "impact" )
+        //     let healthText = this.health.toString().padStart( 2, "0" )
+        //     let energyText = this.energy.toString().padStart( 2, "0" )
+        //     let speedText = this.speed.toString().padStart( 2, "0" )
+        //     let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
+        //     let nextBoxDims = g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
+        //     g.drawTextBox( new Vector( 0, nextBoxDims.y+boxDims.y ), speedText, { textColor: "#999999", boxColor: "#2525ff" } )
+        // }
+    }
+    renderName(pos: Vector, textColor: string = "#c2c2c2", backing: string = "#696969") {
+        let g = Graphics.instance
+        g.c.shadowBlur = 0
+        // g.setFont( 3.5, "pixel" )
+        g.setFont( 4, "pixel2" )
+        let name = this.name
+        const maxLength = 8
+        if ( name.length > maxLength )
+            name = name.slice( 0, maxLength - 3 ) + "..."
+        g.drawTextBox( pos, name, { textColor: textColor, boxColor: backing, alignY: TextAlignY.bottom } )
     }
 
 }

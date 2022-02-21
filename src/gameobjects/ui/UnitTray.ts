@@ -4,6 +4,7 @@ import Game from "../../Game"
 import World from "../../map/World"
 import Matrix from "../../math/Matrix"
 import { Vector } from "../../math/Vector"
+import Team from "../mech/Team"
 import Unit from "../mech/Unit"
 
 export default class UnitTray {
@@ -11,200 +12,92 @@ export default class UnitTray {
     private hasUnitSelected = false
 
     constructor() {
-        window.addEventListener( "keydown", ( ev ) => {
-            if ( ev.key == "Tab" ) {
-                ev.preventDefault()
-                //another player permission switch
-                if (!Game.instance.isAITurn()) {
-                    this.cycleUnits()
-                }
-            }
-        } )
+        // window.addEventListener( "keydown", ( ev ) => {
+        //     if ( ev.key == "Tab" ) {
+        //         ev.preventDefault()
+        //         //another player permission switch
+        //         this.cycleUnits()
+        //     }
+        // } )
     }
 
-    setUnitIndex( index: number ) {
-        this.hasUnitSelected = index > -1
-        this.index = index
-        Game.instance.onSelectUnit()
-    }
-
-    deselect() {
-        this.hasUnitSelected = false
-        Game.instance.onSelectUnit()
-    }
-
-    toggleSelectIndex( index: number ) {
-        if ( this.hasUnitSelected && index == this.index )
-            this.deselect()
-        else
-            this.setUnitIndex( index )
-    }
-
-    toggleSelectUnit( unit: Unit ) {
-        let index = Game.instance.playerUnits().indexOf( unit )
-        this.toggleSelectIndex( index )
-    }
-
-    numberOfUnits() {
-        return Game.instance.playerUnits().length
-    }
-
-    private cycleUnits() {
-        if ( !this.hasUnitSelected )
-            this.setUnitIndex( 0 )
-        else
-            this.setUnitIndex( ( this.index + 1 ) % this.numberOfUnits() )
-    }
-
-    selectUnit( unit: Unit ) {
-        let units = Game.instance.playerUnits()
-        let index = units.indexOf( unit )
-        if ( index > -1 ) {
-            this.setUnitIndex( index )
-        }
-    }
-
-    selectedUnit() {
-        let units = Game.instance.playerUnits()
-        if ( !this.hasUnitSelected ) return undefined
-        return units[ this.index ]
-    }
-
-    makeSceneNode(units: Unit[]) {
-        // let game = Game.instance
-        // let units = game.playerUnits()
-        let selectedUnit = this.selectedUnit()
-        let selectBoxDim = new Vector(50, 50)
+    makeSceneNode(pos: Vector, team: Team, flip: boolean = false) {
         let g = Graphics.instance
-        const unitTrayStride = World.tileSize
-        let width = 28
-        let height = unitTrayStride * (this.numberOfUnits() - 1) + selectBoxDim.y
-
+        let units = team.units
+        
+        const tileSize = World.tileSize
+        const tile = new Vector(tileSize, tileSize)
+        let scale = 1.5
+        let width = tileSize
+        let height = tileSize
+        let yOffset = 0
+        
         Scene.node( {
             description: "unit-tray",
             localMatrix: Matrix.translation( 0, 0 ),
-            rect: { width, height },
-            onRender: () => g.drawRect( new Vector( -1, -1 ), new Vector( width, height ), "#595959" ),
             content: () => {
-                //rework the units so the selected Unit is the Unit Rendered on top
-                let backUnits = units.slice(0, units.length)
-                let firstUnits = backUnits.splice(this.index, backUnits.length - this.index)
-                let unitsCopy = firstUnits.concat(backUnits)
-
-                unitsCopy.forEach( ( unit, i ) => {
-                    Scene.node( {
-                        description: "tray-unit",
-                        localMatrix: Matrix.translation( 1, (unitTrayStride * i) + selectBoxDim.y / 2 ),
-                        rect: { width: World.tileSize, height: World.tileSize },
-                        onClick: () => this.selectUnit( unit ),
+                units.forEach( (unit, i) => {
+                    width = tileSize
+                    height = tileSize
+                    yOffset = 0
+                    
+                    //for every unit in team, render a background and unit
+                    if ( team.index < i && team.index !== -1) {
+                        // g.c.translate(0, tileSize*(scale-1))
+                        yOffset = tileSize*(scale-1)
+                    }
+                    if ( i == team.index ) {
+                        width = tile.x*scale
+                        height = tile.y*scale
+                    }
+                    Scene.node( { 
+                        description: unit.name,
+                        localMatrix: Matrix.translation(0, tileSize*i+yOffset),
+                        rect: { width, height },
                         onRender: () => {
+                            //Colors
+                            const backing1 = "rgba(100, 100, 100, 0.9)"
+                            const backing2 = "rgba(100, 100, 100, 1)"
+                            const nameBacking = "rgba(150, 150, 150, 0.7)"
+                            const statBacking = "rgb(170, 170, 170)"
+                            
                             g.c.save()
-                            if ( this.selectedUnit !== undefined &&  this.index == units.indexOf( unit )) {
-                                g.c.translate(0, -selectBoxDim.y / 2)
-                                g.drawRect( new Vector( 0, 0 ), selectBoxDim, "#595959" )
-                                g.c.lineWidth = 1
-                                g.c.strokeStyle = "gray"
-                                g.c.strokeRect( -.5, -.5, selectBoxDim.x, selectBoxDim.y )
-                                g.c.stroke()
-                                g.c.scale(1.5, 1.5)
-                                unit.render( false )
-
-                                //Health Display
-                                let healthPipBox = new Vector(3, 5)
-                                let healthBox = new Vector(unit.maxHealth*healthPipBox.x, 10)
-                                let healthPos = new Vector(38, 2)
-                                let inactiveHealth = "rgba(255, 0, 0, 0.2)"
-                                let excessHealth = "rgba(255, 180, 180, 1)"
-                                
-                                let textPos = healthPos.add(new Vector(-6, -2))
-                                g.drawRect(textPos, new Vector(healthBox.x+ healthPipBox.x*2, 7), "#661111")
-
-                                g.setFont( 5, "impact" )
-                                let maxHealthText = unit.maxHealth.toString().padStart( 2, "0" )
-                                let healthText = unit.health.toString().padStart( 2, "0" )
-                                // g.drawTextBox( textPos.add(new Vector(-1, 0.5)), maxHealthText, { padding: 1, textColor: "#000000", boxColor: "#f84a32" } )
-                                g.drawTextBox( textPos.add(new Vector(-1, 0.5)), healthText, { padding: 1, textColor: "#ffffff", boxColor: "#f84a32" } )
-                                
-                                for (let h = Math.max(unit.health, unit.maxHealth); h > 0; h--) {
-                                    let nextPipPos = healthPos.add(new Vector(h*healthPipBox.x - healthPipBox.x, 0))
-                                    if (h <= unit.maxHealth) {
-                                        if (h <= unit.health) {
-                                            let hexColorStrength = "fd"
-                                            // let hexColorStrength = Math.floor((Math.random()*20 + 220)).toString(16)
-                                            g.drawRect(nextPipPos, healthPipBox, `#${hexColorStrength}0000`)
-                                            g.c.lineWidth = 0.2
-                                            g.strokeRect(nextPipPos, healthPipBox, "black")
-                                        } else {
-                                            let noiseScale = 0.5
-                                            let noise = new Vector(Math.random()*noiseScale, Math.random()*noiseScale)
-                                            let absentPipPos = nextPipPos.add(noise)
-                                            g.drawRect(absentPipPos, healthPipBox, inactiveHealth)
-                                            g.c.lineWidth = 0.2
-                                            g.strokeRect(absentPipPos, healthPipBox, "black")
-                                            // g.fillCircle(nextPipPos, healthPipRadius, inactiveHealth )
-                                        }
-                                    } else {
-                                        g.drawRect(nextPipPos, healthPipBox, excessHealth)
-                                        g.c.lineWidth = 0.2
-                                        g.strokeRect(nextPipPos, healthPipBox, "black")
-                                    }
-                                }
-                                //Energy Display
-                                let energyPipBox = new Vector(3, 5)
-                                let energyBox = new Vector(unit.maxEnergy*energyPipBox.x, 10)
-                                let energyPos = new Vector(38, 9)
-                                let excessEnergy = "#9cdbad"
-                                
-                                let energyTextPos = energyPos.add(new Vector(-6, -2))
-                                g.drawRect(energyTextPos, new Vector(energyBox.x+ energyPipBox.x*2, 7), "#1d6725")
-
-                                g.setFont( 5, "impact" )
-                                let energyMaxText = unit.maxEnergy.toString().padStart( 2, "0" )
-                                let energyText = unit.energy.toString().padStart( 2, "0" )
-                                g.drawTextBox( energyTextPos.add(new Vector(-2, 0.5)), energyText, { padding: 1, textColor: "#ffffff", boxColor: "#2d8745" } )
-                                // g.drawTextBox( energyTextPos.add(new Vector(-2, -0.5)), energyMaxText, { padding: 1, textColor: "#000000", boxColor: "#324af8" } )
-
-                                for (let e = Math.max(unit.energy, unit.maxEnergy); e > 0; e--) {
-                                    let nextPipPos = energyPos.add(new Vector(e*energyPipBox.x - energyPipBox.x, 0))
-                                    if (e <= unit.maxEnergy) {
-                                        if (e <= unit.energy) {
-                                            let noiseScale = 0.1
-                                            let noise = new Vector(Math.random()*noiseScale, Math.random()*noiseScale)
-                                            let filledPipPos = nextPipPos.add(noise)
-
-                                            let hexColorStrength = Math.floor((Math.random()*20 + 230)).toString(16)
-                                            g.drawRect(filledPipPos, energyPipBox, `#2f${hexColorStrength}2F`)
-                                            g.c.lineWidth = 0.2
-                                            g.strokeRect(filledPipPos, energyPipBox, "black")
-                                        } else {
-                                            // let absentPipPos = nextPipPos.add(noise)
-                                            let absentPipPos = nextPipPos
-                                            // g.drawRect(absentPipPos, energyPipBox, "")
-                                            g.c.lineWidth = 0.2
-                                            g.strokeRect(absentPipPos, energyPipBox, "black")
-                                            // g.fillCircle(nextPipPos, healthPipRadius, inactiveHealth )
-                                        }
-                                    } else {
-                                        g.drawRect(nextPipPos, energyPipBox, excessEnergy)
-                                        g.c.lineWidth = 0.2
-                                        g.strokeRect(nextPipPos, energyPipBox, "black")
-                                    }
-                                }
-                                // g.c.fillStyle = "rgb(0, 0, 50)"
-                                // g.c.fillRect(32, 10, energyBox.x, energyBox.y)
-                            } else {
-                                //scale down for the unselected Units
-                                g.c.scale(0.7, 0.7)
-                                g.c.translate(0, -5)
-                                unit.render( false )
-                                //display the Units Health
+                            if (flip) {
+                                g.c.translate(tile.x, 0)
+                                g.c.scale(-1, 1)
                             }
+
+                            g.c.translate(pos.x, pos.y)
+                            //Background Bar
+                            if ( i == team.index ) {
+                                g.c.scale(scale, scale)
+                            }
+                            g.drawRect( Vector.zero, tile, backing1 )
+                            g.strokeRect( Vector.zero, tile, nameBacking )
+
+                            //NamePlate
+                            if ( i == team.index ) {
+                                unit.render( true )
+                            } else {
+                                unit.render( false )
+                            }
+                            unit.renderName( new Vector(0, tile.y), "black", nameBacking )
+                            //Stat display
+                            let healthPos = new Vector(32, 0.75)
+                            let healthDim = new Vector(5, 30)
+                            g.pipBlock( healthPos, healthDim, unit.health, unit.maxHealth, true, "red", "rgb(50, 0, 0)" )
+                            let energyPos = new Vector(37, 10)
+                            let energyDim = new Vector(3, 15)
+                            g.pipBlock( energyPos, energyDim, unit.energy, unit.maxEnergy, true, "rgb(100, 255, 100)", "rgb(0, 50, 0)" )
+                            
                             g.c.restore()
+                        },
+                        onClick: () => {
+                            team.selectUnit( unit )
                         }
                     } )
                 } )
             }
         } )
     }
-
 }

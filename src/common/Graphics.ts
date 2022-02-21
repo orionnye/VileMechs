@@ -47,6 +47,35 @@ export default class Graphics {
         this.c.fillStyle = color
         this.c.fill()
     }
+    drawPip( pos:Vector, dim:Vector, fill:string = "white", stroke:string = "black") {
+        this.drawRect(pos, dim, fill)
+        this.strokeRect(pos, dim, stroke)
+    }
+    pipBlock( pos:Vector, dim:Vector, value:number, radix:number, vertical=false, fill = "white", empty = "black") {
+        //divide dim by radix+1
+        let pipDim = dim
+        if ( vertical ) {
+            pipDim.y = pipDim.y / (radix+1)
+        } else {
+            pipDim.x = pipDim.x / (radix+1)
+        }
+        let buffer = pipDim.scale(1/(radix-1))
+        this.c.lineWidth = 0.1
+        for ( let i = 0; i < radix; i++ ) {
+        //     //start at pos
+            let pipPos = pos
+            if ( vertical ) {
+                pipPos = pipPos.add(new Vector(0, pipDim.y*i+buffer.y*i))
+            } else {
+                pipPos = pipPos.add(new Vector(buffer.x*i+pipDim.x*i, 0))
+            }
+            if (i < value) {
+                this.drawPip(pipPos, pipDim, fill, "black")
+            } else {
+                this.drawPip(pipPos, pipDim, empty)
+            }
+        }
+    }
 
     makePath( path: Vector[] ) {
         if ( path.length == 0 )

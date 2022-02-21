@@ -4,6 +4,7 @@ import Unit from "./Unit"
 
 // const treant = getImg( require( "../www/images/units/Vinecent1.png" ) )
 const treant = getImg( require( "../../www/images/units/Vinecent2.png" ) )
+const earth = getImg( require( "../../www/images/units/EarthMech.png" ) )
 const chrome = getImg( require( "../../www/images/units/MinigunMech_sheet.png" ) )
 const flesh = getImg( require( "../../www/images/units/FleshBase.png" ) )
 const jelly = getImg( require( "../../www/images/units/GellyMech.png" ) )
@@ -62,6 +63,28 @@ export class Treant extends Unit {
 
         this.maxEnergy += 1
         this.energy = this.maxEnergy
+
+        this.draw.cards = []
+        this.draw.add( CardTypes.bouldertoss, 3 )
+        this.draw.add( CardTypes.mine, 2 )
+        this.draw.add( CardTypes.repair, 1 )
+
+        this.cardCycle()
+    }
+
+}
+export class Earth extends Unit {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+        this.sprite = earth
+        
+        //Earth Stats
+        this.maxHealth = 14
+        this.health = this.maxHealth
+        this.maxSpeed = 5
+        this.speed = this.maxSpeed
+
+        this.drawSpeed = 5
 
         this.draw.cards = []
         this.draw.add( CardTypes.bouldertoss, 3 )

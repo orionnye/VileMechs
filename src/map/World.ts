@@ -1,30 +1,43 @@
-import Unit from "../gameobjects/mech/Unit"
 import Grid from "./Grid"
-import Graphics from "../common/Graphics"
+import Graphics, { TextAlignX } from "../common/Graphics"
 import { Vector } from "../math/Vector"
 import { findPath } from "./pathfinding"
 import Game from "../Game"
-import { getImg } from "../common/utils"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../common/Scene"
-import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot, Dummy } from "../gameobjects/mech/RigTypes"
 import * as Tiles from "./Tiles"
 import Team from "../gameobjects/mech/Team"
+// import UnitTray from "../gameobjects/ui/UnitTray"
+import CardTray from "../gameobjects/ui/CardTray"
+import Unit from "../gameobjects/mech/Unit"
+import Camera from "../gameobjects/Camera"
+import UnitTray from "../gameobjects/ui/UnitTray"
+import { targetsWithinRange } from "../gameobjects/card/CardTypes"
+
 
 export default class World {
+    //Map
     static tileSize = 32
     map: Grid
-    
-    // units: Unit[]
+
+    //Units
     teams: Team[]
+    turn = 0
+
+    //UI
+    //should be ported to another class
+    cardTray = new CardTray()
+    unitTray = new UnitTray()
+
+    //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor() {
+    constructor( playerTeam: Team = new Team( "Drunken Scholars", false , 0) ) {
         this.map = new Grid( 20, 20 )
 
         this.teams = [
-            new Team( "Drunken Scholars", false, 0 ),
-            new Team( "Choden Warriors", true, 1 ),
+            playerTeam,
+            new Team( "Choden Warriors", true , 1),
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
@@ -45,9 +58,45 @@ export default class World {
             this.map.set( new Vector( 4, 3 ), Tiles.Grass )
             this.map.set( new Vector( 5, 6 ), Tiles.Grass )
         }
+
+        //Move camera to first Unit
+        // this.moveCamToFirstUnit()
+    }
+    activeTeam() { return this.teams[this.turn] }
+    // playerUnits() { return this.teams[0].units }
+    // enemyUnits() { return this.teams[1].units }
+    selectedUnit() { return this.activeTeam().selectedUnit() }
+    selectedCard() { return this.selectedUnit()?.hand.cards[this.cardTray.index] }
+    isPickingTarget() { return this.cardTray.isPickingTarget }
+    // onSelectUnit() {
+    //     this.cardTray.onSelectUnit()
+    //     let selectedUnit = this.selectedUnit()
+    //     if ( selectedUnit )
+    //         this.moveCamToUnit( selectedUnit )
+    // }
+    goBack() {
+        let { unitTray, cardTray } = this
+        if ( cardTray.isPickingTarget )
+            cardTray.deselect()
+        else
+            this.activeTeam().deselect()
+    }
+    applyCardAt( pos: Vector ) {
+        let unit = this.selectedUnit()
+        let card = this.selectedCard()
+        this.cardTray.deselect()
+        if ( unit && card ) {
+            if ( unit.energy >= card.type.cost ) {
+                let index = unit.hand.cards.indexOf( card )
+                if ( index < 0 )
+                    throw new Error( "Selected card is not in selected unit's hand." )
+                unit.hand.cards.splice( index, 1 )
+                unit.discard.cards.push( card )
+                card.apply( unit, pos, this.getUnit( pos ) )
+            }
+        }
     }
 
-    // Model
     getUnit( pos: Vector ) {
         for (let team of this.teams ) {
             for ( let unit of team.units )
@@ -71,10 +120,22 @@ export default class World {
         return Scene.toLocalSpace( cursor, this.scene ).scale( 1 / World.tileSize ).floor()
     }
 
+
+    endTurn() {
+        console.log("Ending turn")
+        this.turn++
+        this.turn %= this.teams.length
+        // Health ReCapped at turn start
+        this.teams[this.turn].endTurn()
+    }
+
     update() {
         this.teams.forEach(team => {
             team.update()
         })
+        if (this.activeTeam().selectedUnit()) {
+            this.cardTray.update(this.activeTeam().selectedUnit()!)
+        }
     }
 
     // View
@@ -87,15 +148,27 @@ export default class World {
             g.c.imageSmoothingEnabled = true
             g.c.imageSmoothingQuality = "low"
         }
+        
+        //  Draws the world tiles
+        this.drawMap()
+
 
         let cursor = this.tileSpaceCursor()
-        let selectedUnit = Game.instance.unitTray.selectedUnit()
+        let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-        let AITurn = Game.instance.isAITurn()
+        // let AITurn = Game.instance.isAITurn()
         this.drawMap()
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() && !AITurn) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
+            let walkableTiles = targetsWithinRange(selectedUnit.pos, 0, selectedUnit.speed)
+            walkableTiles.forEach(tile => {
+                let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed)
+                if (path && path.length <= selectedUnit!.speed) {
+                    g.drawRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
+                    g.strokeRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
+                }
+            })
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length
@@ -161,8 +234,9 @@ export default class World {
         // let { units } = this
         let { teams } = this
         let { width, height } = this.map
-        let selectedUnit = game.selectedUnit()
-        let pickingTarget = game.isPickingTarget()
+        let selectedUnit = this.activeTeam().selectedUnit()
+        let pickingTarget = false
+        // let pickingTarget = game.isPickingTarget()
         let tileSize = World.tileSize
 
         this.scene = Scene.node( {
@@ -182,10 +256,11 @@ export default class World {
             onRender: () => this.render(),
             content: () => {
                 teams.forEach( ( team, i ) => {
-                    team.makeSceneNode()
+                    let active = this.activeTeam() == team
+                    team.makeSceneNode(active)
                 } )
                 if ( pickingTarget ) {
-                    let card = game.selectedCard()
+                    let card = this.selectedCard()
                     if ( selectedUnit && card ) {
                         for ( let pos of card?.getTilesInRange( selectedUnit ) ) {
                             let unit = this.getUnit( pos )
@@ -196,7 +271,7 @@ export default class World {
                                 rect: { width: tileSize, height: tileSize },
                                 onClick: () => {
                                     if ( isValidTarget )
-                                        game.applyCardAt( pos )
+                                        this.applyCardAt( pos )
                                 },
                                 onRender: ( node ) => {
                                     let hover = node == game.mouseOverData.node

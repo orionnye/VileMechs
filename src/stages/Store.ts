@@ -65,8 +65,8 @@ export default class Store {
     
 
     //Utility Functions
-    selectedUnit() { return this.unitTray.selectedUnit() }
-    playerUnits() { return this.world.units.filter( unit => unit.teamNumber == 0 ) }
+    // selectedUnit() { return this.unitTray.selectedUnit() }
+    // playerUnits() { return this.world.units.filter( unit => unit.teamNumber == 0 ) }
     reset() {
         this.stock = new Deck(5)
         this.image = Backgrounds[Math.floor(Math.random()*4)]
@@ -153,7 +153,7 @@ export default class Store {
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
             content: () => {
-                unitTray.makeSceneNode(this.playerUnits())
+                // unitTray.makeSceneNode(this.playerUnits())
                 this.stock.cards.forEach( ( card, i ) => Scene.node( {
                     description: "store-Stock",
                     localMatrix: Matrix.vTranslation( shelf.pos.add(shelf.margin.scale(i)) ),
@@ -165,12 +165,12 @@ export default class Store {
                     },
                     onClick: () => {
                         // console.log("Unit:", unitTray.selectedUnit())
-                        if (unitTray.selectedUnit()) {
-                            let copy = this.stock.cards.splice(i, 1)[0]
-                            // console.log("COPY:", copy[0])
-                            unitTray.selectedUnit()?.draw.addCard(copy)
-                            console.log("trying to buy!")
-                        }
+                        // if (unitTray.selectedUnit()) {
+                        //     let copy = this.stock.cards.splice(i, 1)[0]
+                        //     // console.log("COPY:", copy[0])
+                        //     unitTray.selectedUnit()?.draw.addCard(copy)
+                        //     console.log("trying to buy!")
+                        // }
                     }
                 } ) )
             }

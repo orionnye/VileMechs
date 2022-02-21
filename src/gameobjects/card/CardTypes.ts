@@ -213,7 +213,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     bouldertoss: {
         name: "Boulder Toss",
         getDescription: card => `Place a Mountain Deal ${card.type.damage} damage`,
-        color: "#361000",
+        color: "#b87420",
         sprite: boulder,
         backing: brown,
         canApplyToEmptyTiles: true,
@@ -235,7 +235,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     mine: {
         name: "Mine",
         getDescription: card => `Destroy Mountain Deal ${card.type.damage} damage`,
-        color: "black",
+        color: "#b87420",
         sprite: mine,
         backing: brown,
         canApplyToEmptyTiles: true,
@@ -443,7 +443,7 @@ export function targetsWithinRange( pos: Vector, minDist: number, maxDist: numbe
     for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
         for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
             let r = Math.abs( dx ) + Math.abs( dy )
-            if ( r >= minDist && r <= maxDist )
+            if ( r > minDist && r < maxDist )
                 result.push( pos.addXY( dx, dy ) )
         }
     }
