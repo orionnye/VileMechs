@@ -53,6 +53,7 @@ export default class Game {
         window.addEventListener( "wheel", ev => this.onWheel( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
+        window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
         this.moveCamToFirstUnit()
     }
 
@@ -121,9 +122,8 @@ export default class Game {
             this.showFPS = !this.showFPS
         // if ( ev.key == "Escape" )
         //     this.goBack()
-        if ( ev.key == "q" ) {
+        if ( ev.key == "Tab" ) {
             // console.log("trying to cycleUnits")
-            // ev.preventDefault()
             this.world.activeTeam().cycleUnits()
             if (this.world.activeTeam().selectedUnit() !== undefined) {
                 this.moveCamToUnit(this.world.activeTeam().selectedUnit()!)
@@ -136,6 +136,11 @@ export default class Game {
                 this.world.endTurn()
                 this.moveCamToFirstUnit()
             // }
+        }
+    }
+    onKeydown( ev: KeyboardEvent ) {
+        if (ev.key == "Tab") {
+            ev.preventDefault()
         }
     }
 
