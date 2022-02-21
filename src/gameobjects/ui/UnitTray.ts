@@ -76,11 +76,11 @@ export default class UnitTray {
                             g.strokeRect( Vector.zero, tile, nameBacking )
 
                             //NamePlate
-                            if ( i == team.index ) {
-                                unit.render( true )
-                            } else {
+                            // if ( i == team.index ) {
+                            //     unit.render( true )
+                            // } else {
                                 unit.render( false )
-                            }
+                            // }
                             unit.renderName( new Vector(0, tile.y), "black", nameBacking )
                             //Stat display
                             let healthPos = new Vector(32, 0.75)
