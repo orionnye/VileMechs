@@ -99,8 +99,7 @@ export default class Game {
             let worldClicked = node == this.world.scene
             let nothingClicked = node == undefined
             let unitSelected = this.world.activeTeam().selectedUnit() !== undefined
-            // let isMovingUnit = unitSelected && !this.isPickingTarget()
-            let isMovingUnit = unitSelected
+            let isMovingUnit = unitSelected && !this.world.isPickingTarget()
             let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || this.input.keys.get( "shift" )
             if ( canLeftClickDrag || middleClick )
                 this.camera.startDragging()
@@ -183,10 +182,12 @@ export default class Game {
             },
             content: () => {
                 world.makeSceneNode()
+                //displays unitTray forward for first player
                 if (this.world.turn == 0) {
                     world.unitTray.makeSceneNode(Vector.zero, world.activeTeam())
                 } else {
-                    world.unitTray.makeSceneNode(new Vector(-this.screenDimensions().x+World.tileSize, 0), world.activeTeam(), true)
+                    //display Unit Tray backwords for second player
+                    world.unitTray.makeSceneNode(new Vector(this.screenDimensions().x - World.tileSize, 0), world.activeTeam(), true)
                 }
                 if ( selectedUnit )
                     cardTray.makeSceneNode( selectedUnit )

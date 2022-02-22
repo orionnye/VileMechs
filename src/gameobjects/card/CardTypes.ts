@@ -229,8 +229,8 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 3,
-        range: 6,
-        minDist: 3,
+        range: 7,
+        minDist: 2,
     },
     mine: {
         name: "Mine",
@@ -239,7 +239,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: mine,
         backing: brown,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let world = Game.instance.world
@@ -258,7 +258,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 10,
-        range: 1,
+        range: 2,
         minDist: 1,
     },
     //------------------------------- UNIVERSAL -----------------------------
@@ -280,7 +280,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 7,
-        range: 0,
+        range: 2,
         minDist: 0,
 
     },
@@ -326,7 +326,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 0,
         damage: 3,
-        range: 1,
+        range: 2,
         minDist: 1,
     },
     acid: {
@@ -440,10 +440,11 @@ function bishopStyleTargets(
 }
 
 export function targetsWithinRange( pos: Vector, minDist: number, maxDist: number, result: Vector[] = [] ) {
+    // console.log("target start:", pos)
     for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
         for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
             let r = Math.abs( dx ) + Math.abs( dy )
-            if ( r > minDist && r < maxDist )
+            if ( r >= minDist && r <= maxDist )
                 result.push( pos.addXY( dx, dy ) )
         }
     }

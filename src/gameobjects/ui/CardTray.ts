@@ -20,6 +20,7 @@ export default class CardTray {
     hasCardSelected() { return this.index > -1 }
 
     selectedCard(unit: Unit) {
+        console.log("selecting a card!")
         return unit?.hand.cards[ this.index ]
     }
 
@@ -51,7 +52,9 @@ export default class CardTray {
         if ( this.hasCardSelected() && !this.isPickingTarget ) {
             let now = Date.now()
             let dt = now - lastSelectTime
-            this.selectIndex( -1 )
+            if ( dt > CardTray.selectionTimeout ) {
+                this.selectIndex( -1 )
+            } 
         }
     }
 
@@ -125,8 +128,10 @@ export default class CardTray {
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
-            onHover: () => {
-                this.selectIndex( i )
+            onHover: () => { 
+                if ( !this.isPickingTarget ) {
+                    this.selectIndex( i )
+                }
             },
             onClick: () => {
                 let isSelectedCard = this.index == i

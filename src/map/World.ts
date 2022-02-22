@@ -67,12 +67,12 @@ export default class World {
     // enemyUnits() { return this.teams[1].units }
     selectedUnit() { return this.activeTeam().selectedUnit() }
     selectedCard() { return this.selectedUnit()?.hand.cards[this.cardTray.index] }
-    // isPickingTarget() { return this.cardTray.isPickingTarget }
+    isPickingTarget() { return this.cardTray.isPickingTarget }
     // onSelectUnit() {
-    //     this.cardTray.onSelectUnit()
-    //     let selectedUnit = this.selectedUnit()
-    //     if ( selectedUnit )
-    //         this.moveCamToUnit( selectedUnit )
+        // this.cardTray.onSelectUnit()
+        // let selectedUnit = this.selectedUnit()
+        // if ( selectedUnit )
+        //     this.moveCamToUnit( selectedUnit )
     // }
     goBack() {
         let { unitTray, cardTray } = this
@@ -152,12 +152,10 @@ export default class World {
         //  Draws the world tiles
         this.drawMap()
 
-
         let cursor = this.tileSpaceCursor()
         let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
         // let AITurn = Game.instance.isAITurn()
-        this.drawMap()
 
         //  Draw unit path
         if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
@@ -235,8 +233,8 @@ export default class World {
         let { teams } = this
         let { width, height } = this.map
         let selectedUnit = this.activeTeam().selectedUnit()
-        let pickingTarget = false
-        // let pickingTarget = game.isPickingTarget()
+        // let pickingTarget = false
+        let pickingTarget = this.isPickingTarget()
         let tileSize = World.tileSize
 
         this.scene = Scene.node( {
@@ -259,35 +257,35 @@ export default class World {
                     let active = this.activeTeam() == team
                     team.makeSceneNode(active)
                 } )
-                // if ( pickingTarget ) {
-                //     let card = game.selectedCard()
-                //     if ( selectedUnit && card ) {
-                //         for ( let pos of card?.getTilesInRange( selectedUnit ) ) {
-                //             let unit = this.getUnit( pos )
-                //             let isValidTarget = unit || card?.type.canApplyToEmptyTiles
-                //             Scene.node( {
-                //                 description: "card-target",
-                //                 localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
-                //                 rect: { width: tileSize, height: tileSize },
-                //                 onClick: () => {
-                //                     if ( isValidTarget )
-                //                         game.applyCardAt( pos )
-                //                 },
-                //                 onRender: ( node ) => {
-                //                     let hover = node == game.mouseOverData.node
-                //                     let highlight = hover && isValidTarget
-                //                     let alpha = isValidTarget ? .5 : .15
-                //                     g.c.fillStyle = highlight ? `rgba(135, 231, 255, ${ alpha })` : `rgba(3, 202, 252, ${ alpha })`
-                //                     g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
-                //                     g.c.beginPath()
-                //                     g.c.rect( 0, 0, tileSize, tileSize )
-                //                     g.c.fill()
-                //                     g.c.stroke()
-                //                 }
-                //             } )
-                //         }
-                //     }
-                // }
+                if ( pickingTarget ) {
+                    let card = this.selectedCard()
+                    if ( selectedUnit && card) {
+                        for ( let pos of card?.getTilesInRange( selectedUnit ) ) {
+                            let unit = this.getUnit( pos )
+                            let isValidTarget = unit || card?.type.canApplyToEmptyTiles
+                            Scene.node( {
+                                description: "card-target",
+                                localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
+                                rect: { width: tileSize, height: tileSize },
+                                onClick: () => {
+                                    if ( isValidTarget )
+                                        this.applyCardAt( pos )
+                                },
+                                onRender: ( node ) => {
+                                    let hover = node == game.mouseOverData.node
+                                    let highlight = hover && isValidTarget
+                                    let alpha = isValidTarget ? .5 : .15
+                                    g.c.fillStyle = highlight ? `rgba(135, 231, 255, ${ alpha })` : `rgba(3, 202, 252, ${ alpha })`
+                                    g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
+                                    g.c.beginPath()
+                                    g.c.rect( 0, 0, tileSize, tileSize )
+                                    g.c.fill()
+                                    g.c.stroke()
+                                }
+                            } )
+                        }
+                    }
+                }
             }
         } )
     }

@@ -12,13 +12,6 @@ export default class UnitTray {
     private hasUnitSelected = false
 
     constructor() {
-        // window.addEventListener( "keydown", ( ev ) => {
-        //     if ( ev.key == "Tab" ) {
-        //         ev.preventDefault()
-        //         //another player permission switch
-        //         this.cycleUnits()
-        //     }
-        // } )
     }
 
     makeSceneNode(pos: Vector, team: Team, flip: boolean = false) {
@@ -34,7 +27,7 @@ export default class UnitTray {
         
         Scene.node( {
             description: "unit-tray",
-            localMatrix: Matrix.translation( 0, 0 ),
+            localMatrix: Matrix.translation( pos.x, pos.y ),
             content: () => {
                 units.forEach( (unit, i) => {
                     width = tileSize
@@ -67,7 +60,6 @@ export default class UnitTray {
                                 g.c.scale(-1, 1)
                             }
 
-                            g.c.translate(pos.x, pos.y)
                             //Background Bar
                             if ( i == team.index ) {
                                 g.c.scale(scale, scale)
@@ -79,7 +71,7 @@ export default class UnitTray {
                             // if ( i == team.index ) {
                             //     unit.render( true )
                             // } else {
-                                unit.render( false )
+                            unit.render( false )
                             // }
                             unit.renderName( new Vector(0, tile.y), "black", nameBacking )
                             //Stat display

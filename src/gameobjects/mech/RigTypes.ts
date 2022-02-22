@@ -58,8 +58,7 @@ export class Treant extends Unit {
         this.health = this.maxHealth
         this.maxSpeed = 4
         this.speed = this.maxSpeed
-
-        this.drawSpeed = 5
+        this.drawSpeed = 4
 
         this.maxEnergy += 1
         this.energy = this.maxEnergy
