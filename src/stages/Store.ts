@@ -27,7 +27,7 @@ export default class Store {
     static instance: Store
 
     //-----STORE DATA------
-    world: World
+    // world: World
     static uiScale = 3
     static camVelocityDecay = 0.85
 
@@ -51,9 +51,8 @@ export default class Store {
     image
 
 
-    constructor( world: World ) {
+    constructor() {
         Store.instance = this
-        this.world = world
         this.image = Backgrounds[Math.floor(Math.random()*4)];
         window.addEventListener( "click", ev => this.onClick( ev ) )
         // window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
@@ -106,73 +105,69 @@ export default class Store {
         if ( node?.onHover )
         node.onHover( node, point )
     }
-    render()  {
-        //Background
-        let g = this.graphics
-        g.c.imageSmoothingEnabled = false
-        // g.c.fillStyle = "#636912"
-        // g.c.fillRect( 0, 0, g.size.x, g.size.y )
-
-        g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, g.size.x, g.size.y )
-        g.c.textBaseline = "top"
-        let picked = Scene.pickNode( this.scene, this.input.cursor )
-        if ( this.showSceneDebug ) {
-            if ( picked ) picked.debugColor = "white"
-            Scene.render( g.c, this.scene, true )
-            g.setFont( 12, "pixel" )
-            g.drawText( this.input.cursor.add( Vector.one.scale( 20 ) ), picked?.description ?? "", "white" )
-        } else {
-            Scene.render( g.c, this.scene, false )
-        }
-
-        //----SIGN RENDERING----
-        //static Sign data storage
-        const Sign = {
-            pos: new Vector(450, 0),
-            size: new Vector(550, 150),
-            text: {
-                pos: new Vector(80, 30),
-                size: 100,
-            },
-        }
-        //Sign rendering
-        g.drawRect(Sign.pos, Sign.size, "rgba(0, 0, 100, 0.5)")
-        g.setFont(Sign.text.size, "Times")
-        g.drawText(Sign.pos.add(Sign.text.pos), "Scavenge", "white")
-    }
-
     makeSceneNode() {
         let g = Graphics.instance
-        let { unitTray } = this
-
-        const shelf = {
-            pos: new Vector(150, 250),
-            margin: new Vector(Card.dimensions.x + 10, 0)
-        }
+        let game = Game.instance
+        let world = game.world
+        let center = game.screenCenter()
 
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
-            content: () => {
-                // unitTray.makeSceneNode(this.playerUnits())
-                this.stock.cards.forEach( ( card, i ) => Scene.node( {
-                    description: "store-Stock",
-                    localMatrix: Matrix.vTranslation( shelf.pos.add(shelf.margin.scale(i)) ),
-                    
-                    rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-                    onRender: () => card.render(),
-                    onHover: () => {
-                        // console.log(card.type.name)
-                    },
-                    onClick: () => {
-                        // console.log("Unit:", unitTray.selectedUnit())
-                        // if (unitTray.selectedUnit()) {
-                        //     let copy = this.stock.cards.splice(i, 1)[0]
-                        //     // console.log("COPY:", copy[0])
-                        //     unitTray.selectedUnit()?.draw.addCard(copy)
-                        //     console.log("trying to buy!")
-                        // }
+            onRender: () => {
+                //static Sign data storage
+                const Sign = {
+                    pos: center,
+                    size: new Vector(20, 25),
+                    text: {
+                        pos: new Vector(90, 10),
+                        size: 5,
                     }
-                } ) )
+                }
+                //Sign rendering
+                g.drawRect(Sign.pos, Sign.size, "rgba(0, 0, 100, 0.5)")
+                g.setFont(Sign.text.size, "Times")
+                g.drawText(Sign.pos.add(Sign.text.pos), "Scavenge", "white")
+            },
+            content: () => {
+                //display data(static except for UI Scaling)
+                // unitTray.makeSceneNode(this.playerUnits())
+                const shelf = {
+                    dim: new Vector(200, 50),
+                    pos: new Vector(80, 90),
+                    scale: Game.uiScale*0.15,
+                    stockPos: ( index: number ) => {
+                        //break and divide the cardSpace by total cards and then divide remaining space evenly
+                        let spacePerCard = shelf.dim.x / this.stock.length
+                        return new Vector(index*spacePerCard, 0).add(Card.dimensions.scale(0.5))
+                    }
+                }
+                Scene.node( {
+                    description: "store-Shelf",
+                    rect: { width: shelf.dim.x, height: shelf.dim.y },
+                    localMatrix: Matrix.transformation( shelf.pos.x, shelf.pos.y, 0, shelf.scale, shelf.scale, 0, 0 ),
+                    content: () => {
+                        this.stock.cards.forEach( ( card, i ) => Scene.node( {
+                            description: "store-Stock",
+                            localMatrix: Matrix.transformation( shelf.stockPos(i).x, shelf.stockPos(i).y, 0, shelf.scale, shelf.scale, 0, 0 ),
+                            
+                            rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                            onRender: () => card.render(),
+                            onHover: () => {
+                                // console.log(card.type.name)
+                            },
+                            onClick: () => {
+                                // console.log("Unit:", unitTray.selectedUnit())
+                                if (world.selectedUnit()) {
+                                    let copy = this.stock.cards.splice(i, 1)[0]
+                                    // console.log("COPY:", copy[0])
+                                    world.selectedUnit()?.draw.addCard(copy)
+                                    // console.log("trying to buy!")
+                                }
+                            }
+                        } ) )
+
+                    }
+                } )
             }
         } )
     }

@@ -12,6 +12,7 @@ export default class UnitTray {
     private hasUnitSelected = false
 
     constructor() {
+        
     }
 
     makeSceneNode(pos: Vector, team: Team, flip: boolean = false) {

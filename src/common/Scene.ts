@@ -11,8 +11,8 @@ export interface SceneNode {
     content?: () => void
     // Events
     onClick?: ( node: SceneNode, pos: Vector ) => void
-    onHover?: ( node: SceneNode, pos: Vector ) => void
     onRender?: ( node: SceneNode ) => void
+    onHover?: ( node: SceneNode, pos: Vector ) => void
     onRenderPost?: ( node: SceneNode ) => void
     // Debug fields
     debugColor?: string

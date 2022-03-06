@@ -13,6 +13,7 @@ import Unit from "../gameobjects/mech/Unit"
 import Camera from "../gameobjects/Camera"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { targetsWithinRange } from "../gameobjects/card/CardTypes"
+import AI from "../common/AI"
 
 
 export default class World {
@@ -28,6 +29,11 @@ export default class World {
     //should be ported to another class
     cardTray = new CardTray()
     unitTray = new UnitTray()
+
+    //ai
+    aiTeamNumbers = [ -1, 1 ]
+    ai = new AI()
+    
 
     //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
@@ -148,14 +154,48 @@ export default class World {
             g.c.imageSmoothingEnabled = true
             g.c.imageSmoothingQuality = "low"
         }
-        
         //  Draws the world tiles
         this.drawMap()
 
         let cursor = this.tileSpaceCursor()
         let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-        // let AITurn = Game.instance.isAITurn()
+        //enemy AI
+        if ( this.turn !== 0 ) {
+            let aiTurn = false
+
+            if (this.selectedUnit() == undefined) {
+                // console.log("FINDING")
+                this.activeTeam().units.forEach( unit => {
+                    if (unit.teamNumber == this.turn && !this.ai.isDone(unit)) {
+                        aiTurn = true
+                        this.activeTeam().selectUnit( unit )
+                    }
+                })
+            } else {
+                //Trigger to keep aiTurn active as long as ai has cards
+                aiTurn = true
+                if (this.ai.startTime == undefined) {
+                    this.ai.startTime = Date.now()
+                    //selecting Unit for control
+                }
+                //AI DELAY
+                let actionDelay = 700
+                //Taking delayed Action!
+                if (Date.now() - this.ai.startTime >= actionDelay) {
+                    let unit = this.selectedUnit()!
+                    if ( !this.ai.isDone(unit) ) {
+                        console.log("thinking")
+                        this.ai.think(unit)
+                    } else {
+                        this.activeTeam().deselect()
+                    }
+                }
+            }
+            if (!aiTurn) {
+                // this.endTurn()
+            }
+        }
 
         //  Draw unit path
         if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {

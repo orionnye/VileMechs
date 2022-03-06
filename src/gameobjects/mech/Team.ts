@@ -112,6 +112,7 @@ export default class Team {
             localMatrix: Matrix.identity,
             content: () => {
                 units.forEach( ( unit, i ) => {
+                    let isHovered = false
                     Scene.node( {
                         description: unit.name,
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
@@ -129,7 +130,7 @@ export default class Team {
                                     g.c.translate(-3, -3)
                                     g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "rgba(255, 255, 255, 0.4)")
                                 }
-    
+                                
                                 if ( isSelected && !unit.isWalking() ) {
                                     g.c.shadowBlur = 10
                                     g.c.shadowColor = "black"
@@ -137,6 +138,9 @@ export default class Team {
                             }
                             //Standard rendering
                             unit.render( true, flipUnits )
+                            // if (hover) {
+                            //     g.drawRect(Vector.zero, new Vector(100, 100), "red")
+                            // }
                         }
                     } )
                 } )

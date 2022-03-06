@@ -58,7 +58,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     laser: {
         name: "Laser",
         getDescription: card => `Deal ${ card.type.damage } damage to target`,
-        color: "#6BB5FF",
+        color: "#969696",
         sprite: laser,
         backing: metal,
         canApplyToEmptyTiles: false,
@@ -103,7 +103,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.energy -= card.type.cost
         },
 
-        cost: 2,
+        cost: 1,
         damage: 0,
         range: 0,
         minDist: 0,
@@ -127,14 +127,15 @@ const CardTypes: { [ name: string ]: CardType } = {
                     }
                 })
             }
+            console.log( -card.type.damage * armorCount )
             target?.addHealth( -card.type.damage * armorCount )
             //stack damage and apply to enemy
             user.energy -= card.type.cost
         },
 
-        cost: 3,
+        cost: 2,
         damage: 6,
-        range: 9,
+        range: 15,
         minDist: 0,
     },
     //------------------------------- CURRENCY -----------------------------
@@ -258,7 +259,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 10,
-        range: 2,
+        range: 1,
         minDist: 1,
     },
     //------------------------------- UNIVERSAL -----------------------------
@@ -280,7 +281,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 7,
-        range: 2,
+        range: 1,
         minDist: 0,
 
     },
@@ -444,7 +445,7 @@ export function targetsWithinRange( pos: Vector, minDist: number, maxDist: numbe
     for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
         for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
             let r = Math.abs( dx ) + Math.abs( dy )
-            if ( r >= minDist && r <= maxDist )
+            if ( r > minDist && r <= maxDist )
                 result.push( pos.addXY( dx, dy ) )
         }
     }

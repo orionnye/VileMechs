@@ -11,10 +11,9 @@ import Clock from "./common/Clock"
 import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
 import AI from "./common/AI"
-import CardTypes from "./gameobjects/card/CardTypes"
-import CardTray from "./gameobjects/ui/CardTray"
 import Team from "./gameobjects/mech/Team"
 import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
+import Store from "./stages/Store"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -30,14 +29,18 @@ export default class Game {
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
     world : World
+    store : Store
     
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
 
     isPlayerDone = false
+    shopping = false
 
     constructor() {
+        this.store = new Store()
+        this.store.reset()
         let playerTeam = new Team("Drunken Scholars", false, 0)
         playerTeam.units = [
             new Chrome(new Vector(1, 0), 0),
@@ -119,10 +122,9 @@ export default class Game {
             this.showSceneDebug = !this.showSceneDebug
         if ( ev.key == "," )
             this.showFPS = !this.showFPS
-        // if ( ev.key == "Escape" )
-        //     this.goBack()
+        if ( ev.key == "Escape" )
+            this.world.goBack()
         if ( ev.key == "Tab" ) {
-            // console.log("trying to cycleUnits")
             this.world.activeTeam().cycleUnits()
             if (this.world.activeTeam().selectedUnit() !== undefined) {
                 this.moveCamToUnit(this.world.activeTeam().selectedUnit()!)
@@ -131,9 +133,11 @@ export default class Game {
         if ( ev.key == "Enter" ) {
             //stops you from skipping enemies turn
             // if (!this.isAITurn()) {
-                // console.log("ending turn")
                 this.world.endTurn()
-                this.moveCamToFirstUnit()
+                if (this.world.activeTeam().units.length) {
+
+                }
+            //     this.moveCamToFirstUnit()
             // }
         }
     }
@@ -181,7 +185,11 @@ export default class Game {
                 } )
             },
             content: () => {
-                world.makeSceneNode()
+                if (this.shopping) {
+                    this.store.makeSceneNode()
+                } else {
+                    world.makeSceneNode()
+                }
                 //displays unitTray forward for first player
                 if (this.world.turn == 0) {
                     world.unitTray.makeSceneNode(Vector.zero, world.activeTeam())
