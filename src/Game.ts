@@ -14,6 +14,7 @@ import AI from "./common/AI"
 import Team from "./gameobjects/mech/Team"
 import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
 import Store from "./stages/Store"
+import Grid from "./map/Grid"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -36,7 +37,7 @@ export default class Game {
     clock = new Clock()
 
     isPlayerDone = false
-    shopping = false
+    shopping = true
 
     constructor() {
         this.store = new Store()
@@ -134,8 +135,23 @@ export default class Game {
             //stops you from skipping enemies turn
             // if (!this.isAITurn()) {
                 this.world.endTurn()
-                if (this.world.activeTeam().units.length) {
-
+                if (this.world.teams[1].units.length == 0 && !this.shopping ) {
+                    //----GO Shopping!------
+                    this.store.reset()
+                    this.world.turn = 0
+                    this.shopping = true
+                } else if (this.shopping) {
+                    //----GO Fighting!------
+                    this.world.teams[0].units.forEach(unit => {
+                        unit.statReset()
+                    });
+                    this.world.map = new Grid( 20, 20 )
+                    this.world.teams[1] = new Team("Choden Warriors", true, 1)
+                    this.world.map.randomize2( 0 )
+                    this.world.placeUnits()
+                    // this.world
+                    this.world.turn = 0
+                    this.shopping = false
                 }
             //     this.moveCamToFirstUnit()
             // }
@@ -174,31 +190,36 @@ export default class Game {
         let { world } = this
         let { unitTray, cardTray } = this.world
         let selectedUnit = this.world.activeTeam().selectedUnit()
+        let center = Game.instance.screenCenter()
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
             onRenderPost: () => {
-                //TEAM NAME DISPLAY
-                let center = Game.instance.screenCenter()
-                g.setFont( 6, "pixel" )
-                g.drawTextBox( new Vector( center.x, 0 ), this.world.activeTeam().name, {
-                    textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
-                } )
+                if (!this.shopping) {
+                    //TEAM NAME DISPLAY
+                    g.setFont( 6, "pixel" )
+                    g.drawTextBox( new Vector( center.x, 0 ), this.world.activeTeam().name, {
+                        textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
+                    } )
+                }
             },
             content: () => {
                 if (this.shopping) {
+                    //-----------------Shopping Display-------------------
                     this.store.makeSceneNode()
-                } else {
-                    world.makeSceneNode()
-                }
-                //displays unitTray forward for first player
-                if (this.world.turn == 0) {
                     world.unitTray.makeSceneNode(Vector.zero, world.activeTeam())
                 } else {
-                    //display Unit Tray backwords for second player
-                    world.unitTray.makeSceneNode(new Vector(this.screenDimensions().x - World.tileSize, 0), world.activeTeam(), true)
+                    //-----------------Match Display-----------------------
+                    world.makeSceneNode()
+                    //displays unitTray forward for first player
+                    if (this.world.turn == 0) {
+                        world.unitTray.makeSceneNode(Vector.zero, world.activeTeam())
+                    } else {
+                        //display Unit Tray backwords for second player
+                        world.unitTray.makeSceneNode(new Vector(this.screenDimensions().x - World.tileSize, 0), world.activeTeam(), true)
+                    }
+                    if ( selectedUnit )
+                        cardTray.makeSceneNode( selectedUnit )
                 }
-                if ( selectedUnit )
-                    cardTray.makeSceneNode( selectedUnit )
             }
         } )
     }

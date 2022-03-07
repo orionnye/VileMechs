@@ -7,7 +7,7 @@ import Camera from "../gameobjects/Camera"
 // import { Deck } from "./gameobjects/Deck"
 // import UnitTray from "./gameobjects/UnitTray"
 import World from "../map/World"
-import Graphics from "../common/Graphics"
+import Graphics, { TextAlignX } from "../common/Graphics"
 import { randomFloor } from "../math/math"
 import Matrix from "../math/Matrix"
 import { Vector } from "../math/Vector"
@@ -112,43 +112,51 @@ export default class Store {
         let center = game.screenCenter()
 
         this.scene = Scene.node( {
-            localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
+            localMatrix: Matrix.identity,
             onRender: () => {
                 //static Sign data storage
                 const Sign = {
-                    pos: center,
+                    pos: new Vector(game.screenCenter().x, 0),
                     size: new Vector(20, 25),
                     text: {
-                        pos: new Vector(90, 10),
-                        size: 5,
+                        size: 20,
                     }
                 }
                 //Sign rendering
-                g.drawRect(Sign.pos, Sign.size, "rgba(0, 0, 100, 0.5)")
-                g.setFont(Sign.text.size, "Times")
-                g.drawText(Sign.pos.add(Sign.text.pos), "Scavenge", "white")
+                // g.drawRect(Sign.pos, Sign.size, "rgba(0, 0, 100, 0.5)")
+
+                g.c.imageSmoothingEnabled = false
+                // g.c.fillStyle = "#636912"
+                // g.c.fillRect( 0, 0, g.size.x, g.size.y )
+                g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, game.screenDimensions().x, game.screenDimensions().y )
+
+                g.setFont(Sign.text.size, "Times New Roman")
+                g.drawTextBox(Sign.pos, "Scavenge!", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 })
             },
             content: () => {
                 //display data(static except for UI Scaling)
                 // unitTray.makeSceneNode(this.playerUnits())
                 const shelf = {
-                    dim: new Vector(200, 50),
-                    pos: new Vector(80, 90),
-                    scale: Game.uiScale*0.15,
+                    dim: new Vector((game.screenDimensions().x / 5)*3, Card.dimensions.y*1.3),
+                    pos: new Vector(game.screenDimensions().x / 5, game.screenDimensions().y * 0.5),
+                    margin: 10,
                     stockPos: ( index: number ) => {
                         //break and divide the cardSpace by total cards and then divide remaining space evenly
-                        let spacePerCard = shelf.dim.x / this.stock.length
-                        return new Vector(index*spacePerCard, 0).add(Card.dimensions.scale(0.5))
+                        let spacePerCard = shelf.dim.x / (this.stock.length) 
+                        return new Vector(index*spacePerCard + shelf.margin*index, 0)
                     }
                 }
                 Scene.node( {
                     description: "store-Shelf",
                     rect: { width: shelf.dim.x, height: shelf.dim.y },
-                    localMatrix: Matrix.transformation( shelf.pos.x, shelf.pos.y, 0, shelf.scale, shelf.scale, 0, 0 ),
+                    localMatrix: Matrix.identity.vTranslate(shelf.pos),
+                    onRender: () => {
+                        // g.drawRect(Vector.zero, shelf.dim, "gray")
+                    },
                     content: () => {
                         this.stock.cards.forEach( ( card, i ) => Scene.node( {
                             description: "store-Stock",
-                            localMatrix: Matrix.transformation( shelf.stockPos(i).x, shelf.stockPos(i).y, 0, shelf.scale, shelf.scale, 0, 0 ),
+                            localMatrix: Matrix.translation(shelf.stockPos(i).x, shelf.stockPos(i).y),
                             
                             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                             onRender: () => card.render(),
@@ -165,7 +173,6 @@ export default class Store {
                                 }
                             }
                         } ) )
-
                     }
                 } )
             }

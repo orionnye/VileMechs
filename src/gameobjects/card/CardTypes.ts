@@ -328,7 +328,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         cost: 0,
         damage: 3,
         range: 2,
-        minDist: 1,
+        minDist: 0,
     },
     acid: {
         name: "Acid",
@@ -376,7 +376,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         cost: 1,
         damage: 2,
         range: 3,
-        minDist: 1,
+        minDist: 0,
     }
 }
 
@@ -445,7 +445,7 @@ export function targetsWithinRange( pos: Vector, minDist: number, maxDist: numbe
     for ( let dx = -maxDist; dx <= maxDist; dx++ ) {
         for ( let dy = -maxDist; dy <= maxDist; dy++ ) {
             let r = Math.abs( dx ) + Math.abs( dy )
-            if ( r > minDist && r <= maxDist )
+            if ( r >= minDist && r <= maxDist )
                 result.push( pos.addXY( dx, dy ) )
         }
     }

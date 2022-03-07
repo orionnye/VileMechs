@@ -25,8 +25,8 @@ export default class Team {
 
         this.units = [
             new Chrome( new Vector( 1, 0 ), teamNumber),
-            new Chrome( new Vector( 2, 0 ), teamNumber),
-            new Chrome( new Vector( 3, 0 ), teamNumber),
+            // new Chrome( new Vector( 2, 0 ), teamNumber),
+            // new Chrome( new Vector( 3, 0 ), teamNumber),
             // new Flesh( new Vector( 0, 1 ), 0 ),
             // new Treant( new Vector( 0, 0 ), 0 ),
             // new Jelly( new Vector( 0, 0 ), 0 )

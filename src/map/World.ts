@@ -54,9 +54,7 @@ export default class World {
             // for ( let unit of this.units ) {
             //     this.map.set( unit.pos, 0 )
             // }
-            this.teams.forEach(team => {
-                this.map.placeUnits( team.units )
-            })
+            this.placeUnits()
         } else {
             //custom map
             this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
@@ -67,6 +65,11 @@ export default class World {
 
         //Move camera to first Unit
         // this.moveCamToFirstUnit()
+    }
+    placeUnits() {
+        this.teams.forEach(team => {
+            this.map.placeUnits( team.units )
+        })
     }
     activeTeam() { return this.teams[this.turn] }
     // playerUnits() { return this.teams[0].units }
@@ -154,6 +157,7 @@ export default class World {
             g.c.imageSmoothingEnabled = true
             g.c.imageSmoothingQuality = "low"
         }
+        
         //  Draws the world tiles
         this.drawMap()
 
