@@ -13,7 +13,7 @@ import Unit from "../gameobjects/mech/Unit"
 import Camera from "../gameobjects/Camera"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { targetsWithinRange } from "../gameobjects/card/CardTypes"
-import AI from "../common/AI"
+import AI from "../gameobjects/mech/AI"
 
 
 export default class World {
@@ -51,9 +51,6 @@ export default class World {
         let randomTerrain = true
         if ( randomTerrain ) {
             this.map.randomize2( 0 )
-            // for ( let unit of this.units ) {
-            //     this.map.set( unit.pos, 0 )
-            // }
             this.placeUnits()
         } else {
             //custom map
@@ -77,12 +74,6 @@ export default class World {
     selectedUnit() { return this.activeTeam().selectedUnit() }
     selectedCard() { return this.selectedUnit()?.hand.cards[this.cardTray.index] }
     isPickingTarget() { return this.cardTray.isPickingTarget }
-    // onSelectUnit() {
-        // this.cardTray.onSelectUnit()
-        // let selectedUnit = this.selectedUnit()
-        // if ( selectedUnit )
-        //     this.moveCamToUnit( selectedUnit )
-    // }
     goBack() {
         let { unitTray, cardTray } = this
         if ( cardTray.isPickingTarget )
@@ -129,7 +120,6 @@ export default class World {
         return Scene.toLocalSpace( cursor, this.scene ).scale( 1 / World.tileSize ).floor()
     }
 
-
     endTurn() {
         console.log("Ending turn")
         this.turn++
@@ -164,42 +154,6 @@ export default class World {
         let cursor = this.tileSpaceCursor()
         let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-        //enemy AI
-        if ( this.turn !== 0 ) {
-            let aiTurn = false
-
-            if (this.selectedUnit() == undefined) {
-                // console.log("FINDING")
-                this.activeTeam().units.forEach( unit => {
-                    if (unit.teamNumber == this.turn && !this.ai.isDone(unit)) {
-                        aiTurn = true
-                        this.activeTeam().selectUnit( unit )
-                    }
-                })
-            } else {
-                //Trigger to keep aiTurn active as long as ai has cards
-                aiTurn = true
-                if (this.ai.startTime == undefined) {
-                    this.ai.startTime = Date.now()
-                    //selecting Unit for control
-                }
-                //AI DELAY
-                let actionDelay = 700
-                //Taking delayed Action!
-                if (Date.now() - this.ai.startTime >= actionDelay) {
-                    let unit = this.selectedUnit()!
-                    if ( !this.ai.isDone(unit) ) {
-                        console.log("thinking")
-                        this.ai.think(unit)
-                    } else {
-                        this.activeTeam().deselect()
-                    }
-                }
-            }
-            if (!aiTurn) {
-                // this.endTurn()
-            }
-        }
 
         //  Draw unit path
         if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {

@@ -54,9 +54,7 @@ export default class Store {
     constructor() {
         Store.instance = this
         this.image = Backgrounds[Math.floor(Math.random()*4)];
-        window.addEventListener( "click", ev => this.onClick( ev ) )
         // window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
-        window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
         // window.addEventListener( "wheel", ev => this.onWheel( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
@@ -68,22 +66,9 @@ export default class Store {
     // playerUnits() { return this.world.units.filter( unit => unit.teamNumber == 0 ) }
     reset() {
         this.stock = new Deck(5)
-        this.image = Backgrounds[Math.floor(Math.random()*4)]
     }
 
     //---------------------------User Input---------------------------
-    onClick( ev: MouseEvent ) {
-        //switch that shuts off player input during enemy turn
-        let cursor = this.input.cursor
-        let { node, point } = Scene.pick( this.scene, cursor )
-            if ( node && !this.input.keys.get( "shift" ) ) {
-            if ( node.onClick )
-                node.onClick( node, point )
-        }
-    }
-    onMouseup( ev: MouseEvent ) {
-        this.camera.stopDragging()
-    }
     onKeyup( ev: KeyboardEvent ) {
         this.camera.onKeyup( ev )
         if ( ev.key == "`" )

@@ -17,10 +17,7 @@ export class Chrome extends Unit {
         this.draw.cards = []
         
         //custom stats
-        this.maxHealth = 12
-        this.health = this.maxHealth
         this.drawSpeed = 4
-        this.maxEnergy = 3
         //custom cards
         this.draw.add( CardTypes.repair, 1 )
         this.draw.add( CardTypes.shieldCharge, 2 )
@@ -54,14 +51,11 @@ export class Treant extends Unit {
         this.sprite = treant
         
         //Treant Stats
-        this.maxHealth = 11
-        this.health = this.maxHealth
+        this.maxEnergy += 1;
+        this.energy = this.maxEnergy
         this.maxSpeed = 4
         this.speed = this.maxSpeed
         this.drawSpeed = 4
-
-        this.maxEnergy += 1
-        this.energy = this.maxEnergy
 
         this.draw.cards = []
         this.draw.add( CardTypes.bouldertoss, 3 )
@@ -78,8 +72,6 @@ export class Earth extends Unit {
         this.sprite = earth
         
         //Earth Stats
-        this.maxHealth = 14
-        this.health = this.maxHealth
         this.maxSpeed = 5
         this.speed = this.maxSpeed
 
@@ -100,8 +92,6 @@ export class Flesh extends Unit {
         this.sprite = flesh
 
         // Flesh Stats
-        this.maxHealth = 9
-        this.health = this.maxHealth
         this.maxSpeed = 6
         this.speed = this.maxSpeed
 
@@ -119,8 +109,6 @@ export class Jelly extends Unit {
         this.sprite = jelly
         
         //Jelly Stats
-        this.maxHealth = 8
-        this.health = this.maxHealth
         this.maxSpeed = 7
         this.speed = this.maxSpeed
         

@@ -697,23 +697,12 @@ const names = `
     Leif
     Leif
     Leif
-    Leif
-    Leif
-    Leif
     Kaden
     Kaden
     Kaden
     Kaden
     Kaden
     Kaden
-    Kaden
-    Kaden
-    Kaden
-    Chase
-    Chase
-    Chase
-    Chase
-    Chase
     Chase
     Chase
     Chase

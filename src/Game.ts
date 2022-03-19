@@ -10,7 +10,6 @@ import Camera from "./gameobjects/Camera"
 import Clock from "./common/Clock"
 import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
-import AI from "./common/AI"
 import Team from "./gameobjects/mech/Team"
 import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
 import Store from "./stages/Store"
@@ -37,7 +36,7 @@ export default class Game {
     clock = new Clock()
 
     isPlayerDone = false
-    shopping = true
+    shopping = false
 
     constructor() {
         this.store = new Store()
@@ -73,6 +72,13 @@ export default class Game {
         this.clock.nextFrame()
 
         this.world.update()
+        //toggle to determine if AI should be feeding input
+        let AI = this.world.ai
+        AI.update()
+        if (AI.startTime == undefined) {
+            // AI.think()
+        }
+
         this.makeSceneNode()
         this.camera.update()
 

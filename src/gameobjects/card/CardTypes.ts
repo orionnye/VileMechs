@@ -295,14 +295,14 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             user?.addHealth( -card.type.damage )
-            user.energy -= card.type.cost
+            // user.energy -= card.type.cost
             if ( target ) {
-                target.speed += target.maxSpeed
+                target.energy += 1
             }
             user.discard.cards.pop()
         },
 
-        cost: 1,
+        cost: 0,
         damage: 2,
         range: 0,
         minDist: 0,

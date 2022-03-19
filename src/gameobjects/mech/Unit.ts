@@ -58,11 +58,11 @@ export default class Unit {
         this.maxSpeed = 5
         this.speed = this.maxSpeed
 
-        this.energy = 3
         this.maxEnergy = 3
+        this.energy = this.maxEnergy
 
-        this.health = 10
-        this.maxHealth = 10
+        this.maxHealth = 8
+        this.health = this.maxHealth
         
         this.drawSpeed = 4
         this.hand.max = 8

@@ -1,17 +1,20 @@
 //import path from "path/posix"
-import { targetsWithinRange } from "../gameobjects/card/CardTypes"
-import Game from "../Game"
+import { targetsWithinRange } from "../card/CardTypes"
+import Game from "../../Game"
 // import Card from "./gameobjects/Card"
-import Unit from "../gameobjects/mech/Unit"
-import World from "../map/World"
-import { randomFloor } from "../math/math"
-import { Vector } from "../math/Vector"
-import { findPath } from "../map/pathfinding"
-import Card from "../gameobjects/card/Card"
+import Unit from "./Unit"
+import World from "../../map/World"
+import { randomFloor } from "../../math/math"
+import { Vector } from "../../math/Vector"
+import { findPath } from "../../map/pathfinding"
+import Card from "../card/Card"
 
 export default class AI {
-    //stats
+    //call timing
     startTime: number | undefined
+    delay: number = 1000
+    
+    //stats
     depth: number
     maxDepth: number
 
@@ -19,54 +22,25 @@ export default class AI {
         this.depth = 0
         this.maxDepth = maxDepth
     }
-    isDone(unit: Unit) {
-        if (unit.hand.length == 0 || unit.energy <= 0) {
-            return true
-        } else {
-            return false
-        }
-    }
-    
     think( unit: Unit ) {
+        this.startTime = Date.now()
 
         let game = Game.instance
         let world = game.world
-        let card = world.selectedCard()
-        let energyconsumed = 0
-        
+
+        console.log("Thinking!!!!")
+
         //Step ONE, select a card if available
-        if ( card == undefined ) {
-
-        }
-
         // if ( card == undefined ) {
-        //     energyconsumed = 1
         //     this.selectBestCard(unit)
-        // } else if (card !== undefined) {
-            
-        //     let enemies = this.getEnemiesOf(unit)
-        //     let target = this.bestTargetOf(unit, card!)
-        //     let idealSpot = this.idealSpot(unit, card)
-        //     let friendly = this.friendlySpace(unit)
-
-        //     if (card?.type.cost <= unit.energy && target !== undefined) {
-        //         //Step TWO, if an enemy is within range, use Card
-        //         game.world.applyCardAt(target.pos)
-        //         energyconsumed += card.type.cost
-        //     }
-        //     else if (enemies.length > 0) {
-        //         // Step THREE, if no enemies in range, move into range
-        //         if (!unit.isWalking() && idealSpot !== undefined) {
-        //             this.moveTowards(unit, idealSpot)
-        //             energyconsumed += 1
-        //         }
-        //     } else if (friendly !== undefined){
-        //         this.moveTowards(unit, friendly)
-        //         energyconsumed += 1
-        //     }
         // }
+
         //resetting the timer
-        this.startTime = Date.now()
+    }
+    update() {
+        if (this.startTime && Date.now() - this.startTime >= this.delay) {
+            this.startTime = undefined
+        }
     }
     //---------------------UTILITY FUNCTIONS------------------------------
     getEnemiesOf(unit: Unit) {
