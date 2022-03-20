@@ -5,6 +5,7 @@ import { clamp, lerp } from "../math/math"
 import Matrix from "../math/Matrix"
 import { Vector } from "../math/Vector"
 import Scene, { SceneNode } from "../Scene"
+import Match from "./Match"
 
 export default class CardTray {
     static selectionTimeout = 500
@@ -19,7 +20,7 @@ export default class CardTray {
     hasCardSelected() { return this.index > -1 }
 
     selectedCard() {
-        let unit = Game.instance.selectedUnit()
+        let unit = Match.instance.selectedUnit()
         return unit?.hand.cards[ this.index ]
     }
 
@@ -37,7 +38,7 @@ export default class CardTray {
         this.deselect()
         this.lerpCards( 1 )
 
-        let unit = Game.instance.selectedUnit()
+        let unit = Match.instance.selectedUnit()
         if ( unit ) {
             let { hand, draw, discard } = unit
             let decks = [ hand, draw, discard ]
@@ -56,14 +57,14 @@ export default class CardTray {
             let now = Date.now()
             let dt = now - lastSelectTime
             //another player switch
-            if ( dt > CardTray.selectionTimeout && !Game.instance.isAITurn())
+            if ( dt > CardTray.selectionTimeout && !Match.instance.isAITurn() )
                 this.selectIndex( -1 )
         }
     }
 
     lerpCards( alpha ) {
         let flipRate = 0.5
-        let unit = Game.instance.selectedUnit()
+        let unit = Match.instance.selectedUnit()
         if ( unit ) {
             let { hand, draw, discard } = unit
             hand.cards.forEach( ( card, i ) => {
@@ -113,9 +114,9 @@ export default class CardTray {
 
     makeSceneNode() {
         let g = Graphics.instance
-        let hand = Game.instance.selectedUnit()?.hand
-        let draw = Game.instance.selectedUnit()?.draw
-        let discard = Game.instance.selectedUnit()?.discard
+        let hand = Match.instance.selectedUnit()?.hand
+        let draw = Match.instance.selectedUnit()?.draw
+        let discard = Match.instance.selectedUnit()?.discard
         if ( !hand || !draw || !discard ) return
 
         const marigin = CardTray.handMargin
@@ -132,8 +133,8 @@ export default class CardTray {
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
-            onHover: () => { 
-                if ( !this.isPickingTarget && !Game.instance.isAITurn()) {
+            onHover: () => {
+                if ( !this.isPickingTarget && !Match.instance.isAITurn() ) {
                     this.selectIndex( i )
                 }
             },

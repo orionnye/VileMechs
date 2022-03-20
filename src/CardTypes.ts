@@ -6,6 +6,7 @@ import World from "./gameobjects/World"
 import { Vector } from "./math/Vector"
 import { findPath } from "./pathfinding"
 import * as Tiles from "./map/Tiles"
+import Match from "./gameobjects/Match"
 
 //I have no idea why this requires one period but it does
 //Ores
@@ -99,7 +100,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.gainCard(CardTypes.energyArmor, 2)
+            user.gainCard( CardTypes.energyArmor, 2 )
             user.energy -= card.type.cost
         },
 
@@ -118,14 +119,14 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             //count energy Armor in Hand, remove it
-            let armorCount = user.hand.typeCount(CardTypes.energyArmor)
-            console.log("ARMOR COUNT:", armorCount)
-            for (let i = armorCount; i > 0; i--) {
-                user.hand.cards.forEach( (card, index) => {
+            let armorCount = user.hand.typeCount( CardTypes.energyArmor )
+            console.log( "ARMOR COUNT:", armorCount )
+            for ( let i = armorCount; i > 0; i-- ) {
+                user.hand.cards.forEach( ( card, index ) => {
                     if ( card.type == CardTypes.energyArmor ) {
-                        user.hand.cards.splice(index, 1)
+                        user.hand.cards.splice( index, 1 )
                     }
-                })
+                } )
             }
             target?.addHealth( -card.type.damage * armorCount )
             //stack damage and apply to enemy
@@ -172,11 +173,11 @@ const CardTypes: { [ name: string ]: CardType } = {
             if ( target ) {
                 //Chaining Ternary functions are weird man
                 let xShift = ( user.pos.x < target.pos.x ) ?
-                user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
-                user.pos.x : user.pos.x - 1
+                    user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
+                        user.pos.x : user.pos.x - 1
                 let yShift = ( user.pos.y < target.pos.y ) ?
-                user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
-                user.pos.y : user.pos.y - 1
+                    user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
+                        user.pos.y : user.pos.y - 1
                 let newPos = new Vector( xShift, yShift )
                 let path = [ target.pos, newPos ]
                 target.move( path )
@@ -191,14 +192,14 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     bubbletoss: {
         name: "Bubble Toss",
-        getDescription: card => `Create shallow water, Deal ${card.type.damage} damage`,
+        getDescription: card => `Create shallow water, Deal ${ card.type.damage } damage`,
         color: "#990099",
         sprite: jelly,
         backing: purple,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            let world = Game.instance.world
+            let world = Match.instance.world
             world.map.set( pos, Tiles.WaterShallow )
             target?.addHealth( -card.type.damage )
             user.energy -= card.type.cost
@@ -212,7 +213,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- EARTH -----------------------------
     bouldertoss: {
         name: "Boulder Toss",
-        getDescription: card => `Place a Mountain Deal ${card.type.damage} damage`,
+        getDescription: card => `Place a Mountain Deal ${ card.type.damage } damage`,
         color: "#361000",
         sprite: boulder,
         backing: brown,
@@ -220,7 +221,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
-            let world = Game.instance.world
+            let world = Match.instance.world
             world.map.set( pos, Tiles.GrassHill )
             target?.addHealth( -card.type.damage )
             user.energy -= card.type.cost
@@ -234,7 +235,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     mine: {
         name: "Mine",
-        getDescription: card => `Destroy Mountain Deal ${card.type.damage} damage`,
+        getDescription: card => `Destroy Mountain Deal ${ card.type.damage } damage`,
         color: "black",
         sprite: mine,
         backing: brown,
@@ -242,7 +243,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
-            let world = Game.instance.world
+            let world = Match.instance.world
             // console.log(world.map.get(pos))
             if ( world.map.get( pos ) == Tiles.GrassHill ) {
                 world.map.set( pos, Tiles.Grass )
@@ -264,7 +265,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- UNIVERSAL -----------------------------
     repair: {
         name: "Repair-Kit",
-        getDescription: card => `Heal unit for ${card.type.damage} health, -Exhaustive`,
+        getDescription: card => `Heal unit for ${ card.type.damage } health, -Exhaustive`,
         color: "#32a852",
         sprite: repair,
         backing: metal,
@@ -286,7 +287,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     sprint: {
         name: "Sprint",
-        getDescription: card => `Take ${card.type.damage} damage, Double speed, -Exhaustive`,
+        getDescription: card => `Take ${ card.type.damage } damage, Double speed, -Exhaustive`,
         color: "#667799",
         sprite: sprint,
         backing: metal,
@@ -309,7 +310,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- FLESH -----------------------------
     claw: {
         name: "Claw",
-        getDescription: card => `Deal ${card.type.damage} damage`,
+        getDescription: card => `Deal ${ card.type.damage } damage`,
         color: "#af0000",
         sprite: claw,
         backing: flesh,
@@ -320,7 +321,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             if ( target ) {
                 // let bonusDMG = user.maxHealth - user.health
                 // card.type.damage = bonusDMG + 1
-                target.addHealth(-card.type.damage)
+                target.addHealth( -card.type.damage )
             }
         },
 
@@ -331,7 +332,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     acid: {
         name: "Acid",
-        getDescription: card => `Melts Armor, target maxHealth -= ${card.type.damage} target speed += 1`,
+        getDescription: card => `Melts Armor, target maxHealth -= ${ card.type.damage } target speed += 1`,
         color: "#32a852",
         sprite: acid,
         backing: purple,
@@ -341,9 +342,9 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.energy -= card.type.cost
 
             if ( target ) {
-                target.addMaxHealth(-card.type.damage)
+                target.addMaxHealth( -card.type.damage )
                 target.maxSpeed += 2
-                target.addHealth(-2)
+                target.addHealth( -2 )
             }
         },
 
@@ -355,7 +356,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- THERMAL -----------------------------
     frost: {
         name: "Frost",
-        getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
+        getDescription: card => `Deals ${ card.type.damage } damage (unit's missing health)`,
         color: "#0000aa",
         sprite: frost,
         backing: metal,
@@ -368,7 +369,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             if ( target ) {
                 let damage = target.maxHealth - target.health
                 card.type.damage = damage
-                target.addHealth(-card.type.damage)
+                target.addHealth( -card.type.damage )
             }
         },
 
@@ -393,7 +394,7 @@ function targetsAlongLine(
     { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
         { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {
-    let world = Game.instance.world
+    let world = Match.instance.world
     let elevation0 = world.map.getElevation( pos )
     for ( let i = 1; i <= range; i++ ) {
         let p2 = pos.add( delta.scale( i ) )

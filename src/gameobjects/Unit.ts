@@ -11,6 +11,7 @@ import Scene, { SceneNode } from "../Scene"
 import World from "./World"
 import { Deck } from "./Deck"
 import CardTypes, { CardType } from "../CardTypes"
+import Match from "./Match"
 
 const mechSheet = getImg( require( "../www/images/units/MinigunMech_sheet.png" ) )
 
@@ -26,17 +27,17 @@ export default class Unit {
     health: number
     maxHealth: number
     pos: Vector
-    
+
     //team
     teamNumber: number
     done: boolean
-    
+
     //Cards
     draw: Deck = new Deck()
     hand: Deck = new Deck()
     discard: Deck = new Deck()
     drawSpeed: number
-    
+
     //visualStats
     color: string
     name: string
@@ -61,7 +62,7 @@ export default class Unit {
 
         this.health = 10
         this.maxHealth = 10
-        
+
         this.drawSpeed = 4
         this.hand.max = 8
 
@@ -95,8 +96,8 @@ export default class Unit {
     }
     //Card management
     gainCard( cardType: CardType, count: number = 1 ) {
-        for (let i = count; i > 0; i--) {
-            if (this.hand.length < this.hand.max) {
+        for ( let i = count; i > 0; i-- ) {
+            if ( this.hand.length < this.hand.max ) {
                 this.hand.add( cardType )
             } else {
                 this.discard.add( cardType )
@@ -104,29 +105,29 @@ export default class Unit {
         }
     }
     drawCard( amount: number ) {
-        for (let i = amount; i > 0; i--) {
+        for ( let i = amount; i > 0; i-- ) {
             // console.log("being Called")
-            if (this.draw.length > 0) {
-                let card = <Card> this.draw.cards.pop()
+            if ( this.draw.length > 0 ) {
+                let card = <Card>this.draw.cards.pop()
                 // console.log("DrawPile Exists:", card.type.name)
-                this.hand.cards.push(card)
+                this.hand.cards.push( card )
             } else {
-                this.discard.emptyInto(this.draw)
-                if (this.draw.length > 0 ) {
-                    let card = <Card> this.draw.cards.pop()
+                this.discard.emptyInto( this.draw )
+                if ( this.draw.length > 0 ) {
+                    let card = <Card>this.draw.cards.pop()
                     // console.log("DrawPile Doesnt Exists:", card.type.name)
-                    this.hand.cards.push(card)
+                    this.hand.cards.push( card )
                 }
             }
         }
     }
     discardCard( amount: number = 1 ) {
-        for (let i = amount; i > 0; i--) {
+        for ( let i = amount; i > 0; i-- ) {
             // console.log("being Called")
-            if (this.hand.length > 0) {
-                let card = <Card> this.hand.cards.pop()
+            if ( this.hand.length > 0 ) {
+                let card = <Card>this.hand.cards.pop()
                 // console.log("DrawPile Exists:", card.type.name)
-                this.discard.cards.push(card)
+                this.discard.cards.push( card )
             }
         }
     }
@@ -136,7 +137,7 @@ export default class Unit {
         this.walkAnimPath = path
     }
     walkPath( path: Vector[] ) {
-        if (this.energy > 0) {
+        if ( this.energy > 0 ) {
             this.move( path )
             this.energy -= 1
         }
@@ -147,16 +148,16 @@ export default class Unit {
         let totalCards = hand.length + draw.length + discard.length
 
         //empty hand into discard
-        discard.fillFrom(hand)
+        discard.fillFrom( hand )
         //fill hand from draw pile
-        hand.fillTill(draw, drawSpeed)
+        hand.fillTill( draw, drawSpeed )
 
         //empty remaining cards from hand into discardPile
-        if (hand.length < drawSpeed) {
+        if ( hand.length < drawSpeed ) {
             //fill draw pile from discard
-            draw.fillFrom(discard)
+            draw.fillFrom( discard )
             //fill hand from draw pile
-            hand.fillTill(draw, drawSpeed)
+            hand.fillTill( draw, drawSpeed )
         }
     }
 
@@ -168,8 +169,8 @@ export default class Unit {
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
         this.health = this.maxHealth
-        this.draw.fillFrom(this.hand)
-        this.draw.fillFrom(this.discard)
+        this.draw.fillFrom( this.hand )
+        this.draw.fillFrom( this.discard )
         this.cardCycle()
         this.done = false
     }
@@ -213,7 +214,7 @@ export default class Unit {
         }
 
         let doShake = animate && this.hurtTime > 0
-        let flip = Game.instance.teams[ this.teamNumber ].flipUnits
+        let flip = Match.instance.teams[ this.teamNumber ].flipUnits
         g.c.save()
         if ( doShake )
             g.vTranslate( Vector.lissajous( this.hurtTime, 13, 10, 2, 1, 0, 0 ) )
@@ -242,7 +243,7 @@ export default class Unit {
             let speedText = this.speed.toString().padStart( 2, "0" )
             let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
             let nextBoxDims = g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
-            g.drawTextBox( new Vector( 0, nextBoxDims.y+boxDims.y ), speedText, { textColor: "#999999", boxColor: "#2525ff" } )
+            g.drawTextBox( new Vector( 0, nextBoxDims.y + boxDims.y ), speedText, { textColor: "#999999", boxColor: "#2525ff" } )
         }
     }
 

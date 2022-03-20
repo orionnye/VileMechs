@@ -1,11 +1,14 @@
 import { Vector } from "../math/Vector"
 
 export default class Input {
+    static instance: Input
     keys: Map<string, boolean>
     codes: Map<string, boolean>
     mouse: Map<number, boolean>
     cursor: Vector
     constructor() {
+        Input.instance = this
+
         this.keys = new Map()
         this.codes = new Map()
         this.mouse = new Map()

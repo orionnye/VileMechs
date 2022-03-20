@@ -9,6 +9,7 @@ import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../Scene"
 import { Treant, Chrome, Flesh, Jelly, FleshBot, JellyBot, Dummy } from "./RigTypes"
 import * as Tiles from "../map/Tiles"
+import Match from "./Match"
 
 export default class World {
     static tileSize = 32
@@ -78,21 +79,22 @@ export default class World {
     render() {
         let g = Graphics.instance
         let game = Game.instance
+        let match = Match.instance
         let tileSize = World.tileSize
 
-        if ( game.camera.zoom * Game.uiScale <= 1.5 ) {
+        if ( match.camera.zoom * Game.uiScale <= 1.5 ) {
             g.c.imageSmoothingEnabled = true
             g.c.imageSmoothingQuality = "low"
         }
 
         let cursor = this.tileSpaceCursor()
-        let selectedUnit = Game.instance.unitTray.selectedUnit()
+        let selectedUnit = match.unitTray.selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-        let AITurn = Game.instance.isAITurn()
+        let AITurn = match.isAITurn()
         this.drawMap()
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !game.isPickingTarget() && !AITurn) {
+        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && !match.isPickingTarget() && !AITurn ) {
             let path = findPath( this, selectedUnit.pos, cursor, 100 )
             if ( path && selectedUnit.canMove() ) {
                 let pathLength = path.length
@@ -154,16 +156,17 @@ export default class World {
 
     makeSceneNode() {
         let game = Game.instance
+        let match = Match.instance
         let g = Graphics.instance
         let { units } = this
         let { width, height } = this.map
-        let selectedUnit = game.selectedUnit()
-        let pickingTarget = game.isPickingTarget()
+        let selectedUnit = match.selectedUnit()
+        let pickingTarget = match.isPickingTarget()
         let tileSize = World.tileSize
 
         this.scene = Scene.node( {
             description: "world",
-            localMatrix: game.cameraTransform(),
+            localMatrix: match.cameraTransform(),
             rect: { width: width * tileSize, height: height * tileSize, },
             onClick: ( node, pos: Vector ) => {
                 if ( selectedUnit && selectedUnit.canMove() && !pickingTarget ) {
@@ -182,7 +185,7 @@ export default class World {
                         description: "unit",
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
-                        onClick: () => game.unitTray.toggleSelectUnit( unit ),
+                        onClick: () => match.unitTray.toggleSelectUnit( unit ),
                         onRender: ( node ) => {
                             let hover = node == game.mouseOverData.node
                             let isSelected = unit == selectedUnit
@@ -195,7 +198,7 @@ export default class World {
                     } )
                 } )
                 if ( pickingTarget ) {
-                    let card = game.selectedCard()
+                    let card = match.selectedCard()
                     if ( selectedUnit && card ) {
                         for ( let pos of card?.getTilesInRange( selectedUnit ) ) {
                             let unit = this.getUnit( pos )
@@ -206,7 +209,7 @@ export default class World {
                                 rect: { width: tileSize, height: tileSize },
                                 onClick: () => {
                                     if ( isValidTarget )
-                                        game.applyCardAt( pos )
+                                        match.applyCardAt( pos )
                                 },
                                 onRender: ( node ) => {
                                     let hover = node == game.mouseOverData.node

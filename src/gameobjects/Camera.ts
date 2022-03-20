@@ -3,6 +3,7 @@ import { clamp } from "../math/math"
 import Matrix from "../math/Matrix"
 import { Vector } from "../math/Vector"
 import Scene from "../Scene"
+import Match from "./Match"
 import World from "./World"
 
 export default class Camera {
@@ -101,7 +102,7 @@ export default class Camera {
             this.targetPosition = undefined
             let cursor = input.cursor
             let diff = this.lastDragPosition.subtract( cursor )
-            let mat = Scene.relativeMatrix( game.world.scene )
+            let mat = Scene.relativeMatrix( Match.instance.world.scene )
             let diffPrime = mat.inverse().multiplyVec( diff, 0 )
             this.velocity = diffPrime
             this.lastDragPosition = cursor
