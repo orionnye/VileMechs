@@ -43,9 +43,15 @@ export default class Unit {
     color: string
     name: string
     hurtTime: number = 0
+    //walking animation
     walkAnimStep: number = 0
     walkAnimRate: number = 10 // Tiles per second
     walkAnimPath?: Vector[]
+    //card animation
+    private cardAnimCap: number = 10
+    cardAnimStep: number = this.cardAnimCap
+    cardAnimRate: number = 1
+    cardAnimType: CardType | null = null
 
     constructor( pos, teamNumber = 0, sprite: HTMLImageElement = mechSheet ) {
         this.sprite = sprite
@@ -169,9 +175,11 @@ export default class Unit {
         //Stat Reset
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
-        this.health = this.maxHealth
         this.draw.fillFrom(this.hand)
         this.draw.fillFrom(this.discard)
+        //This assigns a units MAXhealth to their card total
+        // this.maxHealth = this.draw.length
+        this.health = this.maxHealth
         this.cardCycle()
         this.done = false
     }
@@ -193,6 +201,9 @@ export default class Unit {
             if ( this.walkAnimStep + 1 >= path.length )
                 this.walkAnimPath = undefined
         }
+        if (this.cardAnimStep < this.cardAnimCap) {
+            this.cardAnimStep += this.cardAnimRate
+        }
     }
 
     // View
@@ -202,6 +213,7 @@ export default class Unit {
         let frame = animate ? getFrameNumber( 2 * nFrames / 2, nFrames ) : 0
         // let frame = animate ? getFrameNumber( 2, 2 ) : 0
 
+        //walking animation
         let isWalking = animate && this.isWalking()
         if ( isWalking ) {
             let path = this.walkAnimPath as Vector[]
@@ -213,7 +225,10 @@ export default class Unit {
             let diff = animPos.subtract( this.pos )
             g.vTranslate( diff.scale( World.tileSize ) )
         }
+        //card animation
+        if (this.cardAnimStep < this.cardAnimCap) {
 
+        }
         let doShake = animate && this.hurtTime > 0
         g.c.save()
         if ( doShake )

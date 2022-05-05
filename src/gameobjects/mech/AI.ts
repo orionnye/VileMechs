@@ -8,39 +8,69 @@ import { randomFloor } from "../../math/math"
 import { Vector } from "../../math/Vector"
 import { findPath } from "../../map/pathfinding"
 import Card from "../card/Card"
+import Team from "./Team"
+import Tile from "../../map/Tile"
 
 export default class AI {
     //call timing
     startTime: number | undefined
-    delay: number = 1000
+    delay: number = 500
     
     //stats
-    depth: number
-    maxDepth: number
+    //Depth of thought, a thought counter but Kody didnt want me calling it depth...so Chodiness
+    chodiness: number
+    maxChodiness: number
 
-    constructor( maxDepth = 10) {
-        this.depth = 0
-        this.maxDepth = maxDepth
+    constructor( maxChodiness = 8) {
+        this.chodiness = 0
+        this.maxChodiness = maxChodiness
     }
-    think( unit: Unit ) {
+    
+    think( team: Team ) {
         this.startTime = Date.now()
-
+        
         let game = Game.instance
-        let world = game.world
+        let { world } = game
+        let { cardTray } = world
+        
+        this.chodiness += 1
+        // console.log("Thinking!!!!:", this.chodiness)
 
-        console.log("Thinking!!!!")
-
-        //Step ONE, select a card if available
-        // if ( card == undefined ) {
-        //     this.selectBestCard(unit)
-        // }
-
+        if ( team.index >= 0 ) {
+            let unit = team.selectedUnit()!
+            let card = cardTray.selectedCard(unit)
+            if (card && card.type.playable) {
+                let idealSpot : Vector | null = this.idealSpot(unit, card)
+                let enemies = this.getEnemiesOf(unit)
+                //step two: move within range
+                if (idealSpot && !unit.pos.equals(idealSpot) ) {
+                    this.moveTowards(unit, idealSpot)
+                } else if (enemies.length > 0) {
+                    let bestTarget = this.bestTargetOf(unit, card)
+                    if (bestTarget) {
+                        this.useCard(bestTarget.pos)
+                    }
+                }
+            } else {
+                //Step ONE, select a card if available
+                console.log("Selecting Card")
+                this.selectBestCard(unit)
+            }
+        }
         //resetting the timer
     }
     update() {
         if (this.startTime && Date.now() - this.startTime >= this.delay) {
             this.startTime = undefined
+            console.log("Timing Out")
         }
+    }
+    active() {
+        return this.startTime == undefined
+    }
+    reset() {
+        this.chodiness = 0;
+        this.startTime = undefined;
     }
     //---------------------UTILITY FUNCTIONS------------------------------
     getEnemiesOf(unit: Unit) {
@@ -53,6 +83,17 @@ export default class AI {
             }
         })
         return enemies
+    }
+    getFriendsOf(unit: Unit) {
+        let friends: Unit[] = []
+        Game.instance.world.teams.forEach((team, index) => {
+            if (index == unit.teamNumber) {
+                team.units.forEach(unit => {
+                    friends.push(unit)
+                })
+            }
+        })
+        return friends
     }
     bestTargetOf(unit: Unit, card: Card) {
         let enemies = this.possibleTargets(unit, card)
@@ -70,15 +111,29 @@ export default class AI {
         return best
     }
     possibleTargets(unit: Unit, card: Card) {
+        let game = Game.instance
+
         let tiles = card.type.getTilesInRange(card, unit)
+        // console.log("tiles In Range: ", tiles)
         let targets: Unit[] = []
         let enemies = this.getEnemiesOf(unit)
-        enemies.forEach( enemy => {
-            tiles.forEach(tile => {
-                if (tile.x == enemy.pos.x && tile.y == enemy.pos.y) {
-                    targets.push(enemy)
-                }
-            })
+        let friends = this.getFriendsOf(unit)
+        tiles.forEach(tile => {
+            if (card.type.friendly) {
+                friends.forEach( friend => {
+                    if (tile.x == friend.pos.x && tile.y == friend.pos.y) {
+                        targets.push(friend)
+                    }
+                })
+            } else {
+                enemies.forEach( enemy => {
+                    if (tile.x == enemy.pos.x && tile.y == enemy.pos.y) {
+                        targets.push(enemy)
+                    }
+                })
+            }
+            // game.world
+            //return friendlies in list if card is helpful
         })
         return targets
     }
@@ -87,15 +142,59 @@ export default class AI {
         let game = Game.instance
         //using data from card currently selected, Unit will act
         //random Choice will work for now though
-        let choice = randomFloor(unit.hand.length)
-        game.world.cardTray.selectIndex(choice)
+        //----------------AVOID CARDS THAT ARE UNPLAYABLE OR COST ABOVE YOUR ENERGY AVAILABLE
+        let playableCards: Card[] = []
+        unit.hand.cards.forEach((card: Card) => {
+            if (card.type.playable && card.type.cost <= unit.energy) {
+                playableCards.push(card)
+            }
+        })
+        // console.log(playableCards)
+
+        if (playableCards.length > 0) {
+            let choice = randomFloor(playableCards.length)
+            game.world.cardTray.selectIndex(choice)
+        }
     }
-    useCard(unit: Unit) {
-        
+    useCard(target: Vector) {
+        let game = Game.instance
+        // console.log("target:", target)
+        game.world.applyCardAt(target)
     }
     //---------------------MOBILITY FUNCTIONS------------------------------
+    findCloseOrFarSpot(unit: Unit, target: Vector, close = true) {
+        let game = Game.instance
+        let world = game.world
+        let record = unit.pos
+        let bar = 0
+        for (let w = 0; w <= world.map.width; w++) {
+            for (let h = 0; h <= world.map.height; h++) {
+                let spot = new Vector(w, h)
+                if ( world.isWalkable(spot) ) {
+                    //How do?
+                    let path = findPath(world, target, spot)
+                    //if walkable, check to see if path is valid
+                    //either finds closest or farthest space
+                    if (close) {
+                        if (path && path.length < bar) {
+                            //make path from unit to target and if valid, save the tile and bar
+                            bar = path.length
+                            record = spot
+                        }
+                    } else {
+                        if (path && path.length > bar) {
+                            //make path from unit to target and if valid, save the tile and bar
+                            bar = path.length
+                            record = spot
+                        }
+                    }
+                }
 
-    idealSpot(unit, card) {
+            }
+        }
+        return record
+    }
+    idealSpot(unit, card: Card) {
         let game = Game.instance
         let world = game.world
         
@@ -103,9 +202,13 @@ export default class AI {
         let idealDist = card.type.range
         //store closestTile
         let enemies = this.getEnemiesOf(unit)
-        let closest
-        enemies.forEach( enemy => {
-            let tiles = targetsWithinRange(enemy.pos, 0, idealDist)
+        let targets = enemies
+        if (card.type.friendly) {
+            targets = this.getFriendsOf(unit)
+        }
+        let closest : Vector | null = null
+        targets.forEach( target => {
+            let tiles = card.getTilesInRange(target)
             tiles.forEach(tile => {
                 let tilePath = findPath(world, unit.pos, tile)
                 if (tilePath) {
@@ -114,6 +217,7 @@ export default class AI {
                         closest = tile
                     } else {
                         let closestPath = findPath(world, unit.pos, closest)
+                        // console.log(closest)
                         if (tilePath.length < closestPath!.length) {
                             closest = tile
                         }
@@ -150,9 +254,18 @@ export default class AI {
         })
         return closest
     }
+    getPath( unit: Unit, location: Vector ) {
+        // console.log("UnitPOS:", unit.pos, "location:", location)
+        let game = Game.instance
+        let world = game.world
+        let path = findPath(world, unit.pos, location, 100)
+        // console.log("path:", path)
+        return path
+    }
     moveTowards( unit: Unit, location: Vector ) {
         let game = Game.instance
         let world = game.world
+        let closestSpace = this.findCloseOrFarSpot(unit, location)
         let path = findPath(world, unit.pos, location)
         // console.log("path:", path)
         // Unit should be either moving or using cards

@@ -11,7 +11,7 @@ import Team from "../gameobjects/mech/Team"
 import CardTray from "../gameobjects/ui/CardTray"
 import Unit from "../gameobjects/mech/Unit"
 import Camera from "../gameobjects/Camera"
-import UnitTray from "../gameobjects/ui/UnitTray"
+import UnitTray, { drawStats } from "../gameobjects/ui/UnitTray"
 import { targetsWithinRange } from "../gameobjects/card/CardTypes"
 import AI from "../gameobjects/mech/AI"
 
@@ -23,6 +23,7 @@ export default class World {
 
     //Units
     teams: Team[]
+    units: Unit[]
     turn = 0
 
     //UI
@@ -39,13 +40,17 @@ export default class World {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor( playerTeam: Team = new Team( "Drunken Scholars", false , 0) ) {
-        this.map = new Grid( 20, 20 )
+        this.map = new Grid( 15, 15 )
 
         this.teams = [
             playerTeam,
             new Team( "Choden Warriors", true , 1),
             // new Team( "Thermate Embalmers", true, 2 )
         ]
+        this.units = []
+        playerTeam.units.forEach( unit => {
+            this.units.push(unit)
+        })
 
         // let randomTerrain = false
         let randomTerrain = true
@@ -63,13 +68,16 @@ export default class World {
         //Move camera to first Unit
         // this.moveCamToFirstUnit()
     }
+    playerTurn() {
+        return this.turn == 0 
+    }
     placeUnits() {
         this.teams.forEach(team => {
             this.map.placeUnits( team.units )
         })
     }
     activeTeam() { return this.teams[this.turn] }
-    // playerUnits() { return this.teams[0].units }
+    playerUnits() { return this.teams[0].units }
     // enemyUnits() { return this.teams[1].units }
     selectedUnit() { return this.activeTeam().selectedUnit() }
     selectedCard() { return this.selectedUnit()?.hand.cards[this.cardTray.index] }
@@ -156,51 +164,53 @@ export default class World {
         let cursorWalkable = this.isWalkable( cursor )
 
         //  Draw unit path
-        if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
-            let walkableTiles = targetsWithinRange(selectedUnit.pos, 0, selectedUnit.speed)
-            walkableTiles.forEach(tile => {
-                let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed)
-                if (path && path.length <= selectedUnit!.speed) {
-                    g.drawRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
-                    g.strokeRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
-                }
-            })
-            let path = findPath( this, selectedUnit.pos, cursor, 100 )
-            if ( path && selectedUnit.canMove() ) {
-                let pathLength = path.length
-                let walkableLength = Math.min( path.length, selectedUnit.speed )
-                let trimmedSteps = path.slice( walkableLength - 1 )
-                let walkablePath = path.slice( 0, walkableLength )
-                path.length = walkableLength
-                let radius = 3
-                g.c.save()
-                {
-                    const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b9"
-                    g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                    g.c.strokeStyle = walkableColor
-                    g.c.lineWidth = radius
-                    g.c.stroke()
-
-                    let pathTooLong = walkableLength != pathLength
-                    if ( pathTooLong ) {
-                        g.makePath( trimmedSteps.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                        g.c.strokeStyle = unwalkableColor
+        if (this.playerTurn()) {
+            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
+                let walkableTiles = targetsWithinRange(selectedUnit.pos, 0, selectedUnit.speed)
+                walkableTiles.forEach(tile => {
+                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed)
+                    if (path && path.length <= selectedUnit!.speed) {
+                        g.drawRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
+                        g.strokeRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
+                    }
+                })
+                let path = findPath( this, selectedUnit.pos, cursor, 100 )
+                if ( path && selectedUnit.canMove() ) {
+                    let pathLength = path.length
+                    let walkableLength = Math.min( path.length, selectedUnit.speed )
+                    let trimmedSteps = path.slice( walkableLength - 1 )
+                    let walkablePath = path.slice( 0, walkableLength )
+                    path.length = walkableLength
+                    let radius = 3
+                    g.c.save()
+                    {
+                        const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b9"
+                        g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                        g.c.strokeStyle = walkableColor
                         g.c.lineWidth = radius
                         g.c.stroke()
-                        g.c.setLineDash( [] )
-
+    
+                        let pathTooLong = walkableLength != pathLength
+                        if ( pathTooLong ) {
+                            g.makePath( trimmedSteps.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                            g.c.strokeStyle = unwalkableColor
+                            g.c.lineWidth = radius
+                            g.c.stroke()
+                            g.c.setLineDash( [] )
+    
+                            g.c.beginPath()
+                            let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                            g.c.fillStyle = unwalkableColor
+                            g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                        }
+    
                         g.c.beginPath()
-                        let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                        g.c.fillStyle = unwalkableColor
+                        let endpoint = path[ path.length - 1 ].add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                        g.c.fillStyle = walkableColor
                         g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
                     }
-
-                    g.c.beginPath()
-                    let endpoint = path[ path.length - 1 ].add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                    g.c.fillStyle = walkableColor
-                    g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                    g.c.restore()
                 }
-                g.c.restore()
             }
         }
     }
@@ -240,12 +250,14 @@ export default class World {
             localMatrix: game.cameraTransform(),
             rect: { width: width * tileSize, height: height * tileSize, },
             onClick: ( node, pos: Vector ) => {
-                if ( selectedUnit && selectedUnit.canMove() && !pickingTarget ) {
-                    let cell = pos.scale( 1 / tileSize ).floor()
-                    let path = findPath( this, selectedUnit.pos, cell, 100 )
-                    if ( path ) {
-                        path.length = Math.min( path.length, selectedUnit.speed )
-                        selectedUnit.walkPath( path )
+                if (this.playerTurn()) {
+                    if ( selectedUnit && selectedUnit.canMove() && !pickingTarget ) {
+                        let cell = pos.scale( 1 / tileSize ).floor()
+                        let path = findPath( this, selectedUnit.pos, cell, 100 )
+                        if ( path ) {
+                            path.length = Math.min( path.length, selectedUnit.speed )
+                            selectedUnit.walkPath( path )
+                        }
                     }
                 }
             },
@@ -266,8 +278,11 @@ export default class World {
                                 localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
                                 rect: { width: tileSize, height: tileSize },
                                 onClick: () => {
-                                    if ( isValidTarget )
+                                    if ( this.playerTurn() && isValidTarget ) {
                                         this.applyCardAt( pos )
+                                        this.selectedUnit()!.cardAnimStep = 0
+                                        console.log(this.selectedUnit()!.cardAnimStep = 0)
+                                    }
                                 },
                                 onRender: ( node ) => {
                                     let hover = node == game.mouseOverData.node
@@ -279,6 +294,9 @@ export default class World {
                                     g.c.rect( 0, 0, tileSize, tileSize )
                                     g.c.fill()
                                     g.c.stroke()
+                                    if (unit) {
+                                        drawStats(unit)
+                                    }
                                 }
                             } )
                         }

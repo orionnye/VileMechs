@@ -4,7 +4,8 @@ import Game from "../../Game";
 import World from "../../map/World";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
-import { Chrome } from "./RigTypes";
+import UnitTray, { drawStats } from "../ui/UnitTray";
+import { Chrome, ChromeBot, FleshBot } from "./RigTypes";
 import Unit from "./Unit";
 
 export default class Team {
@@ -24,8 +25,10 @@ export default class Team {
         this.flipUnits = flip
 
         this.units = [
-            new Chrome( new Vector( 1, 0 ), teamNumber),
-            // new Chrome( new Vector( 2, 0 ), teamNumber),
+            new FleshBot( new Vector( 2, 0 ), teamNumber),
+            // new FleshBot( new Vector( 2, 0 ), teamNumber),
+            new ChromeBot( new Vector( 2, 0 ), teamNumber),
+            // new ChromeBot( new Vector( 2, 0 ), teamNumber),
             // new Chrome( new Vector( 3, 0 ), teamNumber),
             // new Flesh( new Vector( 0, 1 ), 0 ),
             // new Treant( new Vector( 0, 0 ), 0 ),
@@ -102,6 +105,7 @@ export default class Team {
 
     makeSceneNode(active = false) {
         let game = Game.instance
+        let world = game.world
         let g = Graphics.instance
         let { units, flipUnits } = this
         let selectedUnit = this.selectedUnit()
@@ -118,7 +122,9 @@ export default class Team {
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
                         onClick: () => {
-                            this.toggleSelectUnit( unit )
+                            if (game.world.playerTurn()) {
+                                this.toggleSelectUnit( unit )
+                            }
                         },
                         onRender: ( node ) => {
                             let hover = node == game.mouseOverData.node
@@ -138,9 +144,10 @@ export default class Team {
                             }
                             //Standard rendering
                             unit.render( true, flipUnits )
-                            // if (hover) {
-                            //     g.drawRect(Vector.zero, new Vector(100, 100), "red")
-                            // }
+                            if (hover) {
+                                // g.drawRect(Vector.zero, new Vector(100, 100), "red")
+                                drawStats(unit)
+                            }
                         }
                     } )
                 } )

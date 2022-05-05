@@ -6,6 +6,7 @@ import { Vector } from "../../math/Vector"
 import { findPath } from "../../map/pathfinding"
 import * as Tiles from "../../map/Tiles"
 import Card from "./Card"
+import Graphics from "../../common/Graphics"
 
 //I have no idea why this requires one period but it does
 //Ores
@@ -44,11 +45,14 @@ export type CardType = {
     canApplyToEmptyTiles: boolean
     getTilesInRange: ( card: Card, user: Unit ) => Vector[]
     onApplyToTile?: ( card: Card, user: Unit, pos: Vector, target?: Unit ) => void
+    render?: ( animationFrame: number, user: Unit, pos?: Vector, target?: Unit ) => void
 
     cost: number,
     damage: number,
     range: number,
     minDist: number,
+    friendly: boolean,
+    playable: boolean,
 
     [ index: string ]: any
 }
@@ -67,11 +71,24 @@ const CardTypes: { [ name: string ]: CardType } = {
             target?.addHealth( -card.type.damage )
             user.energy -= card.type.cost
         },
+        render: (animationFrame, user, pos, target) => {
+            let g = Graphics.instance
+            let game = Game.instance
+            // let world = game.world
+            // g.c.strokeStyle = "red"
+            // g.c.lineWidth = Math.sin(animationFrame)
+            // g.c.moveTo(user.pos.x, user.pos.y)
+            // g.c.lineTo(target!.pos.x, target!.pos.y)
+            // g.c.stroke()
+            g.drawRect(user.pos, target!.pos, "red")
+        },
 
         cost: 1,
-        damage: 8,
+        damage: 6,
         range: 8,
         minDist: 2,
+        friendly: false,
+        playable: true
     },
     energyArmor: {
         name: "Energy Armor",
@@ -89,6 +106,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 1,
         range: 0,
         minDist: 0,
+        friendly: true,
+        playable: false
     },
     shieldCharge: {
         name: "Shield Charge",
@@ -107,6 +126,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 0,
         minDist: 0,
+        friendly: true,
+        playable: true
     },
     chargeBeam: {
         name: "Charge Beam",
@@ -137,6 +158,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 6,
         range: 15,
         minDist: 0,
+        friendly: false,
+        playable: true,
+        
     },
     //------------------------------- CURRENCY -----------------------------
     ore: {
@@ -158,6 +182,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 0,
         minDist: 0,
+        friendly: true,
+        playable: true,
+        
     },
     //------------------------------- ELDRITCH -----------------------------
     tentacle: {
@@ -189,6 +216,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 5,
         minDist: 1,
+        friendly: false,
+        playable: true,
+        
     },
     bubbletoss: {
         name: "Bubble Toss",
@@ -208,7 +238,10 @@ const CardTypes: { [ name: string ]: CardType } = {
         cost: 1,
         damage: 2,
         range: 5,
-        minDist: 2
+        minDist: 2,
+        friendly: false,
+        playable: true,
+        
     },
     //------------------------------- EARTH -----------------------------
     bouldertoss: {
@@ -232,6 +265,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 3,
         range: 7,
         minDist: 2,
+        friendly: false,
+        playable: true,
+        
     },
     mine: {
         name: "Mine",
@@ -261,6 +297,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 10,
         range: 1,
         minDist: 1,
+        friendly: false,
+        playable: true,
+        
     },
     //------------------------------- UNIVERSAL -----------------------------
     repair: {
@@ -283,6 +322,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 7,
         range: 1,
         minDist: 0,
+        friendly: true,
+        playable: true,
+        
 
     },
     sprint: {
@@ -306,6 +348,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 0,
         minDist: 0,
+        friendly: true,
+        playable: true,
+        
     },
     //------------------------------- FLESH -----------------------------
     claw: {
@@ -327,8 +372,11 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 0,
         damage: 3,
-        range: 2,
-        minDist: 0,
+        range: 1,
+        minDist: 1,
+        friendly: false,
+        playable: true,
+        
     },
     acid: {
         name: "Acid",
@@ -352,6 +400,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 3,
         range: 5,
         minDist: 0,
+        friendly: false,
+        playable: true,
     },
     //------------------------------- THERMAL -----------------------------
     frost: {
@@ -377,6 +427,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 3,
         minDist: 0,
+        friendly: false,
+        playable: true,
     }
 }
 
