@@ -74,17 +74,24 @@ const CardTypes: { [ name: string ]: CardType } = {
         render: (animationFrame, user, pos, target) => {
             let g = Graphics.instance
             let game = Game.instance
-            // let world = game.world
-            // g.c.strokeStyle = "red"
-            // g.c.lineWidth = Math.sin(animationFrame)
-            // g.c.moveTo(user.pos.x, user.pos.y)
-            // g.c.lineTo(target!.pos.x, target!.pos.y)
-            // g.c.stroke()
-            g.drawRect(user.pos, target!.pos, "red")
+            let world = game.world
+            let tileSize = 32
+            if (target) {
+                let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+                let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+
+                g.c.strokeStyle = "rgba(255, 0, 0, 1)"
+                g.c.lineWidth = Math.cos(animationFrame) * 20
+                g.c.beginPath()
+                g.c.moveTo(userPos.x, userPos.y)
+                g.c.lineTo(targetPos?.x, targetPos?.y)
+                g.c.stroke()
+                console.log("using animation")
+            }
         },
 
         cost: 1,
-        damage: 6,
+        damage: 8,
         range: 8,
         minDist: 2,
         friendly: false,
@@ -210,6 +217,25 @@ const CardTypes: { [ name: string ]: CardType } = {
                 target.move( path )
             }
             user.energy -= card.type.cost
+        },
+        //-----------------------------------------------------Create Tentacle animation-------------------------------
+        render: (animationFrame, user, pos, target) => {
+            // let g = Graphics.instance
+            // let game = Game.instance
+            // let world = game.world
+            // let tileSize = 32
+            // if (target) {
+            //     let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+            //     let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+
+            //     g.c.strokeStyle = "rgba(255, 0, 0, 1)"
+            //     g.c.lineWidth = Math.cos(animationFrame) * 20
+            //     g.c.beginPath()
+            //     g.c.moveTo(userPos.x, userPos.y)
+            //     g.c.lineTo(targetPos?.x, targetPos?.y)
+            //     g.c.stroke()
+            //     console.log("using animation")
+            // }
         },
 
         cost: 1,

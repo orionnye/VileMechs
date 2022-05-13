@@ -5,7 +5,7 @@ import World from "../../map/World";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
 import UnitTray, { drawStats } from "../ui/UnitTray";
-import { Chrome, ChromeBot, FleshBot } from "./RigTypes";
+import { Chrome, ChromeBot, Earth, FleshBot } from "./RigTypes";
 import Unit from "./Unit";
 
 export default class Team {
@@ -25,9 +25,11 @@ export default class Team {
         this.flipUnits = flip
 
         this.units = [
+            // new Earth( new Vector( 2, 0 ), teamNumber),
+            // new Earth( new Vector( 2, 0 ), teamNumber),
             new FleshBot( new Vector( 2, 0 ), teamNumber),
-            // new FleshBot( new Vector( 2, 0 ), teamNumber),
-            new ChromeBot( new Vector( 2, 0 ), teamNumber),
+            new FleshBot( new Vector( 2, 0 ), teamNumber),
+            // new ChromeBot( new Vector( 2, 0 ), teamNumber),
             // new ChromeBot( new Vector( 2, 0 ), teamNumber),
             // new Chrome( new Vector( 3, 0 ), teamNumber),
             // new Flesh( new Vector( 0, 1 ), 0 ),

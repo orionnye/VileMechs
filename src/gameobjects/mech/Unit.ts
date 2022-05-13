@@ -47,11 +47,6 @@ export default class Unit {
     walkAnimStep: number = 0
     walkAnimRate: number = 10 // Tiles per second
     walkAnimPath?: Vector[]
-    //card animation
-    private cardAnimCap: number = 10
-    cardAnimStep: number = this.cardAnimCap
-    cardAnimRate: number = 1
-    cardAnimType: CardType | null = null
 
     constructor( pos, teamNumber = 0, sprite: HTMLImageElement = mechSheet ) {
         this.sprite = sprite
@@ -74,9 +69,7 @@ export default class Unit {
         this.hand.max = 8
 
         //default deck
-        //2 repair
         this.draw.add( CardTypes.repair, 1 )
-        //2 sprint
         this.draw.add( CardTypes.sprint, 1 )
     }
 
@@ -201,9 +194,6 @@ export default class Unit {
             if ( this.walkAnimStep + 1 >= path.length )
                 this.walkAnimPath = undefined
         }
-        if (this.cardAnimStep < this.cardAnimCap) {
-            this.cardAnimStep += this.cardAnimRate
-        }
     }
 
     // View
@@ -225,10 +215,6 @@ export default class Unit {
             let diff = animPos.subtract( this.pos )
             g.vTranslate( diff.scale( World.tileSize ) )
         }
-        //card animation
-        if (this.cardAnimStep < this.cardAnimCap) {
-
-        }
         let doShake = animate && this.hurtTime > 0
         g.c.save()
         if ( doShake )
@@ -239,21 +225,6 @@ export default class Unit {
         }
         g.drawSheetFrame( this.sprite, 32, 0, 0, frame )
         g.c.restore()
-
-        //NAME DISPLAY
-        // if ( showName && !isWalking ) {
-        //     this.renderName()
-        // }
-        // Unit Stat Display
-        // if ( !isWalking ) {
-        //     g.setFont( 4, "impact" )
-        //     let healthText = this.health.toString().padStart( 2, "0" )
-        //     let energyText = this.energy.toString().padStart( 2, "0" )
-        //     let speedText = this.speed.toString().padStart( 2, "0" )
-        //     let boxDims = g.drawTextBox( Vector.zero, healthText, { textColor: "#e8ac9e", boxColor: "#a84a32" } )
-        //     let nextBoxDims = g.drawTextBox( new Vector( 0, boxDims.y ), energyText, { textColor: "#9cdbad", boxColor: "#2d8745" } )
-        //     g.drawTextBox( new Vector( 0, nextBoxDims.y+boxDims.y ), speedText, { textColor: "#999999", boxColor: "#2525ff" } )
-        // }
     }
     renderName(pos: Vector, textColor: string = "#c2c2c2", backing: string = "#696969") {
         let g = Graphics.instance

@@ -12,8 +12,9 @@ import CardTray from "../gameobjects/ui/CardTray"
 import Unit from "../gameobjects/mech/Unit"
 import Camera from "../gameobjects/Camera"
 import UnitTray, { drawStats } from "../gameobjects/ui/UnitTray"
-import { targetsWithinRange } from "../gameobjects/card/CardTypes"
+import CardTypes, { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import AI from "../gameobjects/mech/AI"
+import { Treant } from "../gameobjects/mech/RigTypes"
 
 
 export default class World {
@@ -34,13 +35,21 @@ export default class World {
     //ai
     aiTeamNumbers = [ -1, 1 ]
     ai = new AI()
-    
+    //Card Animation
+    cardAnim = {
+        rate: 0.1,
+        cap: 3,
+        step: 3,
+        type: <CardType | undefined> undefined,
+        target: <Unit | undefined> undefined,
+        pos: <Vector | undefined> undefined
+    }
 
     //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor( playerTeam: Team = new Team( "Drunken Scholars", false , 0) ) {
-        this.map = new Grid( 15, 15 )
+        this.map = new Grid( 17, 17 )
 
         this.teams = [
             playerTeam,
@@ -143,6 +152,9 @@ export default class World {
         if (this.activeTeam().selectedUnit()) {
             this.cardTray.update(this.activeTeam().selectedUnit()!)
         }
+        if (this.cardAnim.step < this.cardAnim.cap) {
+            this.cardAnim.step += this.cardAnim.rate
+        }
     }
 
     // View
@@ -162,7 +174,7 @@ export default class World {
         let cursor = this.tileSpaceCursor()
         let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
-
+        
         //  Draw unit path
         if (this.playerTurn()) {
             if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
@@ -210,6 +222,20 @@ export default class World {
                         g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
                     }
                     g.c.restore()
+                }
+            }
+        }
+        
+        //Card Animation
+        let { step, cap, type, target, pos } = this.cardAnim
+        if ( selectedUnit ) {
+            if ( step < cap ) {
+                //--------------------------CARD ANIMATION SHOULD GO HERE, THEN INCREASE STEP BY RATE IN UPDATE
+                if (type?.render) {
+                    if (selectedUnit) {
+                        console.log("USING CARD ANIMATION")
+                        type.render(step, selectedUnit, pos, target)
+                    }
                 }
             }
         }
@@ -280,8 +306,11 @@ export default class World {
                                 onClick: () => {
                                     if ( this.playerTurn() && isValidTarget ) {
                                         this.applyCardAt( pos )
-                                        this.selectedUnit()!.cardAnimStep = 0
-                                        console.log(this.selectedUnit()!.cardAnimStep = 0)
+                                        //animate trigger here
+                                        this.cardAnim.step = 0
+                                        this.cardAnim.type = card?.type
+                                        this.cardAnim.target = unit
+                                        this.cardAnim.pos = pos
                                     }
                                 },
                                 onRender: ( node ) => {
