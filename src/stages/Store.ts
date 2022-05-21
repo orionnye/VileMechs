@@ -137,7 +137,9 @@ export default class Store {
 
                 g.setFont(Sign.text.size, "Times New Roman")
                 g.drawTextBox(Sign.pos, "Scavenge!", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 })
-                g.drawTextBox(new Vector(250, 3), "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150, 60, 60, 0.9)", padding: 5 } )
+                let scrip = new Vector(game.screenCenter().x, 40)
+                g.drawTextBox(scrip, "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150,60,60,0.9)", padding: 5, alignX: TextAlignX.center} )
+                // g.drawTextBox(new Vector(250, 3), "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150, 60, 60, 0.9)", padding: 5 } )
             },
             content: () => {
                 //display data(static except for UI Scaling)
