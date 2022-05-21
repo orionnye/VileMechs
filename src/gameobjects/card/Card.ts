@@ -19,7 +19,7 @@ export default class Card {
     static dimensions = new Vector( 48, 64 )
 
     yRotation: number = 0
-    pos: Vector = Vector.zero
+    pos: Vector = new Vector(0, 0)
     color: string = randomColor()
     type = CardTypes.laser
 
@@ -41,8 +41,8 @@ export default class Card {
 
         if ( this.yRotation >= Math.PI / 2 ) {
             // Back face
-            g.strokeRect( Vector.zero, Card.dimensions, "#ffddff" )
-            g.drawRect( Vector.zero, Card.dimensions, this.type.color )
+            g.strokeRect( new Vector(0, 0), Card.dimensions, "#ffddff" )
+            g.drawRect( new Vector(0, 0), Card.dimensions, this.type.color )
         } else {
             // Front face
             g.c.drawImage( this.type.backing, 0, 0, Card.dimensions.x, Card.dimensions.y, 0, 0, Card.dimensions.x, Card.dimensions.y )

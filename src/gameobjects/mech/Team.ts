@@ -25,16 +25,10 @@ export default class Team {
         this.flipUnits = flip
 
         this.units = [
-            // new Earth( new Vector( 2, 0 ), teamNumber),
-            // new Earth( new Vector( 2, 0 ), teamNumber),
-            new FleshBot( new Vector( 2, 0 ), teamNumber),
-            new FleshBot( new Vector( 2, 0 ), teamNumber),
-            // new ChromeBot( new Vector( 2, 0 ), teamNumber),
-            // new ChromeBot( new Vector( 2, 0 ), teamNumber),
-            // new Chrome( new Vector( 3, 0 ), teamNumber),
-            // new Flesh( new Vector( 0, 1 ), 0 ),
-            // new Treant( new Vector( 0, 0 ), 0 ),
-            // new Jelly( new Vector( 0, 0 ), 0 )
+            // new Chrome( new Vector( 3, 0 ), 1),
+            // new Flesh( new Vector( 0, 1 ), 1 ),
+            // new Treant( new Vector( 0, 0 ), 1 ),
+            // new Jelly( new Vector( 0, 0 ), 1 )
         ]
     }
     //----DATA ACCESS----
@@ -132,6 +126,7 @@ export default class Team {
                             let hover = node == game.mouseOverData.node
                             let isSelected = unit == selectedUnit
                             //Selected? Art
+                            g.c.save()
                             if (active) {
                                 if (this.index == i) {
                                     g.c.scale(1.2, 1.2)
@@ -146,8 +141,9 @@ export default class Team {
                             }
                             //Standard rendering
                             unit.render( true, flipUnits )
+                            g.c.restore()
                             if (hover) {
-                                // g.drawRect(Vector.zero, new Vector(100, 100), "red")
+                                // g.drawRect(new Vector(0, 0), new Vector(100, 100), "red")
                                 drawStats(unit)
                             }
                         }

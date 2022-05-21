@@ -22,5 +22,11 @@ export class BasicTile extends Tile {
     }
     getTraversalCost(): number { return this.traversalCost }
     getElevation(): number { return this.elevation }
-    render( x: number, y: number ): void { Graphics.instance.c.drawImage( this.texture, x, y ) }
+    render( x: number, y: number ): void {
+        let c = Graphics.instance.c
+        c.save()
+        c.translate(0, 0)
+        c.drawImage( this.texture, x, y )
+        c.restore()
+    }
 }

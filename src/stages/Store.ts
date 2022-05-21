@@ -15,6 +15,8 @@ import Scene, { PickingResult, SceneNode } from "../common/Scene"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { Deck } from "../gameobjects/card/Deck"
 import Card from "../gameobjects/card/Card"
+import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
+import Unit from "../gameobjects/mech/Unit"
 
 
 const Jungle = getImg( require( "../www/images/BackgroundPixel1.png" ) )
@@ -35,11 +37,12 @@ export default class Store {
     camera = new Camera()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
-    mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
+    mouseOverData: PickingResult = { node: undefined, point: new Vector(0, 0) }
     
     unitTray = new UnitTray()
     stockTotal = 5
     stock = new Deck(this.stockTotal);
+    mechs = <Unit[]> [];
     
     showSceneDebug = false
     showFPS = false
@@ -66,6 +69,23 @@ export default class Store {
     // playerUnits() { return this.world.units.filter( unit => unit.teamNumber == 0 ) }
     reset() {
         this.stock = new Deck(5)
+        this.mechs = []
+        let mechList = [
+            new Chrome(new Vector(0, 0), 0),
+            new Treant(new Vector(0, 0), 0),
+            new Flesh(new Vector(0, 0), 0),
+            new Earth(new Vector(0, 0), 0)
+        ]
+        for (let i = 0; i < 3; i++) {
+            let random = randomFloor(mechList.length)
+            this.mechs.push(mechList[random])
+            mechList = [
+                new Chrome(new Vector(0, 0), 0),
+                new Treant(new Vector(0, 0), 0),
+                new Flesh(new Vector(0, 0), 0),
+                new Earth(new Vector(0, 0), 0)
+            ]
+        }
     }
 
     //---------------------------User Input---------------------------
@@ -117,26 +137,42 @@ export default class Store {
 
                 g.setFont(Sign.text.size, "Times New Roman")
                 g.drawTextBox(Sign.pos, "Scavenge!", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 })
+                g.drawTextBox(new Vector(250, 3), "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150, 60, 60, 0.9)", padding: 5 } )
             },
             content: () => {
                 //display data(static except for UI Scaling)
                 // unitTray.makeSceneNode(this.playerUnits())
                 const shelf = {
                     dim: new Vector((game.screenDimensions().x / 5)*3, Card.dimensions.y*1.3),
-                    pos: new Vector(game.screenDimensions().x / 5, game.screenDimensions().y * 0.5),
+                    pos: new Vector(game.screenDimensions().x / 5, game.screenDimensions().y * 0.7),
                     margin: 10,
+                    cost: 5,
                     stockPos: ( index: number ) => {
                         //break and divide the cardSpace by total cards and then divide remaining space evenly
                         let spacePerCard = shelf.dim.x / (this.stock.length) 
                         return new Vector(index*spacePerCard + shelf.margin*index, 0)
                     }
                 }
+                const mechShelf = {
+                    dim: new Vector(game.screenDimensions().x / 2, 45),
+                    pos: new Vector(game.screenDimensions().x / 5, game.screenDimensions().y * 0.3),
+                    margin: 10,
+                    scalar: 1,
+                    cost: 20,
+                    stockPos: ( index: number ) => {
+                        //break and divide the cardSpace by total cards and then divide remaining space evenly
+                        let spacePerMech = mechShelf.dim.x / (this.mechs.length) 
+                        return new Vector(index*spacePerMech + shelf.margin*index, 0)
+                    }
+                }
                 Scene.node( {
-                    description: "store-Shelf",
+                    description: "card-Shelf",
                     rect: { width: shelf.dim.x, height: shelf.dim.y },
                     localMatrix: Matrix.identity.vTranslate(shelf.pos),
                     onRender: () => {
-                        // g.drawRect(Vector.zero, shelf.dim, "gray")
+                        g.setFont(13, "Times")
+                        g.drawTextBox(new Vector(-50, 35), "Cost: "+ shelf.cost, {boxColor: "rgba(200, 80, 80, 0.9)"} )
+                        g.drawRect(new Vector(-game.screenDimensions().x/2, 50), new Vector(game.screenDimensions().x*2, 50), "gray")
                     },
                     content: () => {
                         this.stock.cards.forEach( ( card, i ) => Scene.node( {
@@ -150,11 +186,53 @@ export default class Store {
                             },
                             onClick: () => {
                                 // console.log("Unit:", unitTray.selectedUnit())
-                                if (world.selectedUnit()) {
+                                let game = Game.instance
+                                if (world.selectedUnit() && game.scrip >= shelf.cost) {
+                                    game.scrip -= shelf.cost
                                     let copy = this.stock.cards.splice(i, 1)[0]
                                     // console.log("COPY:", copy[0])
                                     world.selectedUnit()?.draw.addCard(copy)
                                     // console.log("trying to buy!")
+                                }
+                            }
+                        } ) )
+                    }
+                } ),
+                Scene.node( {
+                    description: "mech-Shelf",
+                    rect: { width: mechShelf.dim.x*mechShelf.scalar, height: mechShelf.dim.y*mechShelf.scalar },
+                    localMatrix: Matrix.identity.vTranslate(mechShelf.pos),
+                    onRender: () => {
+                        g.setFont(13, "Times")
+                        g.drawTextBox(new Vector(-50, 35), "Cost: "+ mechShelf.cost, {boxColor: "rgba(200, 80, 80, 0.9)"} )
+                        g.drawRect(new Vector(0, 0), new Vector(mechShelf.dim.x, mechShelf.dim.y), "grey")
+                    },
+                    content: () => {
+                        this.mechs.forEach( ( mech, i ) => Scene.node( {
+                            description: "store-Stock",
+                            localMatrix: Matrix.translation(mechShelf.stockPos(i).x, mechShelf.stockPos(i).y),
+                            
+                            rect: { width: Card.dimensions.x, height: Card.dimensions.y },
+                            onHover: () => {
+                                mechShelf.scalar = 2
+                            },
+                            onRender: ( node ) =>  {
+                                let c = Graphics.instance.c
+                                let hover = node == game.mouseOverData.node
+                                
+                                c.save()
+                                if (hover) {
+                                    c.scale(mechShelf.scalar, mechShelf.scalar)
+                                }
+                                mech.render()
+                                c.restore()
+                            },
+                            onClick: () => {
+                                // console.log("Unit:", unitTray.selectedUnit())
+                                if ( game.scrip >= mechShelf.cost) {
+                                    game.scrip -= mechShelf.cost
+                                    world.teams[0].units.push(mech)
+                                    this.mechs.splice(this.mechs.indexOf(mech), 1)
                                 }
                             }
                         } ) )

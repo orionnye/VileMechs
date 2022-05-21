@@ -5,7 +5,7 @@ import Unit from "./Unit"
 // const treant = getImg( require( "../www/images/units/Vinecent1.png" ) )
 const treant = getImg( require( "../../www/images/units/Vinecent2.png" ) )
 const earth = getImg( require( "../../www/images/units/EarthMech.png" ) )
-const chrome = getImg( require( "../../www/images/units/MinigunMech_sheet.png" ) )
+const chrome = getImg( require( "../../www/images/units/ChromeMech2.png" ) )
 const flesh = getImg( require( "../../www/images/units/FleshBase.png" ) )
 const jelly = getImg( require( "../../www/images/units/GellyMech.png" ) )
 
@@ -19,29 +19,11 @@ export class Chrome extends Unit {
         //custom stats
         this.drawSpeed = 4
         //custom cards
-        this.draw.add( CardTypes.repair, 1 )
-        this.draw.add( CardTypes.shieldCharge, 2 )
-        this.draw.add( CardTypes.laser, 4 )
-        this.draw.add( CardTypes.chargeBeam, 1 )
+        // this.draw.add( CardTypes.repair, 1 )
+        this.draw.add( CardTypes.energyArmor, 1 )
+        this.draw.add( CardTypes.laser, 3 )
 
         this.statReset()
-    }
-    // Damage reception overload to check for any energy armor and reduce damage recieved
-    addHealth( amount: number ) {
-        let { energyArmor } = CardTypes
-        let reduction = 0
-        if (amount < 0) {
-            // console.log(this.hand.typeCount(energyArmor))
-            this.hurtTime += Math.sqrt( -amount + 1 ) * .1
-            this.hand.cards.forEach( (card, index) => {
-                if (card.type == energyArmor && reduction < Math.abs(amount)) {
-                    reduction += 2
-                    this.hand.cards.splice(index, 1)
-                }
-            })
-        }
-        // console.log( "Reduction:", reduction )
-        this.health += amount + reduction
     }
 }
 
@@ -92,8 +74,10 @@ export class Flesh extends Unit {
         this.sprite = flesh
 
         // Flesh Stats
-        this.maxSpeed = 6
+        this.maxSpeed = 5
         this.speed = this.maxSpeed
+        this.maxHealth = 9
+        this.health = this.maxHealth
 
         this.draw.cards = []
         this.draw.add( CardTypes.claw, 5 )

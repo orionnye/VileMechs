@@ -10,9 +10,6 @@ import Unit from "../mech/Unit"
 
 export function drawStats(unit: Unit) {
     let g = Graphics.instance
-    const tileSize = World.tileSize
-    const tile = new Vector(tileSize, tileSize)
-    
     drawEnergy(unit)
     drawHealth(unit)
 }
@@ -126,24 +123,24 @@ export default class UnitTray {
             content: () => {
                 let previousHeight = 0
                 units.forEach( (unit, i) => {
-                    const tileSize = World.tileSize
-                    const tile = new Vector(tileSize, tileSize)
+                    const dimLength = 32
+                    const dim = new Vector(32, 32)
                     let scale = 1.5
                     //resets dimensions depending on selected(scaled) unit
-                    let width = i == team.index ? tile.x*scale : tileSize
-                    let height = i == team.index ? tile.y*scale : tileSize
+                    let width = i == team.index ? dim.x*scale : dimLength
+                    let height = i == team.index ? dim.y*scale : dimLength
                     //offsets the Ypos of units Displayed after selected(Scaled) unit
-                    let yOffset = team.index < i && team.index !== -1 ? tileSize*(scale-1)+1 : 0
+                    let yOffset = team.index < i && team.index !== -1 ? dimLength*(scale-1)+1 : 0
                     
                     Scene.node( {
                         description: unit.name,
-                        localMatrix: Matrix.translation(0, tileSize*i+yOffset),
+                        localMatrix: Matrix.translation(0, dimLength*i+yOffset),
                         rect: { width, height },
                         onRender: () => {
                             
                             g.c.save()
                             if (flip) {
-                                g.c.translate(tile.x, 0)
+                                // g.c.translate(dim.x, 0)
                                 g.c.scale(-1, 1)
                             }
                             
@@ -157,9 +154,9 @@ export default class UnitTray {
                             const nameBacking = "rgba(150, 150, 150, 0.7)"
                             
                             //Display backing
-                            g.drawRect( Vector.zero, tile, backing1 )
+                            g.drawRect( new Vector(0, 0), dim, backing1 )
                             g.c.lineWidth = 1
-                            g.strokeRect( Vector.zero, tile, "black" )
+                            g.strokeRect( new Vector(0, 0), dim, "black" )
                             //unit drawn
                             unit.render( false )
 

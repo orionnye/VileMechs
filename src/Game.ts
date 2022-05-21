@@ -14,6 +14,7 @@ import Team from "./gameobjects/mech/Team"
 import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
 import Store from "./stages/Store"
 import Grid from "./map/Grid"
+import { randomFloor } from "./math/math"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
@@ -27,26 +28,30 @@ export default class Game {
     camera = new Camera()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
-    mouseOverData: PickingResult = { node: undefined, point: Vector.zero }
+    mouseOverData: PickingResult = { node: undefined, point: new Vector(0, 0) }
     world : World
+    level: number = 1
+
     store : Store
+    scrip: number
     
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
 
     isPlayerDone = false
-    shopping = false
+    shopping = true
 
     constructor() {
         this.store = new Store()
         this.store.reset()
-        let playerTeam = new Team("Drunken Scholars", false, 0)
+        let playerTeam = new Team("Choden Warriors", false, 0)
+        this.scrip = 50
         playerTeam.units = [
-            new Chrome(new Vector(1, 0), 0),
-            new Flesh(new Vector(1, 0), 0),
-            new Treant(new Vector(1, 0), 0),
-            new Earth(new Vector(2, 0), 0)
+            // new Chrome(new Vector(1, 0), 0),
+            // new Flesh(new Vector(1, 0), 0),
+            // new Treant(new Vector(1, 0), 0),
+            // new Earth(new Vector(2, 0), 0)
         ]
         this.world = new World(playerTeam)
         Game.instance = this
@@ -59,7 +64,26 @@ export default class Game {
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
         this.moveCamToFirstUnit()
     }
-
+    generateEnemies( amount: number ) {
+        this.world.teams[1] = new Team("Drunken Scholars", true, 1)
+        let mechList = [
+            new Chrome(new Vector(0, 0), 1),
+            new Treant(new Vector(0, 0), 1),
+            new Flesh(new Vector(0, 0), 1),
+            new Earth(new Vector(0, 0), 1),
+        ]
+        // console.log(mechList[0])
+        for (let i = 0; i < amount; i++) {
+            let random = randomFloor(mechList.length)
+            this.world.teams[1].units.push(mechList[random])
+            mechList = [
+                new Chrome(new Vector(0, 0), 1),
+                new Treant(new Vector(0, 0), 1),
+                new Flesh(new Vector(0, 0), 1),
+                new Earth(new Vector(0, 0), 1),
+            ]
+        }
+    }
     //----------------MODEL------------------
     moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( World.tileSize ) ) }
     moveCamToFirstUnit() {
@@ -164,6 +188,7 @@ export default class Game {
                     this.store.reset()
                     this.world.turn = 0
                     this.shopping = true
+                    this.scrip += 10
                 } else if (this.shopping) {
                     //----GO Fighting!------
                     this.world.teams[0].units.forEach(unit => {
@@ -171,10 +196,13 @@ export default class Game {
                     });
                     this.world.map = new Grid( 20, 20 )
                     this.world.teams[1] = new Team("Choden Warriors", true, 1)
+                    //Generate enemies to fight
+                    this.generateEnemies(this.level)
                     this.world.map.randomize2( 0 )
                     this.world.placeUnits()
                     this.world.turn = 0
                     this.shopping = false
+                    this.level += 1
                 }
                 //Team Selection
                 this.world.activeTeam().cycleUnits()
@@ -235,16 +263,17 @@ export default class Game {
                 if (this.shopping) {
                     //-----------------Shopping Display-------------------
                     this.store.makeSceneNode()
-                    unitTray.makeSceneNode(Vector.zero, world.activeTeam())
+                    unitTray.makeSceneNode(new Vector(0, 0), world.teams[0])
                 } else {
                     //-----------------Match Display-----------------------
                     world.makeSceneNode()
                     //displays unitTray forward for first player
+                    g.c.restore()
                     if (this.world.turn == 0) {
-                        unitTray.makeSceneNode(Vector.zero, world.activeTeam())
+                        unitTray.makeSceneNode(new Vector(0, 0), world.teams[0])
                     } else {
                         //display Unit Tray backwords for second player
-                        unitTray.makeSceneNode(new Vector(this.screenDimensions().x - World.tileSize, 0), world.activeTeam(), true)
+                        unitTray.makeSceneNode(new Vector(this.screenDimensions().x, 0), world.activeTeam(), true)
                     }
                     if ( selectedUnit )
                         cardTray.makeSceneNode( selectedUnit )

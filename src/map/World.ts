@@ -15,6 +15,7 @@ import UnitTray, { drawStats } from "../gameobjects/ui/UnitTray"
 import CardTypes, { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import AI from "../gameobjects/mech/AI"
 import { Treant } from "../gameobjects/mech/RigTypes"
+import Tile from "./Tile"
 
 
 export default class World {
@@ -249,7 +250,19 @@ export default class World {
             for ( let x = 0; x < map.width; x++ ) {
                 let currentPos = new Vector( x * tileSize, y * tileSize )
                 let tile = map.getFromXY( x, y )
-                tile.render( currentPos.x, currentPos.y )
+                if (tile.getElevation() <= 0) {
+                    tile.render( currentPos.x, currentPos.y )
+                }
+            }
+        }
+        for ( let y = 0; y < map.height; y++ ) {
+            for ( let x = 0; x < map.width; x++ ) {
+                let currentPos = new Vector( x * tileSize, y * tileSize )
+                let tile = map.getFromXY( x, y )
+                if (tile.getElevation() >= 0) {
+                    Tiles.Grass.render( currentPos.x, currentPos.y )
+                    tile.render( currentPos.x, currentPos.y )
+                }
                 if ( numbered ) {
                     let textPos = new Vector( x * tileSize + 1, y * tileSize + 1 )
                     let currentText = x.toString() + ", " + y.toString()

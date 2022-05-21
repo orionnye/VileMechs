@@ -61,7 +61,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- CHROME -----------------------------
     laser: {
         name: "Laser",
-        getDescription: card => `Deal ${ card.type.damage } damage to target`,
+        getDescription: card => `Deal ${ card.type.damage } damage to target, Deal 1 damage to user`,
         color: "#969696",
         sprite: laser,
         backing: metal,
@@ -69,6 +69,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             target?.addHealth( -card.type.damage )
+            user.addHealth(-1)
             user.energy -= card.type.cost
         },
         render: (animationFrame, user, pos, target) => {
@@ -91,7 +92,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         },
 
         cost: 1,
-        damage: 8,
+        damage: 6,
         range: 8,
         minDist: 2,
         friendly: false,
@@ -99,7 +100,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     energyArmor: {
         name: "Energy Armor",
-        getDescription: card => `Reduce incoming damage by ${ card.type.damage }, -Unplayable, -Exhaustive`,
+        getDescription: card => `Reduce incoming damage by ${ card.type.damage }`,
         color: "#6BB5FF",
         sprite: energyArmor,
         backing: metal,
@@ -110,89 +111,67 @@ const CardTypes: { [ name: string ]: CardType } = {
         // },
 
         cost: 0,
-        damage: 1,
+        damage: 2,
         range: 0,
         minDist: 0,
         friendly: true,
         playable: false
     },
-    shieldCharge: {
-        name: "Shield Charge",
-        getDescription: card => `Generate ${ 2 } Energy Armor`,
-        color: "#6BB5FF",
-        sprite: shieldCharge,
-        backing: metal,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            user.gainCard(CardTypes.energyArmor, 2)
-            user.energy -= card.type.cost
-        },
+    // shieldCharge: {
+    //     name: "Shield Charge",
+    //     getDescription: card => `Generate ${ 2 } Energy Armor`,
+    //     color: "#6BB5FF",
+    //     sprite: shieldCharge,
+    //     backing: metal,
+    //     canApplyToEmptyTiles: false,
+    //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+    //     onApplyToTile: ( card, user, pos, target ) => {
+    //         user.gainCard(CardTypes.energyArmor, 2)
+    //         user.energy -= card.type.cost
+    //     },
 
-        cost: 1,
-        damage: 0,
-        range: 0,
-        minDist: 0,
-        friendly: true,
-        playable: true
-    },
-    chargeBeam: {
-        name: "Charge Beam",
-        getDescription: card => `Deal ${ card.type.damage }xEnergy Armor Total, -Exhaust all Energy Armor`,
-        color: "#6BB5FF",
-        sprite: chargeBeam,
-        backing: metal,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            //count energy Armor in Hand, remove it
-            let armorCount = user.hand.typeCount(CardTypes.energyArmor)
-            console.log("ARMOR COUNT:", armorCount)
-            for (let i = armorCount; i > 0; i--) {
-                user.hand.cards.forEach( (card, index) => {
-                    if ( card.type == CardTypes.energyArmor ) {
-                        user.hand.cards.splice(index, 1)
-                    }
-                })
-            }
-            console.log( -card.type.damage * armorCount )
-            target?.addHealth( -card.type.damage * armorCount )
-            //stack damage and apply to enemy
-            user.energy -= card.type.cost
-        },
+    //     cost: 1,
+    //     damage: 0,
+    //     range: 0,
+    //     minDist: 0,
+    //     friendly: true,
+    //     playable: true
+    // },
+    // chargeBeam: {
+    //     name: "Charge Beam",
+    //     getDescription: card => `Deal ${ card.type.damage }xEnergy Armor Total, -Exhaust all Energy Armor`,
+    //     color: "#6BB5FF",
+    //     sprite: chargeBeam,
+    //     backing: metal,
+    //     canApplyToEmptyTiles: false,
+    //     getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
+    //     onApplyToTile: ( card, user, pos, target ) => {
+    //         //count energy Armor in Hand, remove it
+    //         let armorCount = user.hand.typeCount(CardTypes.energyArmor)
+    //         console.log("ARMOR COUNT:", armorCount)
+    //         for (let i = armorCount; i > 0; i--) {
+    //             user.hand.cards.forEach( (card, index) => {
+    //                 if ( card.type == CardTypes.energyArmor ) {
+    //                     user.hand.cards.splice(index, 1)
+    //                 }
+    //             })
+    //         }
+    //         console.log( -card.type.damage * armorCount )
+    //         target?.addHealth( -card.type.damage * armorCount )
+    //         //stack damage and apply to enemy
+    //         user.energy -= card.type.cost
+    //     },
 
-        cost: 2,
-        damage: 6,
-        range: 15,
-        minDist: 0,
-        friendly: false,
-        playable: true,
+    //     cost: 2,
+    //     damage: 6,
+    //     range: 15,
+    //     minDist: 0,
+    //     friendly: false,
+    //     playable: true,
         
-    },
+    // },
+    //------------------------------
     //------------------------------- CURRENCY -----------------------------
-    ore: {
-        name: "Ore",
-        getDescription: card => "$$$... -Exhaustive",
-        color: "#aaaaaa",
-        sprite: ore,
-        backing: black,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            //Exhaustive
-            //look for the card in the users Discard Pile and remove it
-            user.discard.cards.pop()
-            user.energy -= card.type.cost
-        },
-
-        cost: 0,
-        damage: 0,
-        range: 0,
-        minDist: 0,
-        friendly: true,
-        playable: true,
-        
-    },
     //------------------------------- ELDRITCH -----------------------------
     tentacle: {
         name: "Tentacle Pull",
@@ -218,29 +197,10 @@ const CardTypes: { [ name: string ]: CardType } = {
             }
             user.energy -= card.type.cost
         },
-        //-----------------------------------------------------Create Tentacle animation-------------------------------
-        render: (animationFrame, user, pos, target) => {
-            // let g = Graphics.instance
-            // let game = Game.instance
-            // let world = game.world
-            // let tileSize = 32
-            // if (target) {
-            //     let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
-            //     let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
-
-            //     g.c.strokeStyle = "rgba(255, 0, 0, 1)"
-            //     g.c.lineWidth = Math.cos(animationFrame) * 20
-            //     g.c.beginPath()
-            //     g.c.moveTo(userPos.x, userPos.y)
-            //     g.c.lineTo(targetPos?.x, targetPos?.y)
-            //     g.c.stroke()
-            //     console.log("using animation")
-            // }
-        },
 
         cost: 1,
         damage: 0,
-        range: 5,
+        range: 6,
         minDist: 1,
         friendly: false,
         playable: true,
@@ -288,7 +248,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         },
 
         cost: 1,
-        damage: 3,
+        damage: 2,
         range: 7,
         minDist: 2,
         friendly: false,
@@ -297,7 +257,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     mine: {
         name: "Mine",
-        getDescription: card => `Destroy Mountain Deal ${card.type.damage} damage`,
+        getDescription: card => `Destroy Mountain Deal ${card.type.damage} damage, Gain 1 FUEL`,
         color: "#b87420",
         sprite: mine,
         backing: brown,
@@ -311,7 +271,7 @@ const CardTypes: { [ name: string ]: CardType } = {
                 world.map.set( pos, Tiles.Grass )
                 for ( let i = 0; i < 2; i++ ) {
                     let card = new Card()
-                    card.type = CardTypes.ore
+                    card.type = CardTypes.fuel
                     user.draw.cards.push( card )
                 }
             }
@@ -320,10 +280,34 @@ const CardTypes: { [ name: string ]: CardType } = {
         },
 
         cost: 1,
-        damage: 10,
+        damage: 7,
         range: 1,
         minDist: 1,
         friendly: false,
+        playable: true,
+        
+    },
+    fuel: {
+        name: "Fuel",
+        getDescription: card => `Gain ${card.type.damage} energy, -Exhaustive`,
+        color: "#aaaaaa",
+        sprite: ore,
+        backing: black,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            //Exhaustive
+            //look for the card in the users Discard Pile and remove it
+            // user.discard.cards.pop()
+            target?.addEnergy(card.type.damage)
+            user?.addEnergy(-card.type.cost)
+        },
+
+        cost: 0,
+        damage: 1,
+        range: 1,
+        minDist: 0,
+        friendly: true,
         playable: true,
         
     },
@@ -353,31 +337,31 @@ const CardTypes: { [ name: string ]: CardType } = {
         
 
     },
-    sprint: {
-        name: "Sprint",
-        getDescription: card => `Take ${card.type.damage} damage, Double speed, -Exhaustive`,
-        color: "#667799",
-        sprite: sprint,
-        backing: metal,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            user?.addHealth( -card.type.damage )
-            // user.energy -= card.type.cost
-            if ( target ) {
-                target.energy += 1
-            }
-            user.discard.cards.pop()
-        },
+    // sprint: {
+    //     name: "Sprint",
+    //     getDescription: card => `Take ${card.type.damage} damage, increase speed, -Exhaustive`,
+    //     color: "#667799",
+    //     sprite: sprint,
+    //     backing: metal,
+    //     canApplyToEmptyTiles: false,
+    //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+    //     onApplyToTile: ( card, user, pos, target ) => {
+    //         user.addHealth( -card.type.damage )
+    //         user.addEnergy( -card.type.cost )
+    //         if ( target ) {
+    //             target.speed += 4
+    //         }
+    //         user.discard.cards.pop()
+    //     },
 
-        cost: 0,
-        damage: 2,
-        range: 0,
-        minDist: 0,
-        friendly: true,
-        playable: true,
+    //     cost: 0,
+    //     damage: 2,
+    //     range: 0,
+    //     minDist: 0,
+    //     friendly: true,
+    //     playable: true,
         
-    },
+    // },
     //------------------------------- FLESH -----------------------------
     claw: {
         name: "Claw",
@@ -404,58 +388,58 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
         
     },
-    acid: {
-        name: "Acid",
-        getDescription: card => `Melts Armor, target maxHealth -= ${card.type.damage} target speed += 1`,
-        color: "#32a852",
-        sprite: acid,
-        backing: purple,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            user.energy -= card.type.cost
+    // acid: {
+    //     name: "Acid",
+    //     getDescription: card => `Melts Armor, target maxHealth -= ${card.type.damage} target speed += 1`,
+    //     color: "#32a852",
+    //     sprite: acid,
+    //     backing: purple,
+    //     canApplyToEmptyTiles: false,
+    //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+    //     onApplyToTile: ( card, user, pos, target ) => {
+    //         user.energy -= card.type.cost
 
-            if ( target ) {
-                target.addMaxHealth(-card.type.damage)
-                target.maxSpeed += 2
-                target.addHealth(-2)
-            }
-        },
+    //         if ( target ) {
+    //             target.addMaxHealth(-card.type.damage)
+    //             target.maxSpeed += 2
+    //             target.addHealth(-2)
+    //         }
+    //     },
 
-        cost: 1,
-        damage: 3,
-        range: 5,
-        minDist: 0,
-        friendly: false,
-        playable: true,
-    },
+    //     cost: 1,
+    //     damage: 3,
+    //     range: 5,
+    //     minDist: 0,
+    //     friendly: false,
+    //     playable: true,
+    // },
     //------------------------------- THERMAL -----------------------------
-    frost: {
-        name: "Frost",
-        getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
-        color: "#0000aa",
-        sprite: frost,
-        backing: metal,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            user.energy -= card.type.cost
-            // user.health -= 2
-            //deals damage to target based on previously sustained damage
-            if ( target ) {
-                let damage = target.maxHealth - target.health
-                card.type.damage = damage
-                target.addHealth(-card.type.damage)
-            }
-        },
+    // frost: {
+    //     name: "Frost",
+    //     getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
+    //     color: "#0000aa",
+    //     sprite: frost,
+    //     backing: metal,
+    //     canApplyToEmptyTiles: false,
+    //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+    //     onApplyToTile: ( card, user, pos, target ) => {
+    //         user.energy -= card.type.cost
+    //         // user.health -= 2
+    //         //deals damage to target based on previously sustained damage
+    //         if ( target ) {
+    //             let damage = target.maxHealth - target.health
+    //             card.type.damage = damage
+    //             target.addHealth(-card.type.damage)
+    //         }
+    //     },
 
-        cost: 1,
-        damage: 2,
-        range: 3,
-        minDist: 0,
-        friendly: false,
-        playable: true,
-    }
+    //     cost: 1,
+    //     damage: 2,
+    //     range: 3,
+    //     minDist: 0,
+    //     friendly: false,
+    //     playable: true,
+    // }
 }
 
 export default CardTypes

@@ -59,7 +59,7 @@ export default class Unit {
         this.maxSpeed = 5
         this.speed = this.maxSpeed
 
-        this.maxEnergy = 3
+        this.maxEnergy = 2
         this.energy = this.maxEnergy
 
         this.maxHealth = 8
@@ -69,15 +69,27 @@ export default class Unit {
         this.hand.max = 8
 
         //default deck
-        this.draw.add( CardTypes.repair, 1 )
-        this.draw.add( CardTypes.sprint, 1 )
+        // this.draw.add( CardTypes.repair, 1 )
+        // this.draw.add( CardTypes.sprint, 1 )
     }
 
     // Model
     addHealth( amount: number ) {
-        this.health += amount
-        if ( amount < 0 )
+        let { energyArmor } = CardTypes
+        let reduction = 0
+        if (amount < 0) {
+            // console.log(this.hand.typeCount(energyArmor))
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
+            this.hand.cards.forEach( (card, index) => {
+                if (card.type == energyArmor && reduction < Math.abs(amount)) {
+                    reduction += energyArmor.damage
+                    let store = this.hand.cards.splice(index, 1)
+                    this.discard.cards.push(store[0])
+                }
+            })
+        }
+        // console.log( "Reduction:", reduction )
+        this.health += amount + reduction
     }
     addMaxHealth( amount: number ) {
         this.maxHealth += amount
@@ -179,7 +191,7 @@ export default class Unit {
     statCap() {
         //Stat Cut Off
         this.energy = this.maxEnergy
-        this.speed = this.maxSpeed
+        // this.speed = this.maxSpeed
         this.capHealth()
         this.cardCycle()
         this.done = false
