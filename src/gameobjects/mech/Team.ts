@@ -129,7 +129,7 @@ export default class Team {
                             g.c.save()
                             if (active) {
                                 if (this.index == i) {
-                                    g.c.scale(1.2, 1.2)
+                                    g.c.scale(1.3, 1.3)
                                     g.c.translate(-3, -3)
                                     g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "rgba(255, 255, 255, 0.4)")
                                 }
@@ -138,6 +138,11 @@ export default class Team {
                                     g.c.shadowBlur = 10
                                     g.c.shadowColor = "black"
                                 }
+                            }
+                            if (flipUnits) {
+                                g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "#00000055")
+                            } else {
+                                g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "#ffffff77")
                             }
                             //Standard rendering
                             unit.render( true, flipUnits )

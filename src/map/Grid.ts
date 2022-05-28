@@ -92,6 +92,29 @@ export default class Grid {
             }
         }
     }
+    clearUnitPaths() {
+        //------------Not ideal Function to ensure Viability but will make every match playable
+        let { width, height } = this
+
+        let landingDim = new Vector(4, 4)
+        let buffer = new Vector(3, 3)
+        //clear upper left chunk
+        this.fillRect(buffer, landingDim, Tiles.Grass)
+        //clear lower right chunk
+        this.fillRect(new Vector(width, height).subtract(landingDim).subtract(buffer), landingDim, Tiles.Grass)
+
+        let limit = new Vector(width, height).subtract(buffer)
+        for (let i = buffer.x; i < limit.x || i < limit.y; i++) {
+            let pos = new Vector(i, i)
+            let bonusPos = new Vector(i+1, i)
+            this.set(pos, Tiles.Grass)
+            this.set(bonusPos, Tiles.Grass)
+        }
+    }
+    newMap() {
+        this.randomize2(0)
+        this.clearUnitPaths()
+    }
     placeUnits( units: Unit[] ) {
         for ( let iter = 0; iter < units.length; iter++ ) {
             if ( units[ iter ].teamNumber == 0 ) {

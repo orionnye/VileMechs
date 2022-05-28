@@ -10,15 +10,26 @@ import Unit from "../mech/Unit"
 
 export function drawStats(unit: Unit) {
     let g = Graphics.instance
+    g.c.save()
+    g.c.translate(0, -3)
     drawEnergy(unit)
     drawHealth(unit)
+
+    //drawing Speed
+    let speed = {
+        pos: new Vector(0, 5)
+    }
+    g.strokeRect(speed.pos, new Vector(7, 8), "rgb(0, 0, 225)")
+    g.drawRect(speed.pos, new Vector(7, 8), "rgb(50, 50, 255)")
+    g.setFont(7, "pixel2")
+    g.drawText(speed.pos.add(new Vector(2, 0)), (unit.speed - 1).toString(), "rgb(0, 0, 45)" )
+
+    g.c.restore()
 }
 export function drawEnergy(unit) {
     let g = Graphics.instance
     //Energy Stats
     let energy = {
-        pos: new Vector(20, 21.5),
-        dim: new Vector(13.5, 4),
         pip: {
             dim: new Vector(3, 4),
             pad: new Vector(1.5, 0),
@@ -27,8 +38,11 @@ export function drawEnergy(unit) {
             pit: "rgb(0, 50, 0)",
             temp: "rgb(205, 255, 205)",
         },
+        pos: new Vector(20, 21.5),
+        dim: new Vector(11.5, 4),
         backingColor: "rgb(30, 125, 30)",
     }
+    energy.dim.x = unit.energy*energy.pip.dim.x + energy.pip.pad.x*unit.energy
     g.drawRect(energy.pos, energy.dim, energy.backingColor)
     //draw Empty Pip Containers for Max Energy
     let mostEnergy = unit.energy > unit.maxEnergy ? unit.energy : unit.maxEnergy
@@ -71,6 +85,8 @@ export function drawHealth(unit) {
         },
         backingColor: "rgb(125, 10, 10)"
     }
+
+    health.dim.x = unit.maxHealth*health.pip.dim.x + health.pip.pad.x*unit.maxHealth
     g.drawRect(health.pos, health.dim, health.backingColor)
     let jiggleCap = 0.4
     let jiggle = new Vector(randomInt(jiggleCap), randomInt(jiggleCap))
@@ -94,15 +110,14 @@ export function drawHealth(unit) {
             // Bonus Pips
             let bonusTotal = h - unit.maxHealth
             let bonusPipOffset = new Vector(0, 0)
+            pipPadding = health.pip.pad.scale(bonusTotal).add(new Vector(2, 2))
+            pipOffset = new Vector(health.pip.dim.scale(bonusTotal).x, 0).add(pipPadding)
+            pipPos = health.pos.add(new Vector(1, 0)).add(pipOffset)
             g.strokeRect(pipPos, health.pip.dim, "yellow")
             g.drawRect(pipPos, health.pip.dim, health.pip.filled)
         }
         jiggle = new Vector(randomInt(jiggleCap), randomInt(jiggleCap))
     }
-    g.strokeRect(new Vector(0.5, 0.5), new Vector(7, 8), "rgb(0, 0, 225)")
-    g.drawRect(new Vector(0.5, 0.5), new Vector(7, 8), "rgb(50, 50, 255)")
-    g.setFont(7, "pixel2")
-    g.drawText(new Vector(2, 0), (unit.speed - 1).toString(), "rgb(0, 0, 45)" )
 }
 export default class UnitTray {
     private index = -1
@@ -161,7 +176,7 @@ export default class UnitTray {
                             unit.render( false )
 
                             //unit name display
-                            unit.renderName( new Vector(0, 26.5), "black", nameBacking )
+                            unit.renderName( new Vector(0, 23.5), "black", nameBacking )
                             drawStats(unit)
                             
                             g.c.restore()

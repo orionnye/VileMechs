@@ -65,7 +65,7 @@ export default class World {
         // let randomTerrain = false
         let randomTerrain = true
         if ( randomTerrain ) {
-            this.map.randomize2( 0 )
+            this.map.newMap()
             this.placeUnits()
         } else {
             //custom map
@@ -109,7 +109,9 @@ export default class World {
                 if ( index < 0 )
                     throw new Error( "Selected card is not in selected unit's hand." )
                 unit.hand.cards.splice( index, 1 )
-                unit.discard.cards.push( card )
+                if (!card.type.exhaustive) {
+                    unit.discard.cards.push( card )
+                }
                 card.apply( unit, pos, this.getUnit( pos ) )
             }
         }
@@ -139,11 +141,11 @@ export default class World {
     }
 
     endTurn() {
+        // Health ReCapped at turn start
         console.log("Ending turn")
+        this.teams[this.turn].endTurn()
         this.turn++
         this.turn %= this.teams.length
-        // Health ReCapped at turn start
-        this.teams[this.turn].endTurn()
     }
 
     update() {
@@ -197,7 +199,7 @@ export default class World {
                     let radius = 3
                     g.c.save()
                     {
-                        const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b9"
+                        const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b955"
                         g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
                         g.c.strokeStyle = walkableColor
                         g.c.lineWidth = radius

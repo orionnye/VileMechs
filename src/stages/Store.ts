@@ -17,6 +17,7 @@ import { Deck } from "../gameobjects/card/Deck"
 import Card from "../gameobjects/card/Card"
 import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
+import Tile from "../map/Tile"
 
 
 const Jungle = getImg( require( "../www/images/BackgroundPixel1.png" ) )
@@ -156,7 +157,7 @@ export default class Store {
                     }
                 }
                 const mechShelf = {
-                    dim: new Vector(game.screenDimensions().x / 2, 45),
+                    dim: new Vector(game.screenDimensions().x / 1.7, game.screenDimensions().y / 4),
                     pos: new Vector(game.screenDimensions().x / 5, game.screenDimensions().y * 0.3),
                     margin: 10,
                     scalar: 1,
@@ -174,7 +175,7 @@ export default class Store {
                     onRender: () => {
                         g.setFont(13, "Times")
                         g.drawTextBox(new Vector(-50, 35), "Cost: "+ shelf.cost, {boxColor: "rgba(200, 80, 80, 0.9)"} )
-                        g.drawRect(new Vector(-game.screenDimensions().x/2, 50), new Vector(game.screenDimensions().x*2, 50), "gray")
+                        g.drawRect(new Vector(-game.screenDimensions().x/2, 50), new Vector(game.screenDimensions().x*2, game.screenDimensions().y*2), "gray")
                     },
                     content: () => {
                         this.stock.cards.forEach( ( card, i ) => Scene.node( {

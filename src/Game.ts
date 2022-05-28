@@ -62,7 +62,10 @@ export default class Game {
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
-        this.moveCamToFirstUnit()
+        this.world.activeTeam().cycleUnits()
+        if (this.world.activeTeam().selectedUnit() !== undefined) {
+            this.moveCamToUnit(this.world.activeTeam().selectedUnit()!)
+        }
     }
     generateEnemies( amount: number ) {
         this.world.teams[1] = new Team("Drunken Scholars", true, 1)
@@ -198,7 +201,7 @@ export default class Game {
                     this.world.teams[1] = new Team("Choden Warriors", true, 1)
                     //Generate enemies to fight
                     this.generateEnemies(this.level)
-                    this.world.map.randomize2( 0 )
+                    this.world.map.newMap()
                     this.world.placeUnits()
                     this.world.turn = 0
                     this.shopping = false

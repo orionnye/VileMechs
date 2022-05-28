@@ -20,9 +20,10 @@ export class Chrome extends Unit {
         this.drawSpeed = 4
         //custom cards
         // this.draw.add( CardTypes.repair, 1 )
-        this.draw.add( CardTypes.energyArmor, 1 )
+        this.draw.add( CardTypes.shieldCharge, 1 )
         this.draw.add( CardTypes.laser, 3 )
 
+        this.cardCycle()
         this.statReset()
     }
 }
@@ -40,11 +41,12 @@ export class Treant extends Unit {
         this.drawSpeed = 4
 
         this.draw.cards = []
-        this.draw.add( CardTypes.bouldertoss, 2 )
-        this.draw.add( CardTypes.mine, 4 )
-        this.draw.add( CardTypes.repair, 2 )
+        this.draw.add( CardTypes.root, 2 )
+        this.draw.add( CardTypes.mine, 2 )
+        this.draw.add( CardTypes.perfume, 2 )
 
         this.cardCycle()
+        this.statReset()
     }
 
 }
@@ -65,6 +67,7 @@ export class Earth extends Unit {
         // this.draw.add( CardTypes.repair, 1 )
 
         this.cardCycle()
+        this.statReset()
     }
 
 }
@@ -85,6 +88,7 @@ export class Flesh extends Unit {
         // this.draw.add( CardTypes.acid, 2)
 
         this.cardCycle()
+        this.statReset()
     }
 }
 
@@ -102,6 +106,7 @@ export class Jelly extends Unit {
         this.draw.add( CardTypes.tentacle, 2 )
         
         this.cardCycle()
+        this.statReset()
     }
 }
 export class FleshBot extends Flesh {
@@ -134,23 +139,6 @@ export class ChromeBot extends Unit {
         this.draw.add( CardTypes.laser, 5 )
 
         this.statReset()
-    }
-    // Damage reception overload to check for any energy armor and reduce damage recieved
-    addHealth( amount: number ) {
-        let { energyArmor } = CardTypes
-        let reduction = 0
-        if (amount < 0) {
-            // console.log(this.hand.typeCount(energyArmor))
-            this.hurtTime += Math.sqrt( -amount + 1 ) * .1
-            this.hand.cards.forEach( (card, index) => {
-                if (card.type == energyArmor && reduction < Math.abs(amount)) {
-                    reduction += 2
-                    this.hand.cards.splice(index, 1)
-                }
-            })
-        }
-        // console.log( "Reduction:", reduction )
-        this.health += amount + reduction
     }
 }
 export class Dummy extends Flesh {

@@ -149,7 +149,7 @@ export default class Unit {
         this.walkAnimPath = path
     }
     walkPath( path: Vector[] ) {
-        if (this.energy > 0) {
+        if (this.energy > 0 && this.speed > 1) {
             this.move( path )
             this.energy -= 1
         }
@@ -183,7 +183,7 @@ export default class Unit {
         this.draw.fillFrom(this.hand)
         this.draw.fillFrom(this.discard)
         //This assigns a units MAXhealth to their card total
-        // this.maxHealth = this.draw.length
+        this.maxHealth = this.draw.length
         this.health = this.maxHealth
         this.cardCycle()
         this.done = false
@@ -191,7 +191,7 @@ export default class Unit {
     statCap() {
         //Stat Cut Off
         this.energy = this.maxEnergy
-        // this.speed = this.maxSpeed
+        this.speed = this.maxSpeed
         this.capHealth()
         this.cardCycle()
         this.done = false
@@ -245,8 +245,9 @@ export default class Unit {
         g.setFont( 4, "pixel2" )
         let name = this.name
         const maxLength = 8
-        if ( name.length > maxLength )
+        if ( name.length > maxLength ) {
             name = name.slice( 0, maxLength - 3 ) + "..."
+        }
         g.drawTextBox( pos, name, { textColor: textColor, boxColor: backing, alignY: TextAlignY.bottom } )
     }
 
