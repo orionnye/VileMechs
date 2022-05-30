@@ -6,7 +6,7 @@ import Camera from "../gameobjects/Camera"
 // import Card from "./gameobjects/Card"
 // import { Deck } from "./gameobjects/Deck"
 // import UnitTray from "./gameobjects/UnitTray"
-import World from "../map/World"
+import World from "../gameobjects/map/World"
 import Graphics, { TextAlignX } from "../common/Graphics"
 import { randomFloor } from "../math/math"
 import Matrix from "../math/Matrix"
@@ -17,13 +17,13 @@ import { Deck } from "../gameobjects/card/Deck"
 import Card from "../gameobjects/card/Card"
 import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
-import Tile from "../map/Tile"
+import Tile from "../gameobjects/map/Tile"
 
 
-const Jungle = getImg( require( "../www/images/BackgroundPixel1.png" ) )
-const Jungle2 = getImg( require( "../www/images/BackgroundPixel2.png" ) )
-const Swamp = getImg( require( "../www/images/BackgroundPixel3.png" ) )
-const Forest = getImg( require( "../www/images/BackgroundPixel4.png" ) )
+const Jungle = getImg( require( "../www/images/gui/BackgroundPixel1.png" ) )
+const Jungle2 = getImg( require( "../www/images/gui/BackgroundPixel2.png" ) )
+const Swamp = getImg( require( "../www/images/gui/BackgroundPixel3.png" ) )
+const Forest = getImg( require( "../www/images/gui/BackgroundPixel4.png" ) )
 const Backgrounds = [ Jungle, Jungle2, Swamp, Forest]
 
 export default class Store {

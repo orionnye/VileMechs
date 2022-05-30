@@ -1,6 +1,6 @@
 import Game from "./Game"
 import { FleshBot, JellyBot } from "./gameobjects/mech/RigTypes"
-import World from "./map/World"
+import World from "./gameobjects/map/World"
 import { randomFloor } from "./math/math"
 import { Vector } from "./math/Vector"
 import Store from "./stages/Store"

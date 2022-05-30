@@ -1,4 +1,4 @@
-import Graphics from "../common/Graphics"
+import Graphics from "../../common/Graphics"
 
 // An instance of Tile does not represent an individual tile on the map.
 // Each instance of Tile represents a type of tile.

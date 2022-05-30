@@ -3,13 +3,13 @@ import { targetsWithinRange } from "../card/CardTypes"
 import Game from "../../Game"
 // import Card from "./gameobjects/Card"
 import Unit from "./Unit"
-import World from "../../map/World"
+import World from "../map/World"
 import { randomFloor } from "../../math/math"
 import { Vector } from "../../math/Vector"
-import { findPath } from "../../map/pathfinding"
+import { findPath } from "../map/pathfinding"
 import Card from "../card/Card"
 import Team from "./Team"
-import Tile from "../../map/Tile"
+import Tile from "../map/Tile"
 
 export default class AI {
     //call timing

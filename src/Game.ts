@@ -1,6 +1,6 @@
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
-import World from './map/World'
+import World from './gameobjects/map/World'
 import Input from "./common/Input"
 import Graphics, { TextAlignX } from "./common/Graphics"
 import "./common/GlobalTypes"
@@ -13,7 +13,7 @@ import content from "*.css"
 import Team from "./gameobjects/mech/Team"
 import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
 import Store from "./stages/Store"
-import Grid from "./map/Grid"
+import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
@@ -150,7 +150,7 @@ export default class Game {
             let worldClicked = node == this.world.scene
             let nothingClicked = node == undefined
             let unitSelected = this.world.activeTeam().selectedUnit() !== undefined
-            let isMovingUnit = unitSelected && !this.world.isPickingTarget()
+            let isMovingUnit = unitSelected && !this.world.isPickingCard()
             let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || this.input.keys.get( "shift" )
             if ( canLeftClickDrag || middleClick )
                 this.camera.startDragging()

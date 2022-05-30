@@ -1,20 +1,20 @@
 import Grid from "./Grid"
-import Graphics, { TextAlignX } from "../common/Graphics"
-import { Vector } from "../math/Vector"
+import Graphics, { TextAlignX } from "../../common/Graphics"
+import { Vector } from "../../math/Vector"
 import { findPath } from "./pathfinding"
-import Game from "../Game"
-import Matrix from "../math/Matrix"
-import Scene, { SceneNode } from "../common/Scene"
+import Game from "../../Game"
+import Matrix from "../../math/Matrix"
+import Scene, { SceneNode } from "../../common/Scene"
 import * as Tiles from "./Tiles"
-import Team from "../gameobjects/mech/Team"
+import Team from "../mech/Team"
 // import UnitTray from "../gameobjects/ui/UnitTray"
-import CardTray from "../gameobjects/ui/CardTray"
-import Unit from "../gameobjects/mech/Unit"
-import Camera from "../gameobjects/Camera"
-import UnitTray, { drawStats } from "../gameobjects/ui/UnitTray"
-import CardTypes, { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
-import AI from "../gameobjects/mech/AI"
-import { Treant } from "../gameobjects/mech/RigTypes"
+import CardTray from "../ui/CardTray"
+import Unit from "../mech/Unit"
+import Camera from "../Camera"
+import UnitTray, { drawStats } from "../ui/UnitTray"
+import CardTypes, { CardType, targetsWithinRange } from "../card/CardTypes"
+import AI from "../mech/AI"
+import { Treant } from "../mech/RigTypes"
 import Tile from "./Tile"
 
 
@@ -91,7 +91,7 @@ export default class World {
     // enemyUnits() { return this.teams[1].units }
     selectedUnit() { return this.activeTeam().selectedUnit() }
     selectedCard() { return this.selectedUnit()?.hand.cards[this.cardTray.index] }
-    isPickingTarget() { return this.cardTray.isPickingTarget }
+    isPickingCard() { return this.cardTray.isPickingTarget }
     goBack() {
         let { unitTray, cardTray } = this
         if ( cardTray.isPickingTarget )
@@ -143,9 +143,9 @@ export default class World {
     endTurn() {
         // Health ReCapped at turn start
         console.log("Ending turn")
-        this.teams[this.turn].endTurn()
         this.turn++
         this.turn %= this.teams.length
+        this.teams[this.turn].endTurn()
     }
 
     update() {
@@ -283,7 +283,7 @@ export default class World {
         let { width, height } = this.map
         let selectedUnit = this.activeTeam().selectedUnit()
         // let pickingTarget = false
-        let pickingTarget = this.isPickingTarget()
+        let pickingCard = this.isPickingCard()
         let tileSize = World.tileSize
 
         this.scene = Scene.node( {
@@ -292,7 +292,7 @@ export default class World {
             rect: { width: width * tileSize, height: height * tileSize, },
             onClick: ( node, pos: Vector ) => {
                 if (this.playerTurn()) {
-                    if ( selectedUnit && selectedUnit.canMove() && !pickingTarget ) {
+                    if ( selectedUnit && selectedUnit.canMove() && !pickingCard ) {
                         let cell = pos.scale( 1 / tileSize ).floor()
                         let path = findPath( this, selectedUnit.pos, cell, 100 )
                         if ( path ) {
@@ -308,7 +308,7 @@ export default class World {
                     let active = this.activeTeam() == team
                     team.makeSceneNode(active)
                 } )
-                if ( pickingTarget ) {
+                if ( pickingCard ) {
                     let card = this.selectedCard()
                     if ( selectedUnit && card) {
                         for ( let pos of card?.getTilesInRange( selectedUnit ) ) {

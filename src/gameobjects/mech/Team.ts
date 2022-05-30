@@ -1,7 +1,7 @@
 import Graphics from "../../common/Graphics";
 import Scene, { SceneNode } from "../../common/Scene";
 import Game from "../../Game";
-import World from "../../map/World";
+import World from "../map/World";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
 import UnitTray, { drawStats } from "../ui/UnitTray";

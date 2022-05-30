@@ -1,10 +1,10 @@
 import { getImg } from "../../common/utils"
 import Game from "../../Game"
 import Unit from "../mech/Unit"
-import World from "../../map/World"
+import World from "../map/World"
 import { Vector } from "../../math/Vector"
-import { findPath } from "../../map/pathfinding"
-import * as Tiles from "../../map/Tiles"
+import { findPath } from "../map/pathfinding"
+import * as Tiles from "../map/Tiles"
 import Card from "./Card"
 import Graphics from "../../common/Graphics"
 
@@ -61,6 +61,7 @@ export type CardType = {
 
     cost: number,
     damage: number,
+    dim?: Vector,
     range: number,
     minDist: number,
     friendly: boolean,
@@ -185,7 +186,6 @@ const CardTypes: { [ name: string ]: CardType } = {
     //     playable: true,
         
     // },
-    //------------------------------
     //------------------------------- CURRENCY -----------------------------
     //------------------------------- ELDRITCH -----------------------------
     tentacle: {
@@ -247,7 +247,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- EARTH -----------------------------
     bouldertoss: {
         name: "Boulder Toss",
-        getDescription: card => `Place a Mountain Deal ${card.type.damage} damage`,
+        getDescription: card => `Place 2x2 Mountain, Deal ${card.type.damage} damage`,
         color: "#b87420",
         sprite: boulder,
         backing: brown,
@@ -259,6 +259,31 @@ const CardTypes: { [ name: string ]: CardType } = {
             world.map.set( pos, Tiles.GrassHill )
             target?.addHealth( -card.type.damage )
             user.energy -= card.type.cost
+            //check if "ore" is in hand and scale with total. Then remove ores
+        },
+
+        cost: 1,
+        damage: 2,
+        range: 7,
+        minDist: 2,
+        friendly: false,
+        playable: true,
+        
+    },
+    Gorge: {
+        name: "Gorge",
+        getDescription: card => `Eat all mountains around you`,
+        color: "#b87420",
+        sprite: boulder,
+        backing: brown,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            // console.log(pos)
+            // let world = Game.instance.world
+            // world.map.set( pos, Tiles.GrassHill )
+            // target?.addHealth( -card.type.damage )
+            // user.energy -= card.type.cost
             //check if "ore" is in hand and scale with total. Then remove ores
         },
 
@@ -478,6 +503,50 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 0,
         friendly: false,
         playable: true,
+    },
+    flower: {
+        name: "Flower",
+        getDescription: card => `Grant Target ${card.type.damage} Fruits`,
+        color: "#026822",
+        sprite: flower,
+        backing: green,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            user.energy -= card.type.cost
+            
+            if ( target ) {
+                target.draw.add(CardTypes.fruit, 2)
+            }
+        },
+
+        cost: 1,
+        damage: 2,
+        range: 5,
+        minDist: 0,
+        friendly: false,
+        playable: true,
+    },
+    fruit: {
+        name: "Fruit",
+        getDescription: card => `Grant User ${card.type.damage} HP -Exhaustive`,
+        color: "#026822",
+        sprite: fruit,
+        backing: green,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            user.energy -= card.type.cost
+            user.addHealth(card.type.damage)
+        },
+
+        cost: 0,
+        damage: 2,
+        range: 1,
+        minDist: 0,
+        friendly: true,
+        playable: true,
+        exhaustive: true,
     },
     //------------------------------- THERMAL -----------------------------
     // frost: {

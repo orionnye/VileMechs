@@ -31,7 +31,7 @@ export class Deck {
         })
         return count
     }
-    insertAt( card, index ) {
+    insertAt( card: Card, index: number ) {
         if ( this.length == 0 ) {
             this.cards.push( card )
             return
@@ -40,7 +40,7 @@ export class Deck {
         this.cards[ index ] = card
         this.cards.push( store )
     }
-    insertAtRandom( card ) {
+    insertAtRandom( card: Card ) {
         let random = Math.floor( Math.random() * this.length )
         this.insertAt( card, random )
     }
