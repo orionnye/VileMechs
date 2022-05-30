@@ -16,3 +16,19 @@ export function randomColor() {
 export function getFrameNumber( fps: number, numberOfFrames = Infinity, time = performance.now() / 1000 ) {
     return Math.floor( time * fps ) % numberOfFrames
 }
+
+export function arrayArgMin<T>( array: T[], func: ( T ) => number ) {
+    let minElem: T | null = null
+    let minValue = Infinity
+    let minIndex: number | null = null
+    for ( let i = 0; i < array.length; i++ ) {
+        let elem = array[ i ]
+        let value = func( elem )
+        if ( value < minValue ) {
+            minElem = elem
+            minValue = value
+            minIndex = i
+        }
+    }
+    return { element: minElem, value: minValue, index: minIndex }
+}
