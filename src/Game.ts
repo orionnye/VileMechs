@@ -1,6 +1,6 @@
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
-import World from './gameobjects/map/World'
+import World from './stages/Match'
 import Input from "./common/Input"
 import Graphics, { TextAlignX } from "./common/Graphics"
 import "./common/GlobalTypes"

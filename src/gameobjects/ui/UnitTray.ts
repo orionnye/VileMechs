@@ -1,7 +1,7 @@
 import Graphics from "../../common/Graphics"
 import Scene from "../../common/Scene"
 import Game from "../../Game"
-import World from "../map/World"
+import World from "../../stages/Match"
 import { randomInt } from "../../math/math"
 import Matrix from "../../math/Matrix"
 import { Vector } from "../../math/Vector"

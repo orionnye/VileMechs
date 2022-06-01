@@ -3,7 +3,7 @@ import { clamp } from "../math/math"
 import Matrix from "../math/Matrix"
 import { Vector } from "../math/Vector"
 import Scene from "../common/Scene"
-import World from "./map/World"
+import World from "../stages/Match"
 
 export default class Camera {
     position: Vector

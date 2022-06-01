@@ -78,8 +78,9 @@ export default class Card {
 
     apply( user: Unit, pos: Vector, target?: Unit ) {
         const type = this.type
-        if ( type.onApplyToTile )
+        if ( type.onApplyToTile ) {
             type.onApplyToTile( this, user, pos, target )
+        }
     }
 }
 
