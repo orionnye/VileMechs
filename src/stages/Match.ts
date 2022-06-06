@@ -36,14 +36,14 @@ export default class Match {
     //ai
     aiTeamNumbers = [ -1, 1 ]
     ai = new AI()
+    
     //Card Animation
     cardAnim = {
-        rate: 0.1,
-        cap: 3,
-        step: 3,
+        rate: 0.02,
+        cap: 1,
+        step: 1,
         type: <CardType | undefined> undefined,
-        target: <Unit | undefined> undefined,
-        pos: <Vector | undefined> undefined
+        pos: <Vector> new Vector(0, 0)
     }
 
     //Node
@@ -112,7 +112,12 @@ export default class Match {
                 if (!card.type.exhaustive) {
                     unit.discard.cards.push( card )
                 }
-                card.apply( unit, pos, this.getUnit( pos ) )
+                card.apply( unit, pos )
+
+                //Triggers Card Animtaion
+                this.cardAnim.step = 0
+                this.cardAnim.type = card?.type
+                this.cardAnim.pos = pos
             }
         }
     }
@@ -146,6 +151,7 @@ export default class Match {
         this.turn++
         this.turn %= this.teams.length
         this.teams[this.turn].endTurn()
+        console.log("STEP: ", this.cardAnim.step)
     }
 
     update() {
@@ -155,8 +161,12 @@ export default class Match {
         if (this.activeTeam().selectedUnit()) {
             this.cardTray.update(this.activeTeam().selectedUnit()!)
         }
-        if (this.cardAnim.step < this.cardAnim.cap) {
-            this.cardAnim.step += this.cardAnim.rate
+        let { step, cap, type } = this.cardAnim
+        if ( step < cap ) {
+            if (type) {
+                let rate = type.renderFrames ? this.cardAnim.cap / type.renderFrames : 0.1
+                this.cardAnim.step += rate
+            }
         }
     }
 
@@ -230,14 +240,14 @@ export default class Match {
         }
         
         //Card Animation
-        let { step, cap, type, target, pos } = this.cardAnim
+        let { step, cap, type, pos } = this.cardAnim
         if ( selectedUnit ) {
             if ( step < cap ) {
                 //--------------------------CARD ANIMATION SHOULD GO HERE, THEN INCREASE STEP BY RATE IN UPDATE
                 if (type?.render) {
                     if (selectedUnit) {
-                        console.log("USING CARD ANIMATION")
-                        type.render(step, selectedUnit, pos, target)
+                        // console.log("USING CARD ANIMATION")
+                        type.render( step, selectedUnit, pos )
                     }
                 }
             }
@@ -321,25 +331,40 @@ export default class Match {
                                 onClick: () => {
                                     if ( this.playerTurn() && isValidTarget ) {
                                         this.applyCardAt( pos )
-                                        //animate trigger here
-                                        this.cardAnim.step = 0
-                                        this.cardAnim.type = card?.type
-                                        this.cardAnim.target = unit
-                                        this.cardAnim.pos = pos
                                     }
                                 },
                                 onRender: ( node ) => {
                                     let hover = node == game.mouseOverData.node
                                     let highlight = hover && isValidTarget
                                     let alpha = isValidTarget ? .5 : .15
-                                    g.c.fillStyle = highlight ? `rgba(135, 231, 255, ${ alpha })` : `rgba(3, 202, 252, ${ alpha })`
-                                    g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
-                                    g.c.beginPath()
-                                    g.c.rect( 0, 0, tileSize, tileSize )
-                                    g.c.fill()
-                                    g.c.stroke()
-                                    if (unit) {
-                                        drawStats(unit)
+                                    let highlightTarget = `rgba(135, 231, 255, ${ alpha })`
+                                    let possibleTarget = `rgba(3, 202, 252, ${ alpha })`
+                                    g.c.fillStyle = highlight ? highlightTarget : possibleTarget
+                                    let cardImpactZone = [pos]
+                                    if (Game.instance.world.map.contains(pos)) {
+                                        if ( card?.type.getTilesEffected ) {
+                                            cardImpactZone = card?.type.getTilesEffected!(this.selectedUnit()!, pos)
+                                        }
+                                        if (highlight) {
+                                            cardImpactZone.forEach((tile, i) => {
+                                                let adjustedPos = new Vector(tile.x, tile.y).subtract(pos).scale(tileSize)
+                                                g.c.fillStyle = highlight ? highlightTarget : possibleTarget
+                                                g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
+                                                g.c.beginPath()
+                                                g.c.rect( adjustedPos.x, adjustedPos.y, tileSize, tileSize )
+                                                g.c.fill()
+                                                g.c.stroke()
+                                            })
+                                        }
+                                        g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
+                                        g.c.beginPath()
+                                        g.c.rect( 0, 0, tileSize, tileSize )
+                                        g.c.fill()
+                                        g.c.stroke()
+    
+                                        if (unit) {
+                                            drawStats(unit)
+                                        }
                                     }
                                 }
                             } )

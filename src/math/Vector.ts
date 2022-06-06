@@ -17,10 +17,14 @@ export class Vector {
     product( other: Vector ) { return new Vector( this.x * other.x, this.y * other.y ) }
     scale( other: number ) { return new Vector( this.x * other, this.y * other ) }
     floor() { return new Vector( Math.floor( this.x ), Math.floor( this.y ) ) }
+    ceil() { return new Vector( Math.ceil( this.x ), Math.ceil( this.y ) ) }
     distance( other: Vector ) { return this.subtract( other ).length }
     equals( other: Vector | null ) {
         if ( other == null ) return false
         return equals( this.x, other.x ) && equals( this.y, other.y )
+    }
+    signs() {
+        return new Vector(Math.sign(this.x), Math.sign(this.y))
     }
     lerp( other: Vector, alpha: number ) {
         let beta = 1 - alpha

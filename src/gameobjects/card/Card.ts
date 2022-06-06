@@ -6,8 +6,10 @@
 // import World from "./World"
 // import CardTypes, { CardType, randomCardType } from "../CardTypes"
 
+import { dirxml } from "console"
 import Graphics from "../../common/Graphics"
 import { randomColor } from "../../common/utils"
+import Game from "../../Game"
 import { Vector } from "../../math/Vector"
 import Unit from "../mech/Unit"
 import CardTypes, { randomCardType } from "./CardTypes"
@@ -76,11 +78,21 @@ export default class Card {
         return this.type.getTilesInRange( this, user )
     }
 
-    apply( user: Unit, pos: Vector, target?: Unit ) {
+    apply( user: Unit, pos: Vector) {
         const type = this.type
+        const dim = type.dim
+        const world = Game.instance.world
+        let target = world.getUnit(pos)
         if ( type.onApplyToTile ) {
+            if (type.getTilesEffected) {
+                type.getTilesEffected(user, pos).forEach((tile, i) => {
+                    target = world.getUnit(tile)
+                    type.onApplyToTile!( this, user, tile, target)
+                })
+            }
             type.onApplyToTile( this, user, pos, target )
         }
+        user.addEnergy(-type.cost)
     }
 }
 

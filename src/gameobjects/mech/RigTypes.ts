@@ -19,9 +19,9 @@ export class Chrome extends Unit {
         //custom stats
         this.drawSpeed = 4
         //custom cards
-        // this.draw.add( CardTypes.repair, 1 )
-        this.draw.add( CardTypes.shieldCharge, 1 )
-        this.draw.add( CardTypes.laser, 3 )
+        // this.draw.add( CardTypes.repair, 4 )
+        // this.draw.add( CardTypes.shieldCharge, 1 )
+        this.draw.add( CardTypes.laser, 4 )
 
         this.cardCycle()
         this.statReset()
@@ -64,8 +64,10 @@ export class Earth extends Unit {
         this.drawSpeed = 5
 
         this.draw.cards = []
-        this.draw.add( CardTypes.bouldertoss, 4 )
-        this.draw.add( CardTypes.mine, 4 )
+        // this.draw.add( CardTypes.bouldertoss, 5 )
+        // this.draw.add( CardTypes.laser, 2 )
+        // this.draw.add( CardTypes.mine, 4 )
+        this.draw.add( CardTypes.gorge, 5 )
         // this.draw.add( CardTypes.repair, 1 )
 
         this.cardCycle()
