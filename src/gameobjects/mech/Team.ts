@@ -20,7 +20,7 @@ export default class Team {
 
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor(name: string, flip: boolean = false, teamNumber: number) {
+    constructor( name: string, flip: boolean = false, teamNumber: number ) {
         this.name = name
         this.flipUnits = flip
 
@@ -33,14 +33,17 @@ export default class Team {
     }
     //----DATA ACCESS----
     setUnitIndex( index: number ) {
+        if ( index != this.index )
+            Game.instance.world.cardTray.deselect()
         this.hasUnitSelected = index > -1
         this.index = index
         // this.onSelectUnit()
     }
 
     deselect() {
-        this.hasUnitSelected = false
-        this.index = -1
+        // this.hasUnitSelected = false
+        // this.index = -1
+        this.setUnitIndex( -1 )
     }
 
     toggleSelectIndex( index: number ) {
@@ -86,9 +89,9 @@ export default class Team {
     }
 
     endTurn() {
-        this.units.forEach(unit => {
+        this.units.forEach( unit => {
             unit.statCap()
-        })
+        } )
         this.deselect()
     }
 
@@ -99,7 +102,7 @@ export default class Team {
     }
 
 
-    makeSceneNode(active = false) {
+    makeSceneNode( active = false ) {
         let game = Game.instance
         let world = game.world
         let g = Graphics.instance
@@ -118,7 +121,7 @@ export default class Team {
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
                         onClick: () => {
-                            if (game.world.playerTurn()) {
+                            if ( game.world.playerTurn() ) {
                                 this.toggleSelectUnit( unit )
                             }
                         },
@@ -127,29 +130,29 @@ export default class Team {
                             let isSelected = unit == selectedUnit
                             //Selected? Art
                             g.c.save()
-                            if (active) {
-                                if (this.index == i) {
-                                    g.c.scale(1.3, 1.3)
-                                    g.c.translate(-3, -3)
-                                    g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "rgba(255, 255, 255, 0.4)")
+                            if ( active ) {
+                                if ( this.index == i ) {
+                                    g.c.scale( 1.3, 1.3 )
+                                    g.c.translate( -3, -3 )
+                                    g.drawRect( new Vector( 0, 0 ), new Vector( tileSize, tileSize ), "rgba(255, 255, 255, 0.4)" )
                                 }
-                                
+
                                 if ( isSelected && !unit.isWalking() ) {
                                     g.c.shadowBlur = 10
                                     g.c.shadowColor = "black"
                                 }
                             }
-                            if (flipUnits) {
-                                g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "#00000055")
+                            if ( flipUnits ) {
+                                g.drawRect( new Vector( 0, 0 ), new Vector( tileSize, tileSize ), "#00000055" )
                             } else {
-                                g.drawRect(new Vector(0, 0), new Vector(tileSize, tileSize), "#ffffff77")
+                                g.drawRect( new Vector( 0, 0 ), new Vector( tileSize, tileSize ), "#ffffff77" )
                             }
                             //Standard rendering
                             unit.render( true, flipUnits )
                             g.c.restore()
-                            if (hover) {
+                            if ( hover ) {
                                 // g.drawRect(new Vector(0, 0), new Vector(100, 100), "red")
-                                drawStats(unit)
+                                drawStats( unit )
                             }
                         }
                     } )
