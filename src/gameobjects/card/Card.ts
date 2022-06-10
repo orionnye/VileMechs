@@ -3,7 +3,7 @@
 // import { Vector } from "../math/Vector"
 // import Unit from "./Unit"
 // import { getImg, randomColor } from "../common/utils"
-// import World from "./World"
+// import Match from "./Match"
 // import CardTypes, { CardType, randomCardType } from "../CardTypes"
 
 import { dirxml } from "console"
@@ -21,7 +21,7 @@ export default class Card {
     static dimensions = new Vector( 48, 64 )
 
     yRotation: number = 0
-    pos: Vector = new Vector(0, 0)
+    pos: Vector = new Vector( 0, 0 )
     color: string = randomColor()
     type = CardTypes.laser
 
@@ -43,24 +43,24 @@ export default class Card {
 
         if ( this.yRotation >= Math.PI / 2 ) {
             // Back face
-            g.strokeRect( new Vector(0, 0), Card.dimensions, "#ffddff" )
-            g.drawRect( new Vector(0, 0), Card.dimensions, this.type.color )
+            g.strokeRect( new Vector( 0, 0 ), Card.dimensions, "#ffddff" )
+            g.drawRect( new Vector( 0, 0 ), Card.dimensions, this.type.color )
         } else {
             // Front face
             g.c.drawImage( this.type.backing, 0, 0, Card.dimensions.x, Card.dimensions.y, 0, 0, Card.dimensions.x, Card.dimensions.y )
             //graphic
-            g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 7, 7, Card.dimensions.x*0.75, Card.dimensions.y*0.75 )
+            g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 7, 7, Card.dimensions.x * 0.75, Card.dimensions.y * 0.75 )
             //background boxing
-            let costDimensions = new Vector(10, 10)
-            let costPos = new Vector(0, 5)
-            g.drawRect(costPos, costDimensions, this.type.color)
-            g.drawRect(new Vector(0, 0), new Vector(Card.dimensions.x, 8), this.type.color)
+            let costDimensions = new Vector( 10, 10 )
+            let costPos = new Vector( 0, 5 )
+            g.drawRect( costPos, costDimensions, this.type.color )
+            g.drawRect( new Vector( 0, 0 ), new Vector( Card.dimensions.x, 8 ), this.type.color )
             //title
             g.setFont( 5, "pixel2" )
             g.drawText( new Vector( 3, 1 ), this.type.name, "#f0ead8" )
             //Cost Display
-            g.setFont(Card.dimensions.x/6, "pixel2")
-            g.drawText(costPos.add(new Vector(3, 0)), this.type.cost.toString(), "white")
+            g.setFont( Card.dimensions.x / 6, "pixel2" )
+            g.drawText( costPos.add( new Vector( 3, 0 ) ), this.type.cost.toString(), "white" )
 
             //card description
             g.drawRect( new Vector( 4, 40 ), new Vector( 40, 20 ), this.type.color )
@@ -78,21 +78,21 @@ export default class Card {
         return this.type.getTilesInRange( this, user )
     }
 
-    apply( user: Unit, pos: Vector) {
+    apply( user: Unit, pos: Vector ) {
         const type = this.type
         const dim = type.dim
-        const world = Game.instance.world
-        let target = world.getUnit(pos)
+        const match = Game.instance.match
+        let target = match.getUnit( pos )
         if ( type.onApplyToTile ) {
-            if (type.getTilesEffected) {
-                type.getTilesEffected(user, pos).forEach((tile, i) => {
-                    target = world.getUnit(tile)
-                    type.onApplyToTile!( this, user, tile, target)
-                })
+            if ( type.getTilesEffected ) {
+                type.getTilesEffected( user, pos ).forEach( ( tile, i ) => {
+                    target = match.getUnit( tile )
+                    type.onApplyToTile!( this, user, tile, target )
+                } )
             }
             type.onApplyToTile( this, user, pos, target )
         }
-        user.addEnergy(-type.cost)
+        user.addEnergy( -type.cost )
     }
 }
 

@@ -8,7 +8,7 @@ import { getFrameNumber, getImg } from "../../common/utils"
 // import Card from "./Card"
 import Game from "../../Game"
 import Scene, { SceneNode } from "../../common/Scene"
-import World from "../../stages/Match"
+import Match from "../../stages/Match"
 // import { Deck } from "./Deck"
 import CardTypes, { CardType } from "../card/CardTypes"
 import { Deck } from "../card/Deck"
@@ -28,17 +28,17 @@ export default class Unit {
     health: number
     maxHealth: number
     pos: Vector
-    
+
     //team
     teamNumber: number
     done: boolean
-    
+
     //Cards
     draw: Deck = new Deck()
     hand: Deck = new Deck()
     discard: Deck = new Deck()
     drawSpeed: number
-    
+
     //visualStats
     color: string
     name: string
@@ -64,7 +64,7 @@ export default class Unit {
 
         this.maxHealth = 8
         this.health = this.maxHealth
-        
+
         this.drawSpeed = 4
         this.hand.max = 8
 
@@ -77,16 +77,16 @@ export default class Unit {
     addHealth( amount: number ) {
         let { energyArmor } = CardTypes
         let reduction = 0
-        if (amount < 0) {
+        if ( amount < 0 ) {
             // console.log(this.hand.typeCount(energyArmor))
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
-            this.hand.cards.forEach( (card, index) => {
-                if (card.type == energyArmor && reduction < Math.abs(amount)) {
+            this.hand.cards.forEach( ( card, index ) => {
+                if ( card.type == energyArmor && reduction < Math.abs( amount ) ) {
                     reduction += energyArmor.damage
-                    let store = this.hand.cards.splice(index, 1)
-                    this.discard.cards.push(store[0])
+                    let store = this.hand.cards.splice( index, 1 )
+                    this.discard.cards.push( store[ 0 ] )
                 }
-            })
+            } )
         }
         // console.log( "Reduction:", reduction )
         this.health += amount + reduction
@@ -108,8 +108,8 @@ export default class Unit {
     }
     //Card management
     gainCard( cardType: CardType, count: number = 1 ) {
-        for (let i = count; i > 0; i--) {
-            if (this.hand.length < this.hand.max) {
+        for ( let i = count; i > 0; i-- ) {
+            if ( this.hand.length < this.hand.max ) {
                 this.hand.add( cardType )
             } else {
                 this.discard.add( cardType )
@@ -117,29 +117,29 @@ export default class Unit {
         }
     }
     drawCard( amount: number ) {
-        for (let i = amount; i > 0; i--) {
+        for ( let i = amount; i > 0; i-- ) {
             // console.log("being Called")
-            if (this.draw.length > 0) {
-                let card = <Card> this.draw.cards.pop()
+            if ( this.draw.length > 0 ) {
+                let card = <Card>this.draw.cards.pop()
                 // console.log("DrawPile Exists:", card.type.name)
-                this.hand.cards.push(card)
+                this.hand.cards.push( card )
             } else {
-                this.discard.emptyInto(this.draw)
-                if (this.draw.length > 0 ) {
-                    let card = <Card> this.draw.cards.pop()
+                this.discard.emptyInto( this.draw )
+                if ( this.draw.length > 0 ) {
+                    let card = <Card>this.draw.cards.pop()
                     // console.log("DrawPile Doesnt Exists:", card.type.name)
-                    this.hand.cards.push(card)
+                    this.hand.cards.push( card )
                 }
             }
         }
     }
     discardCard( amount: number = 1 ) {
-        for (let i = amount; i > 0; i--) {
+        for ( let i = amount; i > 0; i-- ) {
             // console.log("being Called")
-            if (this.hand.length > 0) {
-                let card = <Card> this.hand.cards.pop()
+            if ( this.hand.length > 0 ) {
+                let card = <Card>this.hand.cards.pop()
                 // console.log("DrawPile Exists:", card.type.name)
-                this.discard.cards.push(card)
+                this.discard.cards.push( card )
             }
         }
     }
@@ -149,7 +149,7 @@ export default class Unit {
         this.walkAnimPath = path
     }
     walkPath( path: Vector[] ) {
-        if (this.energy > 0 && this.speed > 1) {
+        if ( this.energy > 0 && this.speed > 1 ) {
             this.move( path )
             this.energy -= 1
         }
@@ -160,16 +160,16 @@ export default class Unit {
         let totalCards = hand.length + draw.length + discard.length
 
         //empty hand into discard
-        discard.fillFrom(hand)
+        discard.fillFrom( hand )
         //fill hand from draw pile
-        hand.fillTill(draw, drawSpeed)
+        hand.fillTill( draw, drawSpeed )
 
         //empty remaining cards from hand into discardPile
-        if (hand.length < drawSpeed) {
+        if ( hand.length < drawSpeed ) {
             //fill draw pile from discard
-            draw.fillFrom(discard)
+            draw.fillFrom( discard )
             //fill hand from draw pile
-            hand.fillTill(draw, drawSpeed)
+            hand.fillTill( draw, drawSpeed )
         }
     }
 
@@ -180,8 +180,8 @@ export default class Unit {
         //Stat Reset
         this.energy = this.maxEnergy
         this.speed = this.maxSpeed
-        this.draw.fillFrom(this.hand)
-        this.draw.fillFrom(this.discard)
+        this.draw.fillFrom( this.hand )
+        this.draw.fillFrom( this.discard )
         //This assigns a units MAXhealth to their card total
         this.maxHealth = this.draw.length
         this.health = this.maxHealth
@@ -225,7 +225,7 @@ export default class Unit {
             let v1 = path[ step + 1 ]
             let animPos = v0.lerp( v1, partialStep )
             let diff = animPos.subtract( this.pos )
-            g.vTranslate( diff.scale( World.tileSize ) )
+            g.vTranslate( diff.scale( Match.tileSize ) )
         }
         let doShake = animate && this.hurtTime > 0
         g.c.save()
@@ -238,7 +238,7 @@ export default class Unit {
         g.drawSheetFrame( this.sprite, 32, 0, 0, frame )
         g.c.restore()
     }
-    renderName(pos: Vector, textColor: string = "#c2c2c2", backing: string = "#696969") {
+    renderName( pos: Vector, textColor: string = "#c2c2c2", backing: string = "#696969" ) {
         let g = Graphics.instance
         g.c.shadowBlur = 0
         // g.setFont( 3.5, "pixel" )

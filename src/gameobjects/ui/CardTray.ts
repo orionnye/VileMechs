@@ -19,7 +19,7 @@ export default class CardTray {
 
     hasCardSelected() { return this.index > -1 }
 
-    selectedCard(unit: Unit) {
+    selectedCard( unit: Unit ) {
         // console.log("selecting a card!:", Unit)
         return unit?.hand.cards[ this.index ]
     }
@@ -34,7 +34,7 @@ export default class CardTray {
         this.isPickingTarget = false
     }
 
-    onSelectUnit(unit: Unit) {
+    onSelectUnit( unit: Unit ) {
         this.deselect()
         this.lerpCards( unit, 1 )
         let { hand, draw, discard } = unit
@@ -46,16 +46,16 @@ export default class CardTray {
         }
     }
 
-    update(unit: Unit) {
+    update( unit: Unit ) {
         let { lastSelectTime } = this
         let game = Game.instance
-        this.lerpCards(unit, .2 )
+        this.lerpCards( unit, .2 )
         if ( this.hasCardSelected() && !this.isPickingTarget ) {
             let now = Date.now()
             let dt = now - lastSelectTime
-            if ( dt > CardTray.selectionTimeout && game.world.playerTurn()) {
+            if ( dt > CardTray.selectionTimeout && game.match.playerTurn() ) {
                 this.selectIndex( -1 )
-            } 
+            }
         }
     }
 
@@ -96,14 +96,14 @@ export default class CardTray {
         return this.handBase( handLength ).addXY( stride * cardIndex, -elevation )
     }
     drawPosition( handLength: number, cardIndex: number ) {
-        let offset = new Vector(0.5, 0.5)
+        let offset = new Vector( 0.5, 0.5 )
         let screenSize = Game.instance.screenDimensions()
         let stride = offset.x, width = stride * handLength
         let drawBase = new Vector( 20 - width, screenSize.y - Card.dimensions.y / 1.2 )
         return drawBase.addXY( cardIndex * offset.x, cardIndex * offset.y )
     }
     discardPosition( handLength: number, cardIndex: number ) {
-        let offset = new Vector(0.5, 0.5)
+        let offset = new Vector( 0.5, 0.5 )
         let screenSize = Game.instance.screenDimensions()
         let stride = offset.x, width = stride * handLength
         let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width, screenSize.y - Card.dimensions.y / 1.2 )
@@ -131,13 +131,13 @@ export default class CardTray {
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => card.render(),
-            onHover: () => { 
-                if ( game.world.playerTurn() && !this.isPickingTarget ) {
+            onHover: () => {
+                if ( game.match.playerTurn() && !this.isPickingTarget ) {
                     this.selectIndex( i )
                 }
             },
             onClick: () => {
-                if (game.world.playerTurn()) {
+                if ( game.match.playerTurn() ) {
                     let isSelectedCard = this.index == i
                     if ( this.isPickingTarget && isSelectedCard ) {
                         this.deselect()
@@ -155,14 +155,14 @@ export default class CardTray {
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
             onRender: () => {
                 card.render()
-                if (i == draw.length - 1) {
+                if ( i == draw.length - 1 ) {
                     g.c.save()
-                    g.c.scale(-1, 1)
-                    g.setFont(25, "Times")
-                    let pos = new Vector(-Card.dimensions.x/4*3, Card.dimensions.y/5)
-                    g.drawRect(pos.add(new Vector(-7, -7)), new Vector(38, 38), "grey")
-                    g.drawRect(pos.add(new Vector(-5, -5)), new Vector(34, 34), "white")
-                    g.drawText(pos, draw.length.toString(), "black")
+                    g.c.scale( -1, 1 )
+                    g.setFont( 25, "Times" )
+                    let pos = new Vector( -Card.dimensions.x / 4 * 3, Card.dimensions.y / 5 )
+                    g.drawRect( pos.add( new Vector( -7, -7 ) ), new Vector( 38, 38 ), "grey" )
+                    g.drawRect( pos.add( new Vector( -5, -5 ) ), new Vector( 34, 34 ), "white" )
+                    g.drawText( pos, draw.length.toString(), "black" )
                     g.c.restore()
                 }
             }
@@ -171,16 +171,16 @@ export default class CardTray {
             description: "card-discard",
             localMatrix: Matrix.vTranslation( card.pos ),
             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
-            onRender: () =>  {
+            onRender: () => {
                 card.render()
-                if (i == discard.length - 1) {
+                if ( i == discard.length - 1 ) {
                     g.c.save()
-                    g.c.scale(-1, 1)
-                    g.setFont(25, "Times")
-                    let pos = new Vector(-Card.dimensions.x/4*3, Card.dimensions.y/5)
-                    g.drawRect(pos.add(new Vector(-7, -7)), new Vector(38, 38), "grey")
-                    g.drawRect(pos.add(new Vector(-5, -5)), new Vector(34, 34), "black")
-                    g.drawText(pos, discard.length.toString(), "white")
+                    g.c.scale( -1, 1 )
+                    g.setFont( 25, "Times" )
+                    let pos = new Vector( -Card.dimensions.x / 4 * 3, Card.dimensions.y / 5 )
+                    g.drawRect( pos.add( new Vector( -7, -7 ) ), new Vector( 38, 38 ), "grey" )
+                    g.drawRect( pos.add( new Vector( -5, -5 ) ), new Vector( 34, 34 ), "black" )
+                    g.drawText( pos, discard.length.toString(), "white" )
                     g.c.restore()
                 }
             }

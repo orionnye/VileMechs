@@ -3,7 +3,7 @@ import { clamp } from "../math/math"
 import Matrix from "../math/Matrix"
 import { Vector } from "../math/Vector"
 import Scene from "../common/Scene"
-import World from "../stages/Match"
+import Match from "../stages/Match"
 
 export default class Camera {
     position: Vector
@@ -101,7 +101,7 @@ export default class Camera {
             this.targetPosition = undefined
             let cursor = input.cursor
             let diff = this.lastDragPosition.subtract( cursor )
-            let mat = Scene.relativeMatrix( game.world.scene )
+            let mat = Scene.relativeMatrix( game.match.scene )
             let diffPrime = mat.inverse().multiplyVec( diff, 0 )
             this.velocity = diffPrime
             this.lastDragPosition = cursor
@@ -126,7 +126,7 @@ export default class Camera {
     isInFocusArea( pos: Vector ) {
         let screenDims = Game.instance.screenDimensions()
         let pos2 = this.worldToCamera( screenDims.x, screenDims.y ).multiplyVec( pos )
-        return this.distFromViewport( pos2 ) < -World.tileSize * 2
+        return this.distFromViewport( pos2 ) < -Match.tileSize * 2
     }
     setCameraTarget( pos: Vector ) {
         if ( this.isInFocusArea( pos ) )

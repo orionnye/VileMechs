@@ -1,7 +1,7 @@
 import Graphics from "../../common/Graphics";
 import Scene, { SceneNode } from "../../common/Scene";
 import Game from "../../Game";
-import World from "../../stages/Match";
+import Match from "../../stages/Match";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
 import UnitTray, { drawStats } from "../ui/UnitTray";
@@ -34,7 +34,7 @@ export default class Team {
     //----DATA ACCESS----
     setUnitIndex( index: number ) {
         if ( index != this.index )
-            Game.instance.world.cardTray.deselect()
+            Game.instance.match.cardTray.deselect()
         this.hasUnitSelected = index > -1
         this.index = index
         // this.onSelectUnit()
@@ -104,11 +104,11 @@ export default class Team {
 
     makeSceneNode( active = false ) {
         let game = Game.instance
-        let world = game.world
+        let match = game.match
         let g = Graphics.instance
         let { units, flipUnits } = this
         let selectedUnit = this.selectedUnit()
-        let tileSize = World.tileSize
+        let tileSize = Match.tileSize
 
         this.scene = Scene.node( {
             description: this.name,
@@ -121,7 +121,7 @@ export default class Team {
                         localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
                         rect: { width: tileSize, height: tileSize },
                         onClick: () => {
-                            if ( game.world.playerTurn() ) {
+                            if ( game.match.playerTurn() ) {
                                 this.toggleSelectUnit( unit )
                             }
                         },
