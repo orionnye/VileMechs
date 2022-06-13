@@ -108,7 +108,7 @@ export default class Game {
                 AI.think( this.match.activeTeam() )
             }
             if ( AI.chodiness >= AI.maxChodiness ) {
-                if ( match.activeTeam().index >= match.activeTeam().units.length - 1 ) {
+                if ( match.activeTeam().selectedUnitIndex >= match.activeTeam().units.length - 1 ) {
                     match.endTurn()
                     match.activeTeam().cycleUnits()
                     if ( match.playerUnits.length > 0 )

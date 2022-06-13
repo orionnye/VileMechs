@@ -1,5 +1,5 @@
 import Grid from "../gameobjects/map/Grid"
-import Graphics, { TextAlignX } from "../common/Graphics"
+import Graphics from "../common/Graphics"
 import { Vector } from "../math/Vector"
 import { findPath } from "../gameobjects/map/pathfinding"
 import Game from "../Game"
@@ -7,15 +7,10 @@ import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../common/Scene"
 import * as Tiles from "../gameobjects/map/Tiles"
 import Team from "../gameobjects/mech/Team"
-// import UnitTray from "../gameobjects/ui/UnitTray"
 import CardTray from "../gameobjects/ui/CardTray"
-import Unit from "../gameobjects/mech/Unit"
-import Camera from "../gameobjects/Camera"
-import UnitTray, { drawStats } from "../gameobjects/ui/UnitTray"
-import CardTypes, { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
+import UnitTray from "../gameobjects/ui/UnitTray"
+import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import AI from "../gameobjects/mech/AI"
-import { Treant } from "../gameobjects/mech/RigTypes"
-import Tile from "../gameobjects/map/Tile"
 
 
 export default class Match {
@@ -25,7 +20,6 @@ export default class Match {
 
     //Units
     teams: Team[]
-    units: Unit[]
     turn = 0
 
     //UI
@@ -57,10 +51,6 @@ export default class Match {
             new Team( "Choden Warriors", true, 1 ),
             // new Team( "Thermate Embalmers", true, 2 )
         ]
-        this.units = []
-        playerTeam.units.forEach( unit => {
-            this.units.push( unit )
-        } )
 
         // let randomTerrain = false
         let randomTerrain = true
@@ -78,6 +68,17 @@ export default class Match {
         //Move camera to first Unit
         // this.moveCamToFirstUnit()
     }
+
+    get units() {
+        let teams = this.teams
+        function* unitsGenerator() {
+            for ( let team of teams )
+                for ( let unit of team.units )
+                    yield unit
+        }
+        return unitsGenerator()
+    }
+
     playerTurn() {
         return this.turn == 0
     }
@@ -314,10 +315,9 @@ export default class Match {
             },
             onRender: () => this.render(),
             content: () => {
-                teams.forEach( ( team, i ) => {
-                    let active = this.activeTeam() == team
-                    team.makeSceneNode( active )
-                } )
+                for ( let unit of this.units )
+                    unit.makeSceneNode()
+
                 if ( pickingCard ) {
                     let card = this.selectedCard()
                     if ( selectedUnit && card ) {
@@ -362,9 +362,7 @@ export default class Match {
                                         g.c.fill()
                                         g.c.stroke()
 
-                                        if ( unit ) {
-                                            drawStats( unit )
-                                        }
+                                        unit?.drawStats()
                                     }
                                 }
                             } )

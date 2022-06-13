@@ -36,7 +36,7 @@ export default class AI {
         this.chodiness += 1
         // console.log("Thinking!!!!:", this.chodiness)
 
-        if ( team.units.length > 0 && team.index > -1 ) {
+        if ( team.units.length > 0 && team.selectedUnitIndex > -1 ) {
             let unit = team.selectedUnit()!
             let card = cardTray.selectedCard( unit )
             if ( card && card.type.playable ) {

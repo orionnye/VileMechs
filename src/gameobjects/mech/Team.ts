@@ -4,12 +4,12 @@ import Game from "../../Game";
 import Match from "../../stages/Match";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
-import UnitTray, { drawStats } from "../ui/UnitTray";
+import UnitTray from "../ui/UnitTray";
 import { Chrome, ChromeBot, Earth, FleshBot } from "./RigTypes";
 import Unit from "./Unit";
 
 export default class Team {
-    index = -1
+    selectedUnitIndex = -1
     hasUnitSelected = false
 
     name: string
@@ -24,19 +24,14 @@ export default class Team {
         this.name = name
         this.flipUnits = flip
 
-        this.units = [
-            // new Chrome( new Vector( 3, 0 ), 1),
-            // new Flesh( new Vector( 0, 1 ), 1 ),
-            // new Treant( new Vector( 0, 0 ), 1 ),
-            // new Jelly( new Vector( 0, 0 ), 1 )
-        ]
+        this.units = []
     }
     //----DATA ACCESS----
     setUnitIndex( index: number ) {
-        if ( index != this.index )
+        if ( index != this.selectedUnitIndex )
             Game.instance.match.cardTray.deselect()
         this.hasUnitSelected = index > -1
-        this.index = index
+        this.selectedUnitIndex = index
         // this.onSelectUnit()
     }
 
@@ -47,7 +42,7 @@ export default class Team {
     }
 
     toggleSelectIndex( index: number ) {
-        if ( this.hasUnitSelected && index == this.index )
+        if ( this.hasUnitSelected && index == this.selectedUnitIndex )
             this.deselect()
         else
             this.setUnitIndex( index )
@@ -66,7 +61,7 @@ export default class Team {
         if ( !this.hasUnitSelected )
             this.setUnitIndex( 0 )
         else
-            this.setUnitIndex( ( this.index + 1 ) % this.numberOfUnits() )
+            this.setUnitIndex( ( this.selectedUnitIndex + 1 ) % this.numberOfUnits() )
     }
 
     selectUnit( unit: Unit ) {
@@ -80,7 +75,7 @@ export default class Team {
     selectedUnit() {
         let units = this.units
         if ( !this.hasUnitSelected ) return undefined
-        return units[ this.index ]
+        return units[ this.selectedUnitIndex ]
     }
     getUnit( pos: Vector ) {
         for ( let unit of this.units )
@@ -101,63 +96,4 @@ export default class Team {
             unit.update()
     }
 
-
-    makeSceneNode( active = false ) {
-        let game = Game.instance
-        let match = game.match
-        let g = Graphics.instance
-        let { units, flipUnits } = this
-        let selectedUnit = this.selectedUnit()
-        let tileSize = Match.tileSize
-
-        this.scene = Scene.node( {
-            description: this.name,
-            localMatrix: Matrix.identity,
-            content: () => {
-                units.forEach( ( unit, i ) => {
-                    let isHovered = false
-                    Scene.node( {
-                        description: unit.name,
-                        localMatrix: Matrix.vTranslation( unit.pos.scale( tileSize ) ),
-                        rect: { width: tileSize, height: tileSize },
-                        onClick: () => {
-                            if ( game.match.playerTurn() ) {
-                                this.toggleSelectUnit( unit )
-                            }
-                        },
-                        onRender: ( node ) => {
-                            let hover = node == game.mouseOverData.node
-                            let isSelected = unit == selectedUnit
-                            //Selected? Art
-                            g.c.save()
-                            if ( active ) {
-                                if ( this.index == i ) {
-                                    g.c.scale( 1.3, 1.3 )
-                                    g.c.translate( -3, -3 )
-                                    g.drawRect( new Vector( 0, 0 ), new Vector( tileSize, tileSize ), "rgba(255, 255, 255, 0.4)" )
-                                }
-
-                                if ( isSelected && !unit.isWalking() ) {
-                                    g.c.shadowBlur = 10
-                                    g.c.shadowColor = "black"
-                                }
-                            }
-                            if ( flipUnits ) {
-                                g.drawRect( new Vector( 0, 0 ), new Vector( tileSize, tileSize ), "#00000055" )
-                            } else {
-                                g.drawRect( new Vector( 0, 0 ), new Vector( tileSize, tileSize ), "#ffffff77" )
-                            }
-                            //Standard rendering
-                            unit.render( true, flipUnits )
-                            g.c.restore()
-                            if ( hover ) {
-                                // g.drawRect(new Vector(0, 0), new Vector(100, 100), "red")
-                                drawStats( unit )
-                            }
-                        }
-                    } )
-                } )
-            }
-        } )
-    }
 }
