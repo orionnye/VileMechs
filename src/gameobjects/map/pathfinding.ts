@@ -1,5 +1,5 @@
 import { Vector } from "../../math/Vector"
-import World from "../../stages/Match"
+import Match from "../../stages/Match"
 
 const offsetOrderings = [
     [ //  Horizontal-first ordering
@@ -26,7 +26,7 @@ function getMoves( tilePairity: number, useDiagonals = false ) {
     //  to a preference for zigzagging paths over large L-shaped paths.
 }
 
-export function findPath( world: World, origin: Vector, destination: Vector, maxDepth = 100 ) {
+export function findPath( match: Match, origin: Vector, destination: Vector, maxDepth = 100 ) {
     type Node = { pos: Vector, parent: Node | null }
     function makeNode( pos: Vector, parent: Node | null ): Node {
         return { pos, parent }
@@ -43,7 +43,7 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
 
     if ( origin.equals( destination ) )
         return [ origin ]
-    if ( !world.isWalkable( destination ) )
+    if ( !match.isWalkable( destination ) )
         return null
 
     let destKey = destination.toString()
@@ -60,12 +60,12 @@ export function findPath( world: World, origin: Vector, destination: Vector, max
 
             for ( let offset of offsets ) {
                 let pos2 = node.pos.add( offset )
-                if ( !world.isWalkable( pos2 ) )
+                if ( !match.isWalkable( pos2 ) )
                     continue
                 if ( Math.abs( offset.x ) > 0 && Math.abs( offset.y ) > 0 ) {
                     // Check that diagonal move isn't between two obstacles.
-                    let freeAlongX = world.isWalkable( node.pos.addXY( offset.x, 0 ) )
-                    let freeAlongY = world.isWalkable( node.pos.addXY( 0, offset.y ) )
+                    let freeAlongX = match.isWalkable( node.pos.addXY( offset.x, 0 ) )
+                    let freeAlongY = match.isWalkable( node.pos.addXY( 0, offset.y ) )
                     if ( !freeAlongX && !freeAlongY )
                         continue
                 }

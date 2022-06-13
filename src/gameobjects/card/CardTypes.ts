@@ -1,7 +1,7 @@
 import { getImg } from "../../common/utils"
 import Game from "../../Game"
 import Unit from "../mech/Unit"
-import World from "../../stages/Match"
+import Match from "../../stages/Match"
 import { Vector } from "../../math/Vector"
 import { findPath } from "../map/pathfinding"
 import * as Tiles from "../map/Tiles"
@@ -64,7 +64,7 @@ export type CardType = {
     backing: HTMLImageElement
     canApplyToEmptyTiles: boolean
     getTilesInRange: ( card: Card, user: Unit ) => Vector[]
-    
+
     onApplyToTile?: ( card: Card, user: Unit, pos: Vector, target?: Unit ) => void
     getTilesEffected?: ( user: Unit, pos: Vector ) => Vector[]
 
@@ -95,25 +95,25 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             target?.addHealth( -card.type.damage )
-            user.addHealth(-1)
-            
+            user.addHealth( -1 )
+
         },
 
-        render: (animationFrame, user, pos ) => {
+        render: ( animationFrame, user, pos ) => {
             let g = Graphics.instance
             let game = Game.instance
-            let world = game.world
+            let match = game.match
             let tileSize = 32
-            let target = world.getUnit(pos)
-            if (target) {
-                let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
-                let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+            let target = match.getUnit( pos )
+            if ( target ) {
+                let userPos = user.pos.scale( tileSize ).add( new Vector( tileSize / 2, tileSize / 2 ) )
+                let targetPos = target.pos.scale( tileSize ).add( new Vector( tileSize / 2, tileSize / 2 ) )
 
                 g.c.strokeStyle = "rgba(255, 0, 0, 1)"
-                g.c.lineWidth = Math.cos(animationFrame) * 20
+                g.c.lineWidth = Math.cos( animationFrame ) * 20
                 g.c.beginPath()
-                g.c.moveTo(userPos.x, userPos.y)
-                g.c.lineTo(targetPos?.x, targetPos?.y)
+                g.c.moveTo( userPos.x, userPos.y )
+                g.c.lineTo( targetPos?.x, targetPos?.y )
                 g.c.stroke()
                 // console.log("using animation")
             }
@@ -145,7 +145,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         render: (animationFrame, user, pos ) => {
             let g = Graphics.instance
             let game = Game.instance
-            let world = game.world
+            let world = game.match
             let tileSize = 32
             let target = world.getUnit(pos)
             if (target) {
@@ -182,7 +182,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.drawCard(1)
+            user.drawCard( 1 )
             // user.discard.cards.pop()
         },
 
@@ -203,8 +203,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.gainCard(CardTypes.energyArmor, card.type.damage)
-            
+            user.gainCard( CardTypes.energyArmor, card.type.damage )
+
         },
 
         cost: 1,
@@ -229,16 +229,16 @@ const CardTypes: { [ name: string ]: CardType } = {
             if ( target ) {
                 //Chaining Ternary functions are weird man
                 let xShift = ( user.pos.x < target.pos.x ) ?
-                user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
-                user.pos.x : user.pos.x - 1
+                    user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
+                        user.pos.x : user.pos.x - 1
                 let yShift = ( user.pos.y < target.pos.y ) ?
-                user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
-                user.pos.y : user.pos.y - 1
+                    user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
+                        user.pos.y : user.pos.y - 1
                 let newPos = new Vector( xShift, yShift )
                 let path = [ target.pos, newPos ]
                 target.move( path )
             }
-            
+
         },
 
         cost: 1,
@@ -247,21 +247,21 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 1,
         friendly: false,
         playable: true,
-        
+
     },
     bubbletoss: {
         name: "Bubble Toss",
-        getDescription: card => `Create shallow water, Deal ${card.type.damage} damage`,
+        getDescription: card => `Create shallow water, Deal ${ card.type.damage } damage`,
         color: "#990099",
         sprite: jelly,
         backing: purple,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            let world = Game.instance.world
-            world.map.set( pos, Tiles.WaterShallow )
+            let match = Game.instance.match
+            match.map.set( pos, Tiles.WaterShallow )
             target?.addHealth( -card.type.damage )
-            
+
         },
 
         cost: 1,
@@ -270,7 +270,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 2,
         friendly: false,
         playable: true,
-        
+
     },
     //------------------------------- EARTH -----------------------------
     bouldertoss: {
@@ -283,8 +283,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
-            let world = Game.instance.world
-            world.map.set( pos, Tiles.GrassHill )
+            let match = Game.instance.match
+            match.map.set( pos, Tiles.GrassHill )
             target?.addHealth( -card.type.damage )
         },
 
@@ -292,7 +292,7 @@ const CardTypes: { [ name: string ]: CardType } = {
             // animationFrame = 2 * Math.sin(animationFrame * Math.PI / 2) - 1;
             let g = Graphics.instance
             let game = Game.instance
-            let world = game.world
+            let match = game.match
             let tileSize = 32
             let halfTile = new Vector(tileSize/2, tileSize/2)
 
@@ -318,30 +318,30 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         friendly: false,
         playable: true,
-        
+
     },
     gorge: {
         name: "Gorge",
-        getDescription: card => `Place ${card.type.dim!.x}x${card.type.dim!.y} Mountains`,
+        getDescription: card => `Place ${ card.type.dim!.x }x${ card.type.dim!.y } Mountains`,
         color: "#b87420",
         sprite: boulder,
         backing: brown,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            let world = Game.instance.world
-            world.map.set( pos, Tiles.GrassHill )
+            let match = Game.instance.match
+            match.map.set( pos, Tiles.GrassHill )
         },
-        getTilesEffected(user, pos) {
-            let world = Game.instance.world
-            let tilesEffected: Vector[] = [pos]
+        getTilesEffected( user, pos ) {
+            let match = Game.instance.match
+            let tilesEffected: Vector[] = [ pos ]
             let dim = this.dim!
             //get relative direction from user
             for ( let x = 0; x < dim.x; x++ ) {
                 for ( let y = 0; y < dim.y; y++ ) {
-                    let tile = pos.add(new Vector(x-1, y-1))
-                    if (!tile.equals(pos)) {
-                        tilesEffected.push(tile)
+                    let tile = pos.add( new Vector( x - 1, y - 1 ) )
+                    if ( !tile.equals( pos ) ) {
+                        tilesEffected.push( tile )
                     }
                 }
             }
@@ -351,43 +351,43 @@ const CardTypes: { [ name: string ]: CardType } = {
         render: ( animationFrame, user, pos ) => {
             let g = Graphics.instance
             let game = Game.instance
-            let world = game.world
+            let match = game.match
             let tileSize = 32
-            let tiles = CardTypes.gorge.getTilesEffected!(user, pos)
+            let tiles = CardTypes.gorge.getTilesEffected!( user, pos )
 
-            tiles.forEach(tile => {
+            tiles.forEach( tile => {
                 //THE BIG LIE
                 //rendering an empty tile even though its actually already a mountain
-                let endTile = tile.scale(tileSize)
-                g.drawSheetFrame(grass, 32, endTile.x, endTile.y, 0)
-            })
-            tiles.forEach(tile => {
+                let endTile = tile.scale( tileSize )
+                g.drawSheetFrame( grass, 32, endTile.x, endTile.y, 0 )
+            } )
+            tiles.forEach( tile => {
                 //The big ball movement
-                let halfTile = new Vector(tileSize/2, tileSize/2)
-                let midPos = user.pos.lerp(tile, animationFrame).scale(tileSize)
-                let yCurve = new Vector(0, -Math.sin(animationFrame*Math.PI)*20)
+                let halfTile = new Vector( tileSize / 2, tileSize / 2 )
+                let midPos = user.pos.lerp( tile, animationFrame ).scale( tileSize )
+                let yCurve = new Vector( 0, -Math.sin( animationFrame * Math.PI ) * 20 )
                 for ( let i = 0; i < 5; i++ ) {
-                    let noiseVector = new Vector(Math.sin(i)*8, Math.cos(i)*8)
-                    let spot = midPos.add(noiseVector).add(yCurve).add(halfTile)
-                    g.fillCircle(spot, 10, `rgba(${i*15}, 0, 0, 1)`)
+                    let noiseVector = new Vector( Math.sin( i ) * 8, Math.cos( i ) * 8 )
+                    let spot = midPos.add( noiseVector ).add( yCurve ).add( halfTile )
+                    g.fillCircle( spot, 10, `rgba(${ i * 15 }, 0, 0, 1)` )
                 }
-            })
+            } )
         },
         renderFrames: 25,
 
 
         cost: 1,
         damage: 0,
-        dim: new Vector(3, 3),
+        dim: new Vector( 3, 3 ),
         range: 6,
         minDist: 4,
         friendly: false,
         playable: true,
-        
+
     },
     mine: {
         name: "Mine",
-        getDescription: card => `Destroy Mountain, Deal ${card.type.damage} damage, Gain 1 FUEL`,
+        getDescription: card => `Destroy Mountain, Deal ${ card.type.damage } damage, Gain 1 FUEL`,
         color: "#b87420",
         sprite: mine,
         backing: brown,
@@ -395,18 +395,18 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
-            let world = Game.instance.world
-            // console.log(world.map.get(pos))
-            if ( world.map.get( pos ) == Tiles.GrassHill ) {
-                world.map.set( pos, Tiles.Grass )
+            let match = Game.instance.match
+            // console.log(match.map.get(pos))
+            if ( match.map.get( pos ) == Tiles.GrassHill ) {
+                match.map.set( pos, Tiles.Grass )
                 // for ( let i = 0; i < 1; i++ ) {
-                    let card = new Card()
-                    card.type = CardTypes.fuel
-                    user.draw.cards.push( card )
+                let card = new Card()
+                card.type = CardTypes.fuel
+                user.draw.cards.push( card )
                 // }
             }
             target?.addHealth( -card.type.damage )
-            
+
         },
 
         cost: 1,
@@ -415,7 +415,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 1,
         friendly: false,
         playable: true,
-        
+
     },
     fuel: {
         name: "Fuel",
@@ -428,8 +428,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         onApplyToTile: ( card, user, pos, target ) => {
             //Exhaustive
             //look for the card in the users Discard Pile and remove it
-            target?.addEnergy(card.type.damage)
-            user?.addEnergy(-card.type.cost)
+            target?.addEnergy( card.type.damage )
+            user?.addEnergy( -card.type.cost )
             user.discard.cards.pop()
         },
 
@@ -441,11 +441,11 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
         exhaustive: true
     },
-    
+
     //------------------------------- UNIVERSAL -----------------------------
     repair: {
         name: "Repair-Kit",
-        getDescription: card => `Heal unit for ${card.type.damage} health`,
+        getDescription: card => `Heal unit for ${ card.type.damage } health`,
         color: "#32a852",
         sprite: repair,
         backing: metal,
@@ -453,17 +453,17 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             target?.addHealth( card.type.damage )
-            
+
             //Exhaustive
             //look for the card in the users Discard Pile and remove it
             user.discard.cards.pop()
         },
-        render: (animationFrame, user, pos ) => {
+        render: ( animationFrame, user, pos ) => {
             let g = Graphics.instance
             let game = Game.instance
-            let world = game.world
+            let match = game.match
             let tileSize = 32
-            let target = world.getUnit(pos)
+            let target = match.getUnit(pos)
             if (target) {
                 let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
                 let color = `rgba(0, 255, 0, ${animationFrame})`
@@ -481,24 +481,24 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: true,
         playable: true,
         exhaustive: true
-        
+
 
     },
     sprint: {
         name: "Sprint",
-        getDescription: card => `Take ${card.type.damage} damage, Gain ${card.type.range} speed, Gain ${card.type.cost} Energy`,
+        getDescription: card => `Take ${ card.type.damage } damage, Gain ${ card.type.range } speed, Gain ${ card.type.cost } Energy`,
         color: "#667799",
         sprite: sprint,
         backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            if (target) {
+            if ( target ) {
                 user.addHealth( -card.type.damage )
                 target.addEnergy( card.type.cost )
                 target.addSpeed( card.type.range )
             }
-            console.log(user.discard.cards.pop())
+            console.log( user.discard.cards.pop() )
         },
 
         cost: 1,
@@ -508,23 +508,23 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: true,
         playable: true,
         exhaustive: true
-        
+
     },
     //------------------------------- FLESH -----------------------------
     claw: {
         name: "Claw",
-        getDescription: card => `Deal ${card.type.damage} damage`,
+        getDescription: card => `Deal ${ card.type.damage } damage`,
         color: "#af0000",
         sprite: claw,
         backing: flesh,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            
+
             if ( target ) {
                 // let bonusDMG = user.maxHealth - user.health
                 // card.type.damage = bonusDMG + 1
-                target.addHealth(-card.type.damage)
+                target.addHealth( -card.type.damage )
             }
         },
 
@@ -534,7 +534,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 1,
         friendly: false,
         playable: true,
-        
+
     },
     // acid: {
     //     name: "Acid",
@@ -564,17 +564,17 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- TREE --------------------------------
     perfume: {
         name: "Perfume",
-        getDescription: card => `Reduce MaxHP by ${card.type.damage}, increase Speed by ${card.type.damage}`,
+        getDescription: card => `Reduce MaxHP by ${ card.type.damage }, increase Speed by ${ card.type.damage }`,
         color: "#026822",
         sprite: pollen,
         backing: green,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            
+
             if ( target ) {
                 target.speed += card.type.damage
-                target.addMaxHealth(-card.type.damage) 
+                target.addMaxHealth( -card.type.damage )
             }
         },
 
@@ -587,17 +587,17 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     root: {
         name: "Root",
-        getDescription: card => `Immobilize Target Target Heals ${card.type.damage} HP`,
+        getDescription: card => `Immobilize Target Target Heals ${ card.type.damage } HP`,
         color: "#026822",
         sprite: root,
         backing: green,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => bishopStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
-            
+
             if ( target ) {
                 target.speed = 1
-                target.addHealth(card.type.damage)
+                target.addHealth( card.type.damage )
             }
         },
 
@@ -610,16 +610,15 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     flower: {
         name: "Flower",
-        getDescription: card => `Grant Target ${card.type.damage} Fruits`,
+        getDescription: card => `Grant Target ${ card.type.damage } Fruits`,
         color: "#026822",
         sprite: flower,
         backing: green,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            
             if ( target ) {
-                target.draw.add(CardTypes.fruit, 2)
+                target.draw.add( CardTypes.fruit, 2 )
             }
         },
 
@@ -632,16 +631,14 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     fruit: {
         name: "Fruit",
-        getDescription: card => `Grant User ${card.type.damage} HP -Exhaustive`,
+        getDescription: card => `Grant User ${ card.type.damage } HP -Exhaustive`,
         color: "#026822",
         sprite: fruit,
         backing: green,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            if ( target ) {
-                target.addHealth(card.type.damage)
-            }
+            target?.addHealth(card.type.damage)
         },
 
         cost: 0,
@@ -695,16 +692,15 @@ function targetsAlongLine(
     { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
         { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {
-    let world = Game.instance.world
-    let elevation0 = world.map.getElevation( pos )
+    let match = Game.instance.match
+    let elevation0 = match.map.getElevation( pos )
     for ( let i = 1; i <= range; i++ ) {
         let p2 = pos.add( delta.scale( i ) )
-        p2 = p2.floor()
-        let inBounds = world.map.contains( p2 )
-        let hitsUnit = world.getUnit( p2 ) !== undefined
+        let inBounds = match.map.contains( p2 )
+        let hitsUnit = match.getUnit( p2 ) !== undefined
         if ( !inBounds )
             break
-        // let walkable = inBounds && ( ignoreObstacles || world.isWalkable( p2, false ) )
+        // let walkable = inBounds && ( ignoreObstacles || match.isWalkable( p2, false ) )
         // if ( !walkable )
         //     break
         let contained = false
@@ -717,7 +713,7 @@ function targetsAlongLine(
             break
         }
         if ( !ignoreElevation ) {
-            let elevation = world.map.getElevation( p2 )
+            let elevation = match.map.getElevation( p2 )
             if ( elevation > elevation0 ) {
                 break
             }
@@ -725,8 +721,8 @@ function targetsAlongLine(
         if ( !contained ) {
             result.push( p2 )
         }
+        return result
     }
-    return result
 }
 
 function rookStyleTargets(
@@ -758,7 +754,7 @@ function lineOfSightTargets(
     { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
         { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {     
-        let map = Game.instance.world.map
+        let map = Game.instance.match.map
         for (let x = 0; x <= map.width; x++) {
             for (let y = 0; y <= map.height; y++) {
                 let tile = new Vector(x, y)

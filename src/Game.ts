@@ -1,6 +1,6 @@
 import { Vector } from "./math/Vector"
 import Matrix from "./math/Matrix"
-import World from './stages/Match'
+import Match from './stages/Match'
 import Input from "./common/Input"
 import Graphics, { TextAlignX } from "./common/Graphics"
 import "./common/GlobalTypes"
@@ -28,13 +28,13 @@ export default class Game {
     camera = new Camera()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
-    mouseOverData: PickingResult = { node: undefined, point: new Vector(0, 0) }
-    world : World
+    mouseOverData: PickingResult = { node: undefined, point: new Vector( 0, 0 ) }
+    match: Match
     level: number = 1
 
-    store : Store
+    store: Store
     scrip: number
-    
+
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
@@ -45,7 +45,7 @@ export default class Game {
     constructor() {
         this.store = new Store()
         this.store.reset()
-        let playerTeam = new Team("Choden Warriors", false, 0)
+        let playerTeam = new Team( "Choden Warriors", false, 0 )
         this.scrip = 50
         playerTeam.units = [
             // new Chrome(new Vector(1, 0), 0),
@@ -53,7 +53,7 @@ export default class Game {
             // new Treant(new Vector(1, 0), 0),
             // new Earth(new Vector(2, 0), 0)
         ]
-        this.world = new World(playerTeam)
+        this.match = new Match( playerTeam )
         Game.instance = this
         window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
@@ -62,61 +62,61 @@ export default class Game {
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
-        this.world.activeTeam().cycleUnits()
-        if (this.world.activeTeam().selectedUnit() !== undefined) {
-            this.moveCamToUnit(this.world.activeTeam().selectedUnit()!)
+        this.match.activeTeam().cycleUnits()
+        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
+            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
         }
     }
     generateEnemies( amount: number ) {
-        this.world.teams[1] = new Team("Drunken Scholars", true, 1)
+        this.match.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
         let mechList = [
-            new Chrome(new Vector(0, 0), 1),
-            new Treant(new Vector(0, 0), 1),
-            new Flesh(new Vector(0, 0), 1),
-            new Earth(new Vector(0, 0), 1),
+            new Chrome( new Vector( 0, 0 ), 1 ),
+            new Treant( new Vector( 0, 0 ), 1 ),
+            new Flesh( new Vector( 0, 0 ), 1 ),
+            new Earth( new Vector( 0, 0 ), 1 ),
         ]
         // console.log(mechList[0])
-        for (let i = 0; i < amount; i++) {
-            let random = randomFloor(mechList.length)
-            this.world.teams[1].units.push(mechList[random])
+        for ( let i = 0; i < amount; i++ ) {
+            let random = randomFloor( mechList.length )
+            this.match.teams[ 1 ].units.push( mechList[ random ] )
             mechList = [
-                new Chrome(new Vector(0, 0), 1),
-                new Treant(new Vector(0, 0), 1),
-                new Flesh(new Vector(0, 0), 1),
-                new Earth(new Vector(0, 0), 1),
+                new Chrome( new Vector( 0, 0 ), 1 ),
+                new Treant( new Vector( 0, 0 ), 1 ),
+                new Flesh( new Vector( 0, 0 ), 1 ),
+                new Earth( new Vector( 0, 0 ), 1 ),
             ]
         }
     }
     //----------------MODEL------------------
-    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( World.tileSize ) ) }
+    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) ) }
     moveCamToFirstUnit() {
-        let units = this.world.activeTeam().units
+        let units = this.match.activeTeam().units
         if ( units.length == 0 ) return
         this.moveCamToUnit( units[ 0 ] )
     }
     //----------------------UPDATE----------------------------
     update() {
-        let { world } = this
+        let { match } = this
         this.clock.nextFrame()
 
-        this.world.update()
+        this.match.update()
         //toggle to determine if AI should be feeding input
-        if (!this.world.playerTurn()) {
-            let AI = this.world.ai
+        if ( !this.match.playerTurn() ) {
+            let AI = this.match.ai
             AI.update()
-            if (AI.startTime == undefined) {
-                AI.think(this.world.activeTeam())
+            if ( AI.startTime == undefined ) {
+                AI.think( this.match.activeTeam() )
             }
-            if (AI.chodiness >= AI.maxChodiness) {
-                if ( world.activeTeam().index >= world.activeTeam().units.length - 1) {
-                    world.endTurn()
-                    world.activeTeam().cycleUnits()
-                    if (world.playerUnits.length > 0)
-                    this.moveCamToUnit(world.selectedUnit()!)
+            if ( AI.chodiness >= AI.maxChodiness ) {
+                if ( match.activeTeam().selectedUnitIndex >= match.activeTeam().units.length - 1 ) {
+                    match.endTurn()
+                    match.activeTeam().cycleUnits()
+                    if ( match.playerUnits.length > 0 )
+                        this.moveCamToUnit( match.selectedUnit()! )
                     AI.reset()
                 } else {
-                    world.activeTeam().cycleUnits()
-                    this.moveCamToUnit(world.selectedUnit()!)
+                    match.activeTeam().cycleUnits()
+                    this.moveCamToUnit( match.selectedUnit()! )
                     AI.reset()
                 }
             }
@@ -127,7 +127,7 @@ export default class Game {
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
         if ( node?.onHover )
-        node.onHover( node, point )
+            node.onHover( node, point )
     }
 
     //---------------------------User Input---------------------------
@@ -147,15 +147,15 @@ export default class Game {
         if ( leftClick || middleClick ) {
             let cursor = this.input.cursor
             let node = Scene.pickNode( this.scene, cursor )
-            let worldClicked = node == this.world.scene
+            let worldClicked = node == this.match.scene
             let nothingClicked = node == undefined
-            let unitSelected = this.world.activeTeam().selectedUnit() !== undefined
-            let isMovingUnit = unitSelected && !this.world.isPickingCard()
+            let unitSelected = this.match.activeTeam().selectedUnit() !== undefined
+            let isMovingUnit = unitSelected && !this.match.isPickingCard()
             let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || this.input.keys.get( "shift" )
             if ( canLeftClickDrag || middleClick )
                 this.camera.startDragging()
         } else if ( rightClick ) {
-            this.world.goBack()
+            this.match.goBack()
         }
     }
     onMouseup( ev: MouseEvent ) {
@@ -171,54 +171,54 @@ export default class Game {
         if ( ev.key == "," )
             this.showFPS = !this.showFPS
         if ( ev.key == "Escape" ) {
-            if (this.world.playerTurn())
-                this.world.goBack()
+            if ( this.match.playerTurn() )
+                this.match.goBack()
         }
         if ( ev.key == "Tab" ) {
-            if (this.world.playerTurn()) {
-                this.world.activeTeam().cycleUnits()
-                if (this.world.activeTeam().selectedUnit() !== undefined) {
-                    this.moveCamToUnit(this.world.activeTeam().selectedUnit()!)
+            if ( this.match.playerTurn() ) {
+                this.match.activeTeam().cycleUnits()
+                if ( this.match.activeTeam().selectedUnit() !== undefined ) {
+                    this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
                 }
             }
         }
         if ( ev.key == "Enter" ) {
             //stops you from skipping enemies turn
-            if (this.world.playerTurn()) {
-                this.world.endTurn()
-                if (this.world.teams[1].units.length == 0 && !this.shopping ) {
+            if ( this.match.playerTurn() ) {
+                this.match.endTurn()
+                if ( this.match.teams[ 1 ].units.length == 0 && !this.shopping ) {
                     //----GO Shopping!------
                     this.store.reset()
-                    this.world.turn = 0
+                    this.match.turn = 0
                     this.shopping = true
                     this.scrip += 10
-                } else if (this.shopping) {
+                } else if ( this.shopping ) {
                     //----GO Fighting!------
-                    this.world.teams[0].units.forEach(unit => {
+                    this.match.teams[ 0 ].units.forEach( unit => {
                         unit.statReset()
-                    });
-                    this.world.map = new Grid( 20, 20 )
-                    this.world.teams[1] = new Team("Choden Warriors", true, 1)
+                    } );
+                    this.match.map = new Grid( 20, 20 )
+                    this.match.teams[ 1 ] = new Team( "Choden Warriors", true, 1 )
                     //Generate enemies to fight
-                    this.generateEnemies(this.level)
-                    this.world.map.newMap()
-                    this.world.placeUnits()
-                    this.world.turn = 0
+                    this.generateEnemies( this.level )
+                    this.match.map.newMap()
+                    this.match.placeUnits()
+                    this.match.turn = 0
                     this.shopping = false
                     this.level += 1
                 }
                 //Team Selection
-                this.world.activeTeam().cycleUnits()
-                this.moveCamToUnit(this.world.activeTeam().selectedUnit()!)
+                this.match.activeTeam().cycleUnits()
+                this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
                 //Enemy Turn?
-                // if (!this.world.playerTurn()) {
-                //     this.world.ai.think(this.world.activeTeam())
+                // if (!this.match.playerTurn()) {
+                //     this.match.ai.think(this.match.activeTeam())
                 // }
             }
         }
     }
     onKeydown( ev: KeyboardEvent ) {
-        if (ev.key == "Tab") {
+        if ( ev.key == "Tab" ) {
             ev.preventDefault()
         }
     }
@@ -247,36 +247,36 @@ export default class Game {
     }
     makeSceneNode() {
         let g = Graphics.instance
-        let { world } = this
-        let { unitTray, cardTray } = this.world
-        let selectedUnit = this.world.activeTeam().selectedUnit()
+        let { match } = this
+        let { unitTray, cardTray } = this.match
+        let selectedUnit = this.match.activeTeam().selectedUnit()
         let center = Game.instance.screenCenter()
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
             onRenderPost: () => {
-                if (!this.shopping) {
+                if ( !this.shopping ) {
                     //TEAM NAME DISPLAY
                     g.setFont( 6, "pixel" )
-                    g.drawTextBox( new Vector( center.x, 0 ), this.world.activeTeam().name, {
+                    g.drawTextBox( new Vector( center.x, 0 ), this.match.activeTeam().name, {
                         textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
                     } )
                 }
             },
             content: () => {
-                if (this.shopping) {
+                if ( this.shopping ) {
                     //-----------------Shopping Display-------------------
                     this.store.makeSceneNode()
-                    unitTray.makeSceneNode(new Vector(0, 0), world.teams[0])
+                    unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
                 } else {
                     //-----------------Match Display-----------------------
-                    world.makeSceneNode()
+                    match.makeSceneNode()
                     //displays unitTray forward for first player
                     g.c.restore()
-                    if (this.world.turn == 0) {
-                        unitTray.makeSceneNode(new Vector(0, 0), world.teams[0])
+                    if ( this.match.turn == 0 ) {
+                        unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
                     } else {
                         //display Unit Tray backwords for second player
-                        unitTray.makeSceneNode(new Vector(this.screenDimensions().x, 0), world.activeTeam(), true)
+                        unitTray.makeSceneNode( new Vector( this.screenDimensions().x, 0 ), match.activeTeam(), true )
                     }
                     if ( selectedUnit )
                         cardTray.makeSceneNode( selectedUnit )
