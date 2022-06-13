@@ -148,9 +148,10 @@ export default class Match {
     endTurn() {
         // Health ReCapped at turn start
         console.log("Ending turn")
+        this.teams[this.turn].endTurn()
         this.turn++
         this.turn %= this.teams.length
-        this.teams[this.turn].endTurn()
+        this.teams[this.turn].startTurn()
         console.log("STEP: ", this.cardAnim.step)
     }
 
@@ -195,6 +196,7 @@ export default class Match {
                 walkableTiles.forEach(tile => {
                     let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed)
                     if (path && path.length <= selectedUnit!.speed) {
+
                         g.drawRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
                         g.strokeRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
                     }
@@ -209,8 +211,13 @@ export default class Match {
                     let radius = 3
                     g.c.save()
                     {
-                        const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b955"
+                        // const walkableColor = "rgb(30, 125, 30)", unwalkableColor = "#c9c5b955"
+                        const walkableColor = "rgb(0, 240, 0)", unwalkableColor = "#c9c5b955"
+                        let pathBacking = "rgb(30, 115, 30)"
                         g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                        g.c.strokeStyle = pathBacking
+                        g.c.lineWidth = radius + 2
+                        g.c.stroke()
                         g.c.strokeStyle = walkableColor
                         g.c.lineWidth = radius
                         g.c.stroke()
@@ -312,7 +319,6 @@ export default class Match {
                     }
                 }
             },
-            onRender: () => this.render(),
             content: () => {
                 teams.forEach( ( team, i ) => {
                     let active = this.activeTeam() == team
@@ -361,7 +367,7 @@ export default class Match {
                                         g.c.rect( 0, 0, tileSize, tileSize )
                                         g.c.fill()
                                         g.c.stroke()
-    
+                                        
                                         if (unit) {
                                             drawStats(unit)
                                         }
@@ -371,7 +377,8 @@ export default class Match {
                         }
                     }
                 }
-            }
+            },
+            onRender: () => this.render(),
         } )
     }
 }

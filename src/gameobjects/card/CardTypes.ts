@@ -7,6 +7,7 @@ import { findPath } from "../map/pathfinding"
 import * as Tiles from "../map/Tiles"
 import Card from "./Card"
 import Graphics from "../../common/Graphics"
+import { randomFloor } from "../../math/math"
 
 //I have no idea why this requires one period but it does
 //Ores
@@ -16,6 +17,7 @@ const ore = getImg( require( "../../www/images/cards/ore/pustule.png" ) )
 const blank = getImg( require( "../../www/images/cards/backing/card.png" ) )
 
 const laser = getImg( require( "../../www/images/cards/icon/laser.png" ) )
+const gun = getImg( require( "../../www/images/cards/icon/gun.png" ) )
 const energyArmor = getImg( require( "../../www/images/cards/icon/energyArmor.png" ) )
 const chargeBeam = getImg( require( "../../www/images/cards/icon/chargeBeam.png" ) )
 const shieldCharge = getImg( require( "../../www/images/cards/icon/shieldCharge.png" ) )
@@ -24,6 +26,7 @@ const sprint = getImg( require( "../../www/images/cards/icon/sprint.png" ) )
 const repair = getImg( require( "../../www/images/cards/icon/repair.png" ) )
 
 const claw = getImg( require( "../../www/images/cards/icon/claw.png" ) )
+const frendzi = getImg( require( "../../www/images/cards/icon/frendzi.png" ) )
 
 const mine = getImg( require( "../../www/images/cards/icon/mine.png" ) )
 const boulder = getImg( require( "../../www/images/cards/icon/boulder.png" ) )
@@ -84,7 +87,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- CHROME -----------------------------
     laser: {
         name: "Laser",
-        getDescription: card => `Deal ${ card.type.damage } damage to target, Deal 1 damage to user`,
+        getDescription: card => `Deal ${ card.type.damage } damage, Take 1 damage`,
         color: "#969696",
         sprite: laser,
         backing: metal,
@@ -120,6 +123,51 @@ const CardTypes: { [ name: string ]: CardType } = {
         cost: 1,
         damage: 6,
         range: 8,
+        minDist: 2,
+
+        friendly: false,
+        playable: true
+    },
+    rifle: {
+        name: "Rifle",
+        getDescription: card => `Deal ${ card.type.damage } damage to target`,
+        color: "#969696",
+        sprite: gun,
+        backing: metal,
+        canApplyToEmptyTiles: false,
+        // getTilesInRange: ( card, user ) => lineOfSightTargets( user.pos, { range: card.type.range } ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            target?.addHealth( -card.type.damage )
+            //this card should target using LOS(Line of Sight)
+        },
+
+        render: (animationFrame, user, pos ) => {
+            let g = Graphics.instance
+            let game = Game.instance
+            let world = game.world
+            let tileSize = 32
+            let target = world.getUnit(pos)
+            if (target) {
+                let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+                let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+                let bullet = {
+                    pos: userPos.lerp(targetPos, animationFrame),
+                    radius: 2,
+                    color: "rgba(50, 0, 0)"
+                }
+                for (let i = 0; i < 5; i++) {
+                    let spread = 4
+                    let noise = new Vector(Math.random()*spread, Math.random()*spread)
+                    g.fillCircle(bullet.pos.add(noise), bullet.radius, bullet.color)
+                }
+            }
+        },
+        renderFrames: 4,
+
+        cost: 1,
+        damage: 4,
+        range: 5,
         minDist: 2,
 
         friendly: false,
@@ -227,7 +275,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //------------------------------- EARTH -----------------------------
     bouldertoss: {
         name: "Boulder Toss",
-        getDescription: card => `Place 2x2 Mountain, Deal ${card.type.damage} damage`,
+        getDescription: card => `Place a Mountain, Deal ${card.type.damage} damage`,
         color: "#b87420",
         sprite: boulder,
         backing: brown,
@@ -246,23 +294,25 @@ const CardTypes: { [ name: string ]: CardType } = {
             let game = Game.instance
             let world = game.world
             let tileSize = 32
+            let halfTile = new Vector(tileSize/2, tileSize/2)
 
-            let midPos = user.pos.lerp(pos, animationFrame).scale(tileSize)
-            let yCurve = new Vector(0, -Math.sin(animationFrame*Math.PI)*20)
-            for ( let i = 0; i < 5; i++ ) {
-                let noiseVector = new Vector(Math.sin(i)*8, Math.cos(i)*8)
-                let spot = midPos.add(noiseVector).add(yCurve)
-                g.fillCircle(spot, 10, `rgba(${i*15}, 0, 0, 1)`)
-            }
             //THE BIG LIE
             //rendering an empty tile even though its actually already a mountain
             let endTile = pos.scale(tileSize)
             g.drawSheetFrame(grass, 32, endTile.x, endTile.y, 0)
+            let heightBump = new Vector(0, -20)
+            let midPos = user.pos.lerp(pos, animationFrame).scale(tileSize).add(heightBump)
+            let yCurve = new Vector(0, -Math.sin(animationFrame*Math.PI)*20)
+            for ( let i = 0; i < 5; i++ ) {
+                let noiseVector = new Vector(Math.sin(i)*8, Math.cos(i)*8)
+                let spot = midPos.add(noiseVector).add(yCurve).add(halfTile)
+                g.fillCircle(spot, 10, `rgba(${i*15}, 0, 0, 1)`)
+            }
         },
         renderFrames: 25,
 
         cost: 1,
-        damage: 2,
+        damage: 3,
         range: 7,
         minDist: 2,
 
@@ -326,7 +376,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         renderFrames: 25,
 
 
-        cost: 0,
+        cost: 1,
         damage: 0,
         dim: new Vector(3, 3),
         range: 6,
@@ -369,7 +419,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     fuel: {
         name: "Fuel",
-        getDescription: card => `Gain ${card.type.damage} energy`,
+        getDescription: card => `Gain ${card.type.damage} energy -Exhaustive`,
         color: "#aaaaaa",
         sprite: ore,
         backing: black,
@@ -390,7 +440,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: true,
         playable: true,
         exhaustive: true
-        
     },
     
     //------------------------------- UNIVERSAL -----------------------------
@@ -416,15 +465,16 @@ const CardTypes: { [ name: string ]: CardType } = {
             let tileSize = 32
             let target = world.getUnit(pos)
             if (target) {
-                let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
                 let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
-                for (let i = 0; i < 20; i++) {
-                    
-                }
+                let color = `rgba(0, 255, 0, ${animationFrame})`
+                // g.drawRect(targetPos, new Vector(tileSize, tileSize).scale(2), color)
+                g.fillCircle(targetPos, Math.abs(Math.sin(animationFrame*Math.PI*6)*tileSize*0.8), color)
+                console.log("drawing repair!")
             }
         },
+        renderFrames: 40,
 
-        cost: 1,
+        cost: 0,
         damage: 7,
         range: 1,
         minDist: 0,
@@ -530,7 +580,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 2,
-        range: 5,
+        range: 6,
         minDist: 0,
         friendly: false,
         playable: true,
@@ -542,7 +592,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: root,
         backing: green,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        getTilesInRange: ( card, user ) => bishopStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             
             if ( target ) {
@@ -553,7 +603,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 8,
-        range: 3,
+        range: 6,
         minDist: 0,
         friendly: false,
         playable: true,
@@ -568,7 +618,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             
-            
             if ( target ) {
                 target.draw.add(CardTypes.fruit, 2)
             }
@@ -576,7 +625,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 2,
-        range: 5,
+        range: 4,
         minDist: 0,
         friendly: false,
         playable: true,
@@ -590,8 +639,9 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            
-            user.addHealth(card.type.damage)
+            if ( target ) {
+                target.addHealth(card.type.damage)
+            }
         },
 
         cost: 0,
@@ -608,7 +658,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //     getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
     //     color: "#0000aa",
     //     sprite: frost,
-    //     backing: metal,
+    //     backing: purple,
     //     canApplyToEmptyTiles: false,
     //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
     //     onApplyToTile: ( card, user, pos, target ) => {
@@ -649,6 +699,7 @@ function targetsAlongLine(
     let elevation0 = world.map.getElevation( pos )
     for ( let i = 1; i <= range; i++ ) {
         let p2 = pos.add( delta.scale( i ) )
+        p2 = p2.floor()
         let inBounds = world.map.contains( p2 )
         let hitsUnit = world.getUnit( p2 ) !== undefined
         if ( !inBounds )
@@ -656,13 +707,23 @@ function targetsAlongLine(
         // let walkable = inBounds && ( ignoreObstacles || world.isWalkable( p2, false ) )
         // if ( !walkable )
         //     break
-        result.push( p2 )
-        if ( !ignoreObstacles && hitsUnit )
+        let contained = false
+        result.forEach( (val, i) => {
+            if ( p2.equals(val) ) {
+                contained = true
+            }
+        } )
+        if ( !ignoreObstacles && hitsUnit ) {
             break
+        }
         if ( !ignoreElevation ) {
             let elevation = world.map.getElevation( p2 )
-            if ( elevation > elevation0 )
+            if ( elevation > elevation0 ) {
                 break
+            }
+        }
+        if ( !contained ) {
+            result.push( p2 )
         }
     }
     return result
@@ -685,10 +746,28 @@ function bishopStyleTargets(
     { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
         { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
 ) {
-    targetsAlongLine( pos, new Vector( 1, 0 ), { range, ignoreObstacles, result } )
-    targetsAlongLine( pos, new Vector( -1, 0 ), { range, ignoreObstacles, result } )
-    targetsAlongLine( pos, new Vector( 0, 1 ), { range, ignoreObstacles, result } )
-    targetsAlongLine( pos, new Vector( 0, -1 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( 1, 1 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( -1, -1 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( -1, 1 ), { range, ignoreObstacles, result } )
+    targetsAlongLine( pos, new Vector( 1, -1 ), { range, ignoreObstacles, result } )
+    return result
+}
+
+function lineOfSightTargets(
+    pos: Vector,
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
+        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
+) {     
+        let map = Game.instance.world.map
+        for (let x = 0; x <= map.width; x++) {
+            for (let y = 0; y <= map.height; y++) {
+                let tile = new Vector(x, y)
+                let direction = tile.subtract( pos )
+                direction = direction.scale(1 / direction.length)
+                targetsAlongLine(pos, direction, { range: range, ignoreObstacles: false, result } )
+            }
+        }
+    return result
 }
 
 export function targetsWithinRange( pos: Vector, minDist: number, maxDist: number, result: Vector[] = [] ) {

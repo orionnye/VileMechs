@@ -190,8 +190,6 @@ export default class Unit {
     }
     statCap() {
         //Stat Cut Off
-        this.energy = this.maxEnergy
-        this.speed = this.maxSpeed
         this.capHealth()
         this.cardCycle()
         this.done = false
