@@ -4,7 +4,7 @@ import Game from "../../Game";
 import Match from "../../stages/Match";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
-import UnitTray, { drawStats } from "../ui/UnitTray";
+import UnitTray from "../ui/UnitTray";
 import { Chrome, Earth } from "./RigTypes";
 import Unit from "./Unit";
 
