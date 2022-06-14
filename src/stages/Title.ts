@@ -20,7 +20,6 @@ const Backgrounds = [ Jungle, Jungle2, Swamp, Forest ]
 
 export default class Title {
     static instance: Title
-
     //-----STORE DATA------
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     unitTray = new UnitTray()
@@ -79,8 +78,10 @@ export default class Title {
                 // g.c.imageSmoothingEnabled = false
                 // g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, game.screenDimensions().x, game.screenDimensions().y )
 
+                g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, game.screenDimensions().x, game.screenDimensions().y )
                 g.setFont( sign.text.size, "Times New Roman" )
                 g.drawTextBox( sign.pos, "VileMechs", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 } )
+                
                 // let scrip = new Vector( game.screenCenter().x, 40 )
                 // g.drawTextBox( scrip, "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150,60,60,0.9)", padding: 5, alignX: TextAlignX.center } )
                 // g.drawTextBox(new Vector(250, 3), "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150, 60, 60, 0.9)", padding: 5 } )
@@ -89,10 +90,10 @@ export default class Title {
                 Scene.node( {
                     description: "start-button",
                     rect: { width: 300, height: 100 },
-                    localMatrix: Matrix.identity.vTranslate( new Vector(100, 100) ),
+                    localMatrix: Matrix.identity.vTranslate( new Vector(game.screenCenter().x - 75, 100) ),
                     onRender: () => {
                         g.setFont( 13, "Times" )
-                        g.drawTextBox( new Vector( 0, 0 ), "Start Game", { boxColor: "rgba(200, 80, 80, 0.9)" } )
+                        g.drawRoundTextBox( new Vector( 0, 0 ), "Start Game", { boxColor: "rgba(200, 80, 80, 0.6)", alignX: TextAlignX.center, padding: 5, borderRadius: 8} )
                         // g.drawRect( new Vector( -screenDims.x / 2, 50 ), new Vector( screenDims.x * 2, screenDims.y * 2 ), "gray" )
                     },
                     onClick: () => {
@@ -103,10 +104,10 @@ export default class Title {
                 Scene.node( {
                     description: "quit-button",
                     rect: { width: 300, height: 100 },
-                    localMatrix: Matrix.identity.vTranslate( new Vector(300, 100) ),
+                    localMatrix: Matrix.identity.vTranslate( new Vector(game.screenCenter().x + 75, 100) ),
                     onRender: () => {
                         g.setFont( 13, "Times" )
-                        g.drawTextBox( new Vector( 0, 0 ), "Quit Game", { boxColor: "rgba(200, 80, 80, 0.9)" } )
+                        g.drawRoundTextBox( new Vector( 0, 0 ), "Quit Game", { boxColor: "rgba(200, 80, 80, 0.6)", alignX: TextAlignX.center, padding: 5, borderRadius: 8 } )
                         // g.drawRect( new Vector( -screenDims.x / 2, 50 ), new Vector( screenDims.x * 2, screenDims.y * 2 ), "gray" )
                     },
                     onClick: () => {
