@@ -5,7 +5,7 @@ import Match from "../../stages/Match";
 import Matrix from "../../math/Matrix";
 import { Vector } from "../../math/Vector";
 import UnitTray from "../ui/UnitTray";
-import { Chrome, ChromeBot, Earth, FleshBot } from "./RigTypes";
+import { Chrome, Earth } from "./RigTypes";
 import Unit from "./Unit";
 
 export default class Team {
@@ -84,7 +84,15 @@ export default class Team {
     }
 
     endTurn() {
-        this.units.forEach( unit => {
+        this.units.forEach(unit => {
+            //resets speed
+            unit.speed = unit.maxSpeed
+        })
+        this.deselect()
+    }
+    startTurn() {
+        this.units.forEach(unit => {
+            unit.energy = unit.maxEnergy
             unit.statCap()
         } )
         this.deselect()

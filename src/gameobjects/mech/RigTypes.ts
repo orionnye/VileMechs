@@ -6,7 +6,7 @@ import Unit from "./Unit"
 const treant = getImg( require( "../../www/images/units/Vinecent2.png" ) )
 const earth = getImg( require( "../../www/images/units/EarthMech.png" ) )
 const chrome = getImg( require( "../../www/images/units/ChromeMech2.png" ) )
-const flesh = getImg( require( "../../www/images/units/FleshBase.png" ) )
+const flesh = getImg( require( "../../www/images/units/flesh3.png" ) )
 const jelly = getImg( require( "../../www/images/units/GellyMech.png" ) )
 
 export class Chrome extends Unit {
@@ -16,12 +16,10 @@ export class Chrome extends Unit {
         
         this.draw.cards = []
         
-        //custom stats
-        this.drawSpeed = 4
         //custom cards
-        // this.draw.add( CardTypes.repair, 4 )
-        // this.draw.add( CardTypes.shieldCharge, 1 )
-        this.draw.add( CardTypes.laser, 4 )
+        this.draw.add( CardTypes.shieldCharge, 1 )
+        this.draw.add( CardTypes.laser, 1 )
+        this.draw.add( CardTypes.rifle, 3 )
 
         this.cardCycle()
         this.statReset()
@@ -38,7 +36,6 @@ export class Treant extends Unit {
         this.energy = this.maxEnergy
         this.maxSpeed = 4
         this.speed = this.maxSpeed
-        this.drawSpeed = 4
 
         this.draw.cards = []
         this.draw.add( CardTypes.root, 2 )
@@ -64,10 +61,10 @@ export class Earth extends Unit {
         this.drawSpeed = 5
 
         this.draw.cards = []
-        // this.draw.add( CardTypes.bouldertoss, 5 )
+        this.draw.add( CardTypes.bouldertoss, 3 )
         // this.draw.add( CardTypes.laser, 2 )
-        // this.draw.add( CardTypes.mine, 4 )
-        this.draw.add( CardTypes.gorge, 5 )
+        this.draw.add( CardTypes.mine, 2 )
+        // this.draw.add( CardTypes.gorge, 5 )
         // this.draw.add( CardTypes.repair, 1 )
 
         this.cardCycle()
@@ -88,7 +85,7 @@ export class Flesh extends Unit {
 
         this.draw.cards = []
         this.draw.add( CardTypes.claw, 5 )
-        this.draw.add( CardTypes.tentacle, 2 )
+        // this.draw.add( CardTypes.tentacle, 2 )
         // this.draw.add( CardTypes.acid, 2)
 
         this.cardCycle()
@@ -113,60 +110,17 @@ export class Jelly extends Unit {
         this.statReset()
     }
 }
-export class FleshBot extends Flesh {
-    constructor( pos, teamNumber ) {
-        super( pos, teamNumber )
-        
-        this.maxSpeed = 6
-        this.speed = this.maxSpeed
-        
-        this.draw.cards = []
-        this.hand.cards = []
-        this.draw.add( CardTypes.tentacle, 3 )
-        this.draw.add( CardTypes.claw, 5)
-        
-        this.cardCycle()
-    }
-}
-export class ChromeBot extends Unit {
-    constructor( pos, teamNumber ) {
-        super( pos, teamNumber )
-        this.sprite = chrome
-        
-        this.draw.cards = []
-        
-        //custom stats
-        this.drawSpeed = 4
-        //custom cards
-        this.draw.add( CardTypes.repair, 2 )
-        this.draw.add( CardTypes.shieldCharge, 3 )
-        this.draw.add( CardTypes.laser, 5 )
-
-        this.statReset()
-    }
-}
 export class Dummy extends Flesh {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )
 
         this.maxSpeed = 10
         this.speed = this.maxSpeed
+        this.drawSpeed = 5
         
         this.draw.cards = []
         this.hand.cards = []
         this.draw.add( CardTypes.repair, 5)
-        
-        this.cardCycle()
-    }
-}
-export class JellyBot extends Jelly {
-    constructor( pos, teamNumber ) {
-        super( pos, teamNumber )
-        this.sprite = jelly
-        
-        this.draw.cards = []
-        this.draw.add( CardTypes.bubbletoss, 3 )
-        this.draw.add( CardTypes.tentacle, 1 )
         
         this.cardCycle()
     }
