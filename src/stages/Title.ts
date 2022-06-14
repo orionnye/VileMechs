@@ -63,52 +63,87 @@ export default class Title {
         let game = Game.instance
         let match = game.match
 
+        //static Sign data storage
+        const sign = {
+            pos: new Vector( game.screenCenter().x, 0 ),
+            size: new Vector( 20, 25 ),
+            text: {
+                size: 20,
+            }
+        }
+        const start = {
+            dim: new Vector( 100, 50 ),
+            pos: new Vector(game.screenCenter().x - 125, 100),
+            padding: 10,
+            bulk: 10,
+            text: {
+                size: 13,
+                font: "Times",
+            }
+        }
+        const quit = {
+            dim: new Vector( 100, 50 ),
+            pos: new Vector(game.screenCenter().x + 25, 100),
+            padding: 10,
+            bulk: 10,
+            text: {
+                size: 13,
+                font: "Times",
+            }
+        }
+
         this.scene = Scene.node( {
             localMatrix: Matrix.identity,
             onRender: () => {
-                //static Sign data storage
-                const sign = {
-                    pos: new Vector( game.screenCenter().x, 0 ),
-                    size: new Vector( 20, 25 ),
-                    text: {
-                        size: 20,
-                    }
-                }
 
-                // g.c.imageSmoothingEnabled = false
-                // g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, game.screenDimensions().x, game.screenDimensions().y )
-
+                g.c.imageSmoothingEnabled = false
                 g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, game.screenDimensions().x, game.screenDimensions().y )
+
+
                 g.setFont( sign.text.size, "Times New Roman" )
                 g.drawTextBox( sign.pos, "VileMechs", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 } )
-                
-                // let scrip = new Vector( game.screenCenter().x, 40 )
-                // g.drawTextBox( scrip, "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150,60,60,0.9)", padding: 5, alignX: TextAlignX.center } )
-                // g.drawTextBox(new Vector(250, 3), "Scrip: " + Game.instance.scrip, { boxColor: "rgba(150, 60, 60, 0.9)", padding: 5 } )
             },
             content: () => {
                 Scene.node( {
                     description: "start-button",
-                    rect: { width: 300, height: 100 },
-                    localMatrix: Matrix.identity.vTranslate( new Vector(game.screenCenter().x - 75, 100) ),
+                    rect: { width: start.dim.x, height: start.dim.y },
+                    localMatrix: Matrix.identity.vTranslate( start.pos ),
+                    onHover: () => {
+                        start.padding += start.bulk
+                    },
                     onRender: () => {
-                        g.setFont( 13, "Times" )
-                        g.drawRoundTextBox( new Vector( 0, 0 ), "Start Game", { boxColor: "rgba(200, 80, 80, 0.6)", alignX: TextAlignX.center, padding: 5, borderRadius: 8} )
-                        // g.drawRect( new Vector( -screenDims.x / 2, 50 ), new Vector( screenDims.x * 2, screenDims.y * 2 ), "gray" )
+                        let { padding, dim, text } = start
+                        g.setFont( text.size, text.font )
+                        g.drawRoundTextBox( new Vector(dim.scale(0.5).x, 0), "Start Game",
+                        {
+                            boxColor: "rgba(200, 80, 80, 0.6)",
+                            alignX: TextAlignX.center,
+                            padding: padding,
+                            borderRadius: 8,
+                        } )
                     },
                     onClick: () => {
                         console.log("Trying to startGame!!!!!!")
                         Game.instance.activity = "shop"
                     },
-                } ), 
+                } ),
                 Scene.node( {
                     description: "quit-button",
-                    rect: { width: 300, height: 100 },
-                    localMatrix: Matrix.identity.vTranslate( new Vector(game.screenCenter().x + 75, 100) ),
+                    rect: { width: quit.dim.x, height: quit.dim.y },
+                    localMatrix: Matrix.identity.vTranslate( quit.pos ),
+                    onHover: () => {
+                        quit.padding += quit.bulk
+                    },
                     onRender: () => {
-                        g.setFont( 13, "Times" )
-                        g.drawRoundTextBox( new Vector( 0, 0 ), "Quit Game", { boxColor: "rgba(200, 80, 80, 0.6)", alignX: TextAlignX.center, padding: 5, borderRadius: 8 } )
-                        // g.drawRect( new Vector( -screenDims.x / 2, 50 ), new Vector( screenDims.x * 2, screenDims.y * 2 ), "gray" )
+                        let { padding, dim, text } = quit
+                        g.setFont( text.size, text.font )
+                        g.drawRoundTextBox( new Vector(dim.scale(0.5).x, 0), "Quit Game",
+                        {
+                            boxColor: "rgba(200, 80, 80, 0.6)",
+                            alignX: TextAlignX.center,
+                            padding: padding,
+                            borderRadius: 8,
+                        } )
                     },
                     onClick: () => {
                         console.log("Trying to quitGame!!!!!!")
