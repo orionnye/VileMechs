@@ -65,10 +65,10 @@ export default class Title {
 
         //static Sign data storage
         const sign = {
-            pos: new Vector( game.screenCenter().x, 0 ),
-            size: new Vector( 20, 25 ),
+            pos: new Vector( game.screenCenter().x, 25 ),
+            size: new Vector( 80, 25 ),
             text: {
-                size: 20,
+                size: 30,
             }
         }
         const start = {
@@ -101,7 +101,7 @@ export default class Title {
 
 
                 g.setFont( sign.text.size, "Times New Roman" )
-                g.drawTextBox( sign.pos, "VileMechs", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 } )
+                g.drawTextBox( sign.pos, "Vile Mechs", { textColor: "white", boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 } )
             },
             content: () => {
                 Scene.node( {
