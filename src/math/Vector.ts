@@ -1,12 +1,22 @@
 import { clamp, equals } from "./math"
 
 export class Vector {
-    x: number
-    y: number
+    readonly x: number
+    readonly y: number
+
     static zero = new Vector( 0, 0 )
     static one = new Vector( 1, 1 )
     static right = new Vector( 1, 0 )
+    static left = new Vector( -1, 0 )
     static down = new Vector( 0, 1 )
+    static up = new Vector( 0, -1 )
+    static upLeft = new Vector( -1, -1 )
+    static upRight = new Vector( 1, -1 )
+    static downLeft = new Vector( -1, 1 )
+    static downRight = new Vector( 1, 1 )
+
+    static cardinalDirections = [ Vector.right, Vector.down, Vector.left, Vector.up ]
+
     constructor( x, y ) {
         this.x = x
         this.y = y
@@ -24,7 +34,7 @@ export class Vector {
         return equals( this.x, other.x ) && equals( this.y, other.y )
     }
     signs() {
-        return new Vector(Math.sign(this.x), Math.sign(this.y))
+        return new Vector( Math.sign( this.x ), Math.sign( this.y ) )
     }
     lerp( other: Vector, alpha: number ) {
         let beta = 1 - alpha

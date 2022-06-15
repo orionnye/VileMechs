@@ -148,12 +148,12 @@ export default class Match {
 
     endTurn() {
         // Health ReCapped at turn start
-        console.log("Ending turn")
-        this.teams[this.turn].endTurn()
+        console.log( "Ending turn" )
+        this.teams[ this.turn ].endTurn()
         this.turn++
         this.turn %= this.teams.length
-        this.teams[this.turn].startTurn()
-        console.log("STEP: ", this.cardAnim.step)
+        this.teams[ this.turn ].startTurn()
+        console.log( "STEP: ", this.cardAnim.step )
     }
 
     update() {
@@ -191,15 +191,15 @@ export default class Match {
         let cursorWalkable = this.isWalkable( cursor )
 
         //  Draw unit path
-        if (this.playerTurn()) {
-            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
-                let walkableTiles = targetsWithinRange(selectedUnit.pos, 0, selectedUnit.speed)
-                walkableTiles.forEach(tile => {
-                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed)
-                    if (path && path.length <= selectedUnit!.speed) {
+        if ( this.playerTurn() ) {
+            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 ) {
+                let walkableTiles = targetsWithinRange( selectedUnit.pos, 0, selectedUnit.speed )
+                walkableTiles.forEach( tile => {
+                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed )
+                    if ( path && path.length <= selectedUnit!.speed ) {
 
-                        g.drawRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
-                        g.strokeRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
+                        g.drawRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
+                        g.strokeRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
                     }
                 } )
                 let path = findPath( this, selectedUnit.pos, cursor, 100 )
@@ -276,11 +276,12 @@ export default class Match {
             }
         }
         for ( let y = 0; y < map.height; y++ ) {
-            for ( let x = 0; x < map.width; x++ ) {
+            for ( let x = map.width - 1; x >= 0; x-- ) {
                 let currentPos = new Vector( x * tileSize, y * tileSize )
                 let tile = map.getFromXY( x, y )
                 if ( tile.getElevation() >= 0 ) {
-                    Tiles.Grass.render( currentPos.x, currentPos.y )
+                    if ( tile <= Tiles.Grass )
+                        Tiles.Grass.render( currentPos.x, currentPos.y )
                     tile.render( currentPos.x, currentPos.y )
                 }
                 if ( numbered ) {
@@ -295,12 +296,8 @@ export default class Match {
 
     makeSceneNode() {
         let game = Game.instance
-        let g = Graphics.instance
-        // let { units } = this
-        let { teams } = this
         let { width, height } = this.map
         let selectedUnit = this.activeTeam().selectedUnit()
-        // let pickingTarget = false
         let pickingCard = this.isPickingCard()
         let tileSize = Match.tileSize
 
@@ -323,59 +320,64 @@ export default class Match {
             content: () => {
                 for ( let unit of this.units )
                     unit.makeSceneNode()
-
                 if ( pickingCard ) {
                     let card = this.selectedCard()
-                    if ( selectedUnit && card ) {
-                        for ( let pos of card?.getTilesInRange( selectedUnit ) ) {
-                            let unit = this.getUnit( pos )
-                            let isValidTarget = unit || card?.type.canApplyToEmptyTiles
-                            Scene.node( {
-                                description: "card-target",
-                                localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
-                                rect: { width: tileSize, height: tileSize },
-                                onClick: () => {
-                                    if ( this.playerTurn() && isValidTarget ) {
-                                        this.applyCardAt( pos )
-                                    }
-                                },
-                                onRender: ( node ) => {
-                                    let hover = node == game.mouseOverData.node
-                                    let highlight = hover && isValidTarget
-                                    let alpha = isValidTarget ? .5 : .15
-                                    let highlightTarget = `rgba(135, 231, 255, ${ alpha })`
-                                    let possibleTarget = `rgba(3, 202, 252, ${ alpha })`
-                                    g.c.fillStyle = highlight ? highlightTarget : possibleTarget
-                                    let cardImpactZone = [ pos ]
-                                    if ( Game.instance.match.map.contains( pos ) ) {
-                                        if ( card?.type.getTilesEffected ) {
-                                            cardImpactZone = card?.type.getTilesEffected!( this.selectedUnit()!, pos )
-                                        }
-                                        if ( highlight ) {
-                                            cardImpactZone.forEach( ( tile, i ) => {
-                                                let adjustedPos = new Vector( tile.x, tile.y ).subtract( pos ).scale( tileSize )
-                                                g.c.fillStyle = highlight ? highlightTarget : possibleTarget
-                                                g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
-                                                g.c.beginPath()
-                                                g.c.rect( adjustedPos.x, adjustedPos.y, tileSize, tileSize )
-                                                g.c.fill()
-                                                g.c.stroke()
-                                            } )
-                                        }
-                                        g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
-                                        g.c.beginPath()
-                                        g.c.rect( 0, 0, tileSize, tileSize )
-                                        g.c.fill()
-                                        g.c.stroke()
-                                        unit?.drawStats()
-                                    }
-                                }
-                            } )
-                        }
-                    }
+                    if ( selectedUnit && card )
+                        for ( let pos of card?.getTilesInRange( selectedUnit ) )
+                            this.cardTargetNode( pos, card )
                 }
             },
             onRender: () => this.render(),
+        } )
+    }
+
+    cardTargetNode( pos, card ) {
+        let game = Game.instance
+        let g = Graphics.instance
+        let tileSize = Match.tileSize
+
+        let unit = this.getUnit( pos )
+        let isValidTarget = unit || card?.type.canApplyToEmptyTiles
+        Scene.node( {
+            description: "card-target",
+            localMatrix: Matrix.vTranslation( pos.scale( tileSize ) ),
+            rect: { width: tileSize, height: tileSize },
+            onClick: () => {
+                if ( this.playerTurn() && isValidTarget ) {
+                    this.applyCardAt( pos )
+                }
+            },
+            onRender: ( node ) => {
+                let hover = node == game.mouseOverData.node
+                let highlight = hover && isValidTarget
+                let alpha = isValidTarget ? .5 : .15
+                let highlightTarget = `rgba(135, 231, 255, ${ alpha })`
+                let possibleTarget = `rgba(3, 202, 252, ${ alpha })`
+                g.c.fillStyle = highlight ? highlightTarget : possibleTarget
+                let cardImpactZone = [ pos ]
+                if ( Game.instance.match.map.contains( pos ) ) {
+                    if ( card?.type.getTilesEffected ) {
+                        cardImpactZone = card?.type.getTilesEffected!( this.selectedUnit()!, pos )
+                    }
+                    if ( highlight ) {
+                        cardImpactZone.forEach( ( tile, i ) => {
+                            let adjustedPos = new Vector( tile.x, tile.y ).subtract( pos ).scale( tileSize )
+                            g.c.fillStyle = highlight ? highlightTarget : possibleTarget
+                            g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
+                            g.c.beginPath()
+                            g.c.rect( adjustedPos.x, adjustedPos.y, tileSize, tileSize )
+                            g.c.fill()
+                            g.c.stroke()
+                        } )
+                    }
+                    g.c.strokeStyle = `rgba(0, 173, 217, ${ alpha })`
+                    g.c.beginPath()
+                    g.c.rect( 0, 0, tileSize, tileSize )
+                    g.c.fill()
+                    g.c.stroke()
+                    unit?.drawStats()
+                }
+            }
         } )
     }
 }
