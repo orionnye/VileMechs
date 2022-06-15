@@ -59,6 +59,7 @@ export class Vector {
         return unit.scale( length )
     }
 
+    /** Gives a point along a lissajous curve at time t. Useful for things like camera shake. */
     static lissajous( t, xFreq, yFreq, xAmplitude = 1, yAmplitude = xAmplitude, xPhase = 0, yPhase = 0 ) {
         return new Vector(
             Math.cos( Math.PI * 2 * ( t + xPhase ) * xFreq ) * xAmplitude,

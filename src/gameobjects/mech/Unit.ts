@@ -139,6 +139,12 @@ export default class Unit extends Entity {
 
     // View
 
+    renderIndex() {
+        let selectedUnit = this.team.selectedUnit()
+        let isSelected = this == selectedUnit
+        return ( this.pos.y << 1 ) | ( isSelected ? 1 : 0 )
+    }
+
     renderName( pos: Vector, textColor: string = "#c2c2c2", backing: string = "#696969" ) {
         let g = Graphics.instance
         g.c.shadowBlur = 0
@@ -189,9 +195,9 @@ export default class Unit extends Entity {
                     // }
                 }
                 //Standard rendering
-                this.render( true, flipUnits )
-                if ( hover )
-                    this.drawStats()
+                this.render( true, flipUnits, team.color )
+                // if ( hover )
+                this.drawStats()
                 g.c.restore()
             }
         } )

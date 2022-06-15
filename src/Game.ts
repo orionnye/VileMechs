@@ -46,13 +46,13 @@ export default class Game {
     constructor() {
         this.store = new Store()
         this.store.reset()
-        let playerTeam = new Team( "Choden Warriors", false, 0 )
+        let playerTeam = new Team( "Choden Warriors", "white", false, 0 )
         this.scrip = 50
         playerTeam.units = [
             new Chrome( new Vector( 1, 0 ), 0 ),
-            // new Flesh(new Vector(1, 0), 0),
-            // new Treant(new Vector(1, 0), 0),
-            // new Earth(new Vector(2, 0), 0)
+            new Flesh( new Vector( 1, 0 ), 0 ),
+            new Treant( new Vector( 1, 0 ), 0 ),
+            new Earth( new Vector( 2, 0 ), 0 )
         ]
         this.match = new Match( playerTeam )
         Game.instance = this
@@ -69,7 +69,7 @@ export default class Game {
         }
     }
     generateEnemies( amount: number ) {
-        this.match.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
+        this.match.teams[ 1 ] = new Team( "Drunken Scholars", "red", true, 1 )
         let mechList = [
             new Chrome( new Vector( 0, 0 ), 1 ),
             new Treant( new Vector( 0, 0 ), 1 ),
@@ -199,7 +199,7 @@ export default class Game {
                         unit.statReset()
                     } );
                     this.match.map = new Grid( 20, 20 )
-                    this.match.teams[ 1 ] = new Team( "Choden Warriors", true, 1 )
+                    this.match.teams[ 1 ] = new Team( "Choden Warriors", "red", true, 1 )
                     //Generate enemies to fight
                     this.generateEnemies( this.level )
                     this.match.map.newMap()
@@ -254,15 +254,16 @@ export default class Game {
         let center = Game.instance.screenCenter()
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
-            onRenderPost: () => {
-                if ( !this.shopping ) {
-                    //TEAM NAME DISPLAY
-                    g.setFont( 6, "pixel" )
-                    g.drawTextBox( new Vector( center.x, 0 ), this.match.activeTeam().name, {
-                        textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
-                    } )
-                }
-            },
+            // onRenderPost: () => {
+            //     if ( !this.shopping ) {
+            //         //TEAM NAME DISPLAY
+            //         let team = this.match.activeTeam()
+            //         g.setFont( 6, "pixel" )
+            //         g.drawTextBox( new Vector( center.x, 0 ), team.name, {
+            //             textColor: team.color, boxColor: "#6969698f", alignX: TextAlignX.center
+            //         } )
+            //     }
+            // },
             content: () => {
                 if ( this.shopping ) {
                     //-----------------Shopping Display-------------------

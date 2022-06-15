@@ -26,34 +26,30 @@ function getMoves( tilePairity: number, useDiagonals = false ) {
     //  to a preference for zigzagging paths over large L-shaped paths.
 }
 
-export function findPath( match: Match, origin: Vector, destination: Vector, maxDepth = 100 ) {
-    type Node = { pos: Vector, parent: Node | null }
-    function makeNode( pos: Vector, parent: Node | null ): Node {
-        return { pos, parent }
+function rebuildPath( node: PathingNode ) {
+    let steps = [ node.pos ]
+    while ( node.parent != null ) {
+        node = node.parent
+        steps.push( node.pos )
+    }
+    return steps.reverse()
+}
+
+export type PathingNode = { pos: Vector, parent: PathingNode | null, key: string, depth: number }
+/** Generates all reachable path nodes in a depth first order from an given origin. Stops when maxDepth is reached. */
+export function* generatePathingNodes( match: Match, origin: Vector, maxDepth = 100 ) {
+    function makeNode( pos: Vector, parent: PathingNode | null, key: string, depth: number ): PathingNode {
+        return { pos, parent, key, depth }
     }
 
-    function rebuildPath( node: Node ) {
-        let steps = [ node.pos ]
-        while ( node.parent != null ) {
-            node = node.parent
-            steps.push( node.pos )
-        }
-        return steps.reverse()
-    }
-
-    if ( origin.equals( destination ) )
-        return [ origin ]
-    if ( !match.isWalkable( destination ) )
-        return null
-
-    let destKey = destination.toString()
-
-    let currLayer = [ makeNode( origin, null ) ]
-    let nextLayer = [] as Node[]
+    let currLayer = [ makeNode( origin, null, origin.toString(), 0 ) ]
+    let nextLayer = [] as PathingNode[]
     let visited = new Set<string>()
     visited.add( origin.toString() )
 
-    for ( let i = 0; i < maxDepth; i++ ) {
+    yield currLayer[ 0 ]
+
+    for ( let depth = 1; depth <= maxDepth; depth++ ) {
         for ( let node of currLayer ) {
             let pairity = ( node.pos.x + node.pos.y ) % 2
             let offsets = getMoves( pairity )
@@ -73,12 +69,11 @@ export function findPath( match: Match, origin: Vector, destination: Vector, max
                 if ( visited.has( key ) )
                     continue
                 visited.add( key )
-                let node2 = makeNode( pos2, node )
-
-                if ( key == destKey )
-                    return rebuildPath( node2 )
+                let node2 = makeNode( pos2, node, key, depth )
 
                 nextLayer.push( node2 )
+
+                yield node2
             }
         }
 
@@ -87,6 +82,20 @@ export function findPath( match: Match, origin: Vector, destination: Vector, max
         nextLayer = tmp
         nextLayer.length = 0
     }
+}
+
+/** Returns the shortest path from origin to destination by depth. Stops searching when maxDepth is reached. */
+export function findPath( match: Match, origin: Vector, destination: Vector, maxDepth = 100 ) {
+    if ( origin.equals( destination ) )
+        return [ origin ]
+    if ( !match.isWalkable( destination ) )
+        return null
+
+    let destKey = destination.toString()
+
+    for ( let node of generatePathingNodes( match, origin, maxDepth ) )
+        if ( node.key == destKey )
+            return rebuildPath( node )
 
     return null
 }

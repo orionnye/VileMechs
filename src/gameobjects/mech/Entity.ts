@@ -1,4 +1,4 @@
-import { randomFloor, randomInt } from "../../math/math"
+import { lerp, randomFloor, randomInt } from "../../math/math"
 import { Vector } from "../../math/Vector"
 import Matrix from "../../math/Matrix"
 import Graphics, { TextAlignY } from "../../common/Graphics"
@@ -7,6 +7,7 @@ import { getFrameNumber, getImg } from "../../common/utils"
 import Game from "../../Game"
 import Scene from "../../common/Scene"
 import Match from "../../stages/Match"
+import Clock from "../../common/Clock"
 
 const mechSheet = getImg( require( "../../www/images/units/ChromeMech2.png" ) )
 
@@ -110,10 +111,10 @@ export default class Entity {
     }
 
     // View
-    render( animate = true, flip: boolean = false, outlineColor?: string ) {
+    render( animate = true, flip: boolean = false, outlineColor?: string, outlineSize?: number ) {
         let g = Graphics.instance
         let nFrames = this.sprite.height / 32
-        let frame = animate ? getFrameNumber( 2 * nFrames / 2, nFrames ) : 0
+        let frame = animate ? getFrameNumber( nFrames, nFrames ) : 0
         // let frame = animate ? getFrameNumber( 2, 2 ) : 0
 
         //walking animation
@@ -138,20 +139,31 @@ export default class Entity {
         }
 
         if ( outlineColor ) {
+            let s = outlineSize ?? 1
+            // Carve out space for outline
             g.c.globalCompositeOperation = "destination-out"
             for ( let offset of Vector.cardinalDirections ) {
-                g.vTranslate( offset )
+                g.vTranslate( offset.scale( s ) )
                 g.drawSheetFrame( this.sprite, 32, 0, 0, frame )
-                g.vTranslate( offset.scale( -1 ) )
+                g.vTranslate( offset.scale( -s ) )
             }
+            // Color outline
             g.c.globalCompositeOperation = "destination-over"
             g.c.fillStyle = outlineColor
-            g.c.fillRect( -1, -1, 34, 34 )
+            let t = performance.now()
+            let alpha = ( Math.cos( t / 300 ) + 1 ) * .5
+            g.c.globalAlpha = lerp( 0.7, 1, alpha )
+            g.c.fillRect( -s, -s, 32 + 2 * s, 32 + 2 * s )
             g.c.globalCompositeOperation = "source-over"
         }
         g.drawSheetFrame( this.sprite, 32, 0, 0, frame )
+        g.c.globalAlpha = 1
 
         g.c.restore()
+    }
+
+    renderIndex() {
+        return this.pos.y
     }
 
     drawStats() {

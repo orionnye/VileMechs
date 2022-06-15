@@ -1,7 +1,7 @@
 import Grid from "../gameobjects/map/Grid"
 import Graphics from "../common/Graphics"
 import { Vector } from "../math/Vector"
-import { findPath } from "../gameobjects/map/pathfinding"
+import { findPath, generatePathingNodes } from "../gameobjects/map/pathfinding"
 import Game from "../Game"
 import Matrix from "../math/Matrix"
 import Scene, { SceneNode } from "../common/Scene"
@@ -11,6 +11,7 @@ import CardTray from "../gameobjects/ui/CardTray"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import AI from "../gameobjects/mech/AI"
+import Unit from "../gameobjects/mech/Unit"
 
 
 export default class Match {
@@ -43,12 +44,12 @@ export default class Match {
     //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor( playerTeam: Team = new Team( "Drunken Scholars", false, 0 ) ) {
+    constructor( playerTeam: Team = new Team( "Drunken Scholars", "red", false, 0 ) ) {
         this.map = new Grid( 17, 17 )
 
         this.teams = [
             playerTeam,
-            new Team( "Choden Warriors", true, 1 ),
+            new Team( "Choden Warriors", "orange", true, 1 ),
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
@@ -191,59 +192,31 @@ export default class Match {
         let cursorWalkable = this.isWalkable( cursor )
 
         //  Draw unit path
-        if ( this.playerTurn() ) {
-            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 ) {
-                let walkableTiles = targetsWithinRange( selectedUnit.pos, 0, selectedUnit.speed )
-                walkableTiles.forEach( tile => {
-                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed )
-                    if ( path && path.length <= selectedUnit!.speed ) {
+        // if ( this.playerTurn() && this.hasFocus() && selectedUnit != undefined ) {
+        if ( this.playerTurn() && selectedUnit != undefined ) {
+            // debugger
+            if ( this.cardTray.index == -1 ) {
+                let stepsPerEnergy = selectedUnit.speed - 1
+                let depth = stepsPerEnergy * selectedUnit.energy
+                let walkableNodes = generatePathingNodes( this, selectedUnit.pos, depth )
+                for ( let node of walkableNodes ) {
+                    let { depth, pos } = node
+                    if ( pos == undefined )
+                        continue
 
-                        g.drawRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
-                        g.strokeRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
-                    }
-                } )
-                let path = findPath( this, selectedUnit.pos, cursor, 100 )
-                if ( path && selectedUnit.canMove() ) {
-                    let pathLength = path.length
-                    let walkableLength = Math.min( path.length, selectedUnit.speed )
-                    let trimmedSteps = path.slice( walkableLength - 1 )
-                    let walkablePath = path.slice( 0, walkableLength )
-                    path.length = walkableLength
-                    let radius = 3
-                    g.c.save()
-                    {
-                        // const walkableColor = "rgb(30, 125, 30)", unwalkableColor = "#c9c5b955"
-                        const walkableColor = "rgb(0, 240, 0)", unwalkableColor = "#c9c5b955"
-                        let pathBacking = "rgb(30, 115, 30)"
-                        g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                        g.c.strokeStyle = pathBacking
-                        g.c.lineWidth = radius + 2
-                        g.c.stroke()
-                        g.c.strokeStyle = walkableColor
-                        g.c.lineWidth = radius
-                        g.c.stroke()
+                    let energy = Math.ceil( depth / stepsPerEnergy )
+                    let lighten = energy % 2 == 0
 
-                        let pathTooLong = walkableLength != pathLength
-                        if ( pathTooLong ) {
-                            g.makePath( trimmedSteps.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
-                            g.c.strokeStyle = unwalkableColor
-                            g.c.lineWidth = radius
-                            g.c.stroke()
-                            g.c.setLineDash( [] )
-
-                            g.c.beginPath()
-                            let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                            g.c.fillStyle = unwalkableColor
-                            g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
-                        }
-
-                        g.c.beginPath()
-                        let endpoint = path[ path.length - 1 ].add( Vector.one.scale( 0.5 ) ).scale( tileSize )
-                        g.c.fillStyle = walkableColor
-                        g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
-                    }
-                    g.c.restore()
+                    let renderPos = pos.scale( tileSize )
+                    let dims = new Vector( tileSize, tileSize )
+                    let color = lighten ? "rgba(100, 255, 100, 0.3)" : "rgba(0, 255, 0, 0.3)"
+                    g.drawRect( renderPos, dims, color )
+                    g.strokeRect( renderPos, dims, color )
                 }
+
+                let path = findPath( this, selectedUnit.pos, cursor, 100 )
+                if ( this.hasFocus() && path != null && selectedUnit.canMove() )
+                    this.drawPath( path, selectedUnit )
             }
         }
 
@@ -260,6 +233,55 @@ export default class Match {
                 }
             }
         }
+    }
+
+    drawPath( path: Vector[], unit: Unit ) {
+        if ( path.length == 0 || unit.energy == 0 )
+            return
+
+        let g = Graphics.instance
+        let tileSize = Match.tileSize
+
+        let endPos = path[ path.length - 1 ]
+
+        let pathLength = path.length
+        let walkableLength = Math.min( path.length, unit.speed * Math.sign( unit.energy ) )
+        let trimmedSteps = path.slice( walkableLength - 1 )
+        let walkablePath = path.slice( 0, walkableLength )
+        let radius = 3
+        g.c.save()
+        {
+            const walkableColor = "#f0ead8", unwalkableColor = "#c9c5b9"
+
+            if ( walkableLength > 0 ) {
+                g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                g.c.strokeStyle = walkableColor
+                g.c.lineWidth = radius
+                g.c.stroke()
+            }
+
+            let pathTooLong = walkableLength != pathLength
+            if ( pathTooLong ) {
+                g.makePath( trimmedSteps.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                g.c.strokeStyle = unwalkableColor
+                g.c.lineWidth = radius
+                g.c.stroke()
+                g.c.setLineDash( [] )
+
+                g.c.beginPath()
+                let endpoint = endPos.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                g.c.fillStyle = unwalkableColor
+                g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+            }
+
+            if ( walkableLength > 0 ) {
+                g.c.beginPath()
+                let endpoint = walkablePath[ walkablePath.length - 1 ].add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                g.c.fillStyle = walkableColor
+                g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+            }
+        }
+        g.c.restore()
     }
 
     drawMap( numbered: boolean = false ) {
@@ -318,7 +340,8 @@ export default class Match {
                 }
             },
             content: () => {
-                for ( let unit of this.units )
+                let sortedUnits = Array.from( this.units ).sort( ( a, b ) => a.renderIndex() - b.renderIndex() )
+                for ( let unit of sortedUnits )
                     unit.makeSceneNode()
                 if ( pickingCard ) {
                     let card = this.selectedCard()

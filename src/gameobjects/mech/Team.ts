@@ -13,6 +13,7 @@ export default class Team {
     hasUnitSelected = false
 
     name: string
+    color: string
     flipUnits: boolean
 
     units: Unit[]
@@ -20,8 +21,9 @@ export default class Team {
 
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor( name: string, flip: boolean = false, teamNumber: number ) {
+    constructor( name: string, color: string, flip: boolean = false, teamNumber: number ) {
         this.name = name
+        this.color = color
         this.flipUnits = flip
 
         this.units = []
@@ -84,14 +86,14 @@ export default class Team {
     }
 
     endTurn() {
-        this.units.forEach(unit => {
+        this.units.forEach( unit => {
             //resets speed
             unit.speed = unit.maxSpeed
-        })
+        } )
         this.deselect()
     }
     startTurn() {
-        this.units.forEach(unit => {
+        this.units.forEach( unit => {
             unit.energy = unit.maxEnergy
             unit.statCap()
         } )
