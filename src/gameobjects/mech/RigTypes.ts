@@ -61,10 +61,11 @@ export class Earth extends Unit {
         this.drawSpeed = 5
 
         this.draw.cards = []
-        this.draw.add( CardTypes.bouldertoss, 3 )
+        this.draw.add( CardTypes.bouldertoss, 2 )
+        this.draw.add( CardTypes.blastCharge, 3 )
         // this.draw.add( CardTypes.laser, 2 )
-        this.draw.add( CardTypes.mine, 2 )
-        // this.draw.add( CardTypes.gorge, 5 )
+        this.draw.add( CardTypes.mine, 1 )
+        this.draw.add( CardTypes.gorge, 1 )
         // this.draw.add( CardTypes.repair, 1 )
 
         this.cardCycle()

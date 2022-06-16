@@ -8,7 +8,6 @@ import * as Tiles from "../map/Tiles"
 import Card from "./Card"
 import Graphics from "../../common/Graphics"
 import { randomFloor } from "../../math/math"
-
 //I have no idea why this requires one period but it does
 //Ores
 const ore = getImg( require( "../../www/images/cards/ore/pustule.png" ) )
@@ -17,31 +16,43 @@ const ore = getImg( require( "../../www/images/cards/ore/pustule.png" ) )
 const blank = getImg( require( "../../www/images/cards/backing/card.png" ) )
 
 const laser = getImg( require( "../../www/images/cards/icon/laser.png" ) )
-const gun = getImg( require( "../../www/images/cards/icon/gun.png" ) )
 const energyArmor = getImg( require( "../../www/images/cards/icon/energyArmor.png" ) )
-const chargeBeam = getImg( require( "../../www/images/cards/icon/chargeBeam.png" ) )
 const shieldCharge = getImg( require( "../../www/images/cards/icon/shieldCharge.png" ) )
+const energyFist = getImg( require( "../../www/images/cards/icon/energyFist.png" ) )
+// const chargeBeam = getImg( require( "../../www/images/cards/icon/chargeBeam.png" ) )
 
-const sprint = getImg( require( "../../www/images/cards/icon/sprint.png" ) )
-const repair = getImg( require( "../../www/images/cards/icon/repair.png" ) )
+const boulder = getImg( require( "../../www/images/cards/icon/boulder.png" ) )
+const mine = getImg( require( "../../www/images/cards/icon/mine.png" ) )
+const gorge = getImg( require( "../../www/images/cards/icon/gorge.png" ) )
+const blastCharge = getImg( require( "../../www/images/cards/icon/blastCharge.png" ) )
+const dynamite = getImg( require( "../../www/images/cards/icon/dynamite.png" ) )
+
 
 const claw = getImg( require( "../../www/images/cards/icon/claw.png" ) )
 const frendzi = getImg( require( "../../www/images/cards/icon/frendzi.png" ) )
+const lump = getImg( require( "../../www/images/cards/icon/lump.png" ) )
+const leap = getImg( require( "../../www/images/cards/icon/leap.png" ) )
+const chomp = getImg( require( "../../www/images/cards/icon/chomp.png" ) )
 
-const mine = getImg( require( "../../www/images/cards/icon/mine.png" ) )
-const boulder = getImg( require( "../../www/images/cards/icon/boulder.png" ) )
+const sprint = getImg( require( "../../www/images/cards/icon/sprint.png" ) )
+const repair = getImg( require( "../../www/images/cards/icon/repair.png" ) )
+const grapplingHook = getImg( require( "../../www/images/cards/icon/grapplingHook.png" ) )
+const rifle = getImg( require( "../../www/images/cards/icon/gun.png" ) )
 
 const pollen = getImg( require( "../../www/images/cards/icon/pollen.png" ) )
 const fungus = getImg( require( "../../www/images/cards/icon/fungus.png" ) )
 const fruit = getImg( require( "../../www/images/cards/icon/fruit.png" ) )
 const root = getImg( require( "../../www/images/cards/icon/root.png" ) )
 const flower = getImg( require( "../../www/images/cards/icon/flower.png" ) )
+const boomShroom = getImg( require( "../../www/images/cards/icon/boomShroom.png" ) )
 
 const jelly = getImg( require( "../../www/images/cards/icon/jelly.png" ) )
 const acid = getImg( require( "../../www/images/cards/icon/acid.png" ) )
 const tentacle = getImg( require( "../../www/images/cards/icon/tentacle.png" ) )
-
 const frost = getImg( require( "../../www/images/cards/icon/frost.png" ) )
+const warp = getImg( require( "../../www/images/cards/icon/warp.png" ) )
+const worms = getImg( require( "../../www/images/cards/icon/worms.png" ) )
+
 
 //Card Background
 const flesh = getImg( require( "../../www/images/cards/backing/flesh.png" ) )
@@ -84,7 +95,7 @@ export type CardType = {
 }
 
 const CardTypes: { [ name: string ]: CardType } = {
-    //------------------------------- CHROME -----------------------------
+    //------------------------------------------------------- CHROME -----------------------------------------------------
     laser: {
         name: "Laser",
         getDescription: card => `Deal ${ card.type.damage } damage, Take 1 damage`,
@@ -123,51 +134,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         cost: 1,
         damage: 6,
         range: 8,
-        minDist: 2,
-
-        friendly: false,
-        playable: true
-    },
-    rifle: {
-        name: "Rifle",
-        getDescription: card => `Deal ${ card.type.damage } damage to target`,
-        color: "#969696",
-        sprite: gun,
-        backing: metal,
-        canApplyToEmptyTiles: false,
-        // getTilesInRange: ( card, user ) => lineOfSightTargets( user.pos, { range: card.type.range } ),
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            target?.addHealth( -card.type.damage )
-            //this card should target using LOS(Line of Sight)
-        },
-
-        render: (animationFrame, user, pos ) => {
-            let g = Graphics.instance
-            let game = Game.instance
-            let world = game.match
-            let tileSize = 32
-            let target = world.getUnit(pos)
-            if (target) {
-                let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
-                let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
-                let bullet = {
-                    pos: userPos.lerp(targetPos, animationFrame),
-                    radius: 2,
-                    color: "rgba(50, 0, 0)"
-                }
-                for (let i = 0; i < 5; i++) {
-                    let spread = 4
-                    let noise = new Vector(Math.random()*spread, Math.random()*spread)
-                    g.fillCircle(bullet.pos.add(noise), bullet.radius, bullet.color)
-                }
-            }
-        },
-        renderFrames: 4,
-
-        cost: 1,
-        damage: 4,
-        range: 5,
         minDist: 2,
 
         friendly: false,
@@ -214,65 +180,27 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: true,
         playable: true
     },
-    //------------------------------- CURRENCY -----------------------------
-    //------------------------------- ELDRITCH -----------------------------
-    tentacle: {
-        name: "Tentacle Pull",
-        getDescription: card => `Pull target to you from ${ card.type.range } tiles away.`,
-        color: "#990099",
-        sprite: tentacle,
-        backing: purple,
+    energyFist: {
+        name: "Energy Fist",
+        getDescription: card => `Punch Target and knock them back`,
+        color: "#6BB5FF",
+        sprite: energyFist,
+        backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            // console.log(user.hand)
-            if ( target ) {
-                //Chaining Ternary functions are weird man
-                let xShift = ( user.pos.x < target.pos.x ) ?
-                    user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
-                        user.pos.x : user.pos.x - 1
-                let yShift = ( user.pos.y < target.pos.y ) ?
-                    user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
-                        user.pos.y : user.pos.y - 1
-                let newPos = new Vector( xShift, yShift )
-                let path = [ target.pos, newPos ]
-                target.move( path )
-            }
-
-        },
-
-        cost: 1,
-        damage: 0,
-        range: 6,
-        minDist: 1,
-        friendly: false,
-        playable: true,
-
-    },
-    bubbletoss: {
-        name: "Bubble Toss",
-        getDescription: card => `Create shallow water, Deal ${ card.type.damage } damage`,
-        color: "#990099",
-        sprite: jelly,
-        backing: purple,
-        canApplyToEmptyTiles: true,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-        onApplyToTile: ( card, user, pos, target ) => {
-            let match = Game.instance.match
-            match.map.set( pos, Tiles.WaterShallow )
-            target?.addHealth( -card.type.damage )
-
+            // user.gainCard( CardTypes.energyArmor, card.type.damage )
+            console.log("Energy Fist has no effect currently, please build")
         },
 
         cost: 1,
         damage: 2,
-        range: 5,
-        minDist: 2,
-        friendly: false,
-        playable: true,
-
+        range: 0,
+        minDist: 0,
+        friendly: true,
+        playable: true
     },
-    //------------------------------- EARTH -----------------------------
+    //------------------------------------------------------- EARTH -----------------------------------------------------
     bouldertoss: {
         name: "Boulder Toss",
         getDescription: card => `Place a Mountain, Deal ${card.type.damage} damage`,
@@ -324,7 +252,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         name: "Gorge",
         getDescription: card => `Place ${ card.type.dim!.x }x${ card.type.dim!.y } Mountains`,
         color: "#b87420",
-        sprite: boulder,
+        sprite: gorge,
         backing: brown,
         canApplyToEmptyTiles: true,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
@@ -351,7 +279,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         render: ( animationFrame, user, pos ) => {
             let g = Graphics.instance
             let game = Game.instance
-            let match = game.match
             let tileSize = 32
             let tiles = CardTypes.gorge.getTilesEffected!( user, pos )
 
@@ -392,7 +319,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: mine,
         backing: brown,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range, ignoreObstacles: true, ignoreElevation: true } ),
         onApplyToTile: ( card, user, pos, target ) => {
             // console.log(pos)
             let match = Game.instance.match
@@ -441,8 +368,68 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
         exhaustive: true
     },
+    blastCharge: {
+        name: "Blast Charge",
+        getDescription: card => `Charge through a line of Mountains`,
+        color: "#b87420",
+        sprite: blastCharge,
+        backing: brown,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, {
+            range: card.type.range,
+            ignoreObstacles: false,
+            ignoreElevation: false,
+            passable: (pos: Vector) => {
+                // if (Game.instance.match.map.getElevation(pos) < 0) {
+                //     return false
+                // } else {
+                //     return true
+                // }
+                return true
+            }
+        } ),
+        // getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        getTilesEffected( user, pos ) {
+            let match = Game.instance.match
+            let tilesEffected: Vector[] = [ pos ]
+            let dim = this.dim!
+            //get relative direction from user
+            let direction = user.pos.subtract(pos)
+            for ( let i = 0; i < direction.length; i++ ) {
+                let step = direction.unit()
+                let tile = user.pos.subtract(step.scale(i))
+                tile = new Vector(Math.round(tile.x), Math.round(tile.y))
+                if ( !tile.equals( user.pos ) && match.map.contains(tile) ) {
+                    tilesEffected.push( tile )
+                }
+            }
+            return tilesEffected
+        },
+        onApplyToTile: ( card, user, pos, target ) => {
+            // console.log(pos)
+            let match = Game.instance.match
+            // console.log(match.map.get(pos))
+            if ( match.map.get( pos ) == Tiles.GrassHill ) {
+                match.map.set( pos, Tiles.Grass )
+            }
+            if (target) {
+                if (target !== user) {
+                    target?.addHealth( -card.type.damage )
+                }
+            }
+            user.pos = pos
+        },
 
-    //------------------------------- UNIVERSAL -----------------------------
+        cost: 1,
+        damage: 3,
+        range: 5,
+        minDist: 1,
+        friendly: false,
+        playable: true,
+
+    },
+
+    //------------------------------------------------------- UNIVERSAL -----------------------------------------------------
     repair: {
         name: "Repair-Kit",
         getDescription: card => `Heal unit for ${ card.type.damage } health`,
@@ -510,7 +497,52 @@ const CardTypes: { [ name: string ]: CardType } = {
         exhaustive: true
 
     },
-    //------------------------------- FLESH -----------------------------
+    rifle: {
+        name: "Rifle",
+        getDescription: card => `Deal ${ card.type.damage } damage to target`,
+        color: "#969696",
+        sprite: rifle,
+        backing: metal,
+        canApplyToEmptyTiles: false,
+        // getTilesInRange: ( card, user ) => lineOfSightTargets( user.pos, { range: card.type.range } ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            target?.addHealth( -card.type.damage )
+            //this card should target using LOS(Line of Sight)
+        },
+
+        render: (animationFrame, user, pos ) => {
+            let g = Graphics.instance
+            let game = Game.instance
+            let world = game.match
+            let tileSize = 32
+            let target = world.getUnit(pos)
+            if (target) {
+                let userPos = user.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+                let targetPos = target.pos.scale(tileSize).add(new Vector(tileSize/2, tileSize/2))
+                let bullet = {
+                    pos: userPos.lerp(targetPos, animationFrame),
+                    radius: 2,
+                    color: "rgba(50, 0, 0)"
+                }
+                for (let i = 0; i < 5; i++) {
+                    let spread = 4
+                    let noise = new Vector(Math.random()*spread, Math.random()*spread)
+                    g.fillCircle(bullet.pos.add(noise), bullet.radius, bullet.color)
+                }
+            }
+        },
+        renderFrames: 4,
+
+        cost: 1,
+        damage: 4,
+        range: 5,
+        minDist: 2,
+
+        friendly: false,
+        playable: true
+    },
+    //------------------------------------------------------- FLESH -----------------------------------------------------
     claw: {
         name: "Claw",
         getDescription: card => `Deal ${ card.type.damage } damage`,
@@ -561,7 +593,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     //     friendly: false,
     //     playable: true,
     // },
-    //------------------------------- TREE --------------------------------
+    //------------------------------------------------------- TREE --------------------------------------------------------
     perfume: {
         name: "Perfume",
         getDescription: card => `Reduce MaxHP by ${ card.type.damage }, increase Speed by ${ card.type.damage }`,
@@ -649,7 +681,63 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
         exhaustive: true,
     },
-    //------------------------------- THERMAL -----------------------------
+    //----------------------------------------------- ELDRITCH --------------------------------------------
+    tentacle: {
+        name: "Tentacle Pull",
+        getDescription: card => `Pull target to you from ${ card.type.range } tiles away.`,
+        color: "#990099",
+        sprite: tentacle,
+        backing: purple,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            // console.log(user.hand)
+            if ( target ) {
+                //Chaining Ternary functions are weird man
+                let xShift = ( user.pos.x < target.pos.x ) ?
+                    user.pos.x + 1 : ( user.pos.x == target.pos.x ) ?
+                        user.pos.x : user.pos.x - 1
+                let yShift = ( user.pos.y < target.pos.y ) ?
+                    user.pos.y + 1 : ( user.pos.y == target.pos.y ) ?
+                        user.pos.y : user.pos.y - 1
+                let newPos = new Vector( xShift, yShift )
+                let path = [ target.pos, newPos ]
+                target.move( path )
+            }
+
+        },
+
+        cost: 1,
+        damage: 0,
+        range: 6,
+        minDist: 1,
+        friendly: false,
+        playable: true,
+
+    },
+    bubbletoss: {
+        name: "Bubble Toss",
+        getDescription: card => `Create shallow water, Deal ${ card.type.damage } damage`,
+        color: "#990099",
+        sprite: jelly,
+        backing: purple,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            let match = Game.instance.match
+            match.map.set( pos, Tiles.WaterShallow )
+            target?.addHealth( -card.type.damage )
+
+        },
+
+        cost: 1,
+        damage: 2,
+        range: 5,
+        minDist: 2,
+        friendly: false,
+        playable: true,
+
+    },
     // frost: {
     //     name: "Frost",
     //     getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
@@ -686,49 +774,49 @@ export function randomCardType() {
     return cardTypeList[ i ]
 }
 
+type scanOptions = {
+    range?: number,
+    ignoreObstacles?: boolean,
+    ignoreElevation?: boolean,
+    result?: Vector[],
+    passable?: (pos) => boolean
+}
+
 // Target generation
 function targetsAlongLine(
     pos: Vector, delta: Vector,
-    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [], passable = undefined }: scanOptions
+        
 ) {
     let match = Game.instance.match
     let elevation0 = match.map.getElevation( pos )
+
+    passable = passable ?? ((pos) => match.isWalkable(pos, false))
+
     for ( let i = 1; i <= range; i++ ) {
         let p2 = pos.add( delta.scale( i ) )
         let inBounds = match.map.contains( p2 )
         let hitsUnit = match.getUnit( p2 ) !== undefined
-        if ( !inBounds )
-            break
-        // let walkable = inBounds && ( ignoreObstacles || match.isWalkable( p2, false ) )
-        // if ( !walkable )
-        //     break
+
+        //Manually step through and assign tiles
+        //steal code from blastCharges getTilesEffected
+
         let contained = false
         result.forEach( (val, i) => {
             if ( p2.equals(val) ) {
                 contained = true
             }
         } )
-        if ( !ignoreObstacles && hitsUnit ) {
-            break
-        }
-        if ( !ignoreElevation ) {
-            let elevation = match.map.getElevation( p2 )
-            if ( elevation > elevation0 ) {
-                break
-            }
-        }
         if ( !contained ) {
             result.push( p2 )
         }
-        return result
     }
+    return result
 }
 
 function rookStyleTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }: scanOptions
 ) {
     targetsAlongLine( pos, new Vector( 1, 0 ), { range, ignoreObstacles, result } )
     targetsAlongLine( pos, new Vector( -1, 0 ), { range, ignoreObstacles, result } )
@@ -739,8 +827,7 @@ function rookStyleTargets(
 
 function bishopStyleTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }: scanOptions
 ) {
     targetsAlongLine( pos, new Vector( 1, 1 ), { range, ignoreObstacles, result } )
     targetsAlongLine( pos, new Vector( -1, -1 ), { range, ignoreObstacles, result } )
@@ -751,8 +838,7 @@ function bishopStyleTargets(
 
 function lineOfSightTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }:
-        { range?: number, ignoreObstacles?: boolean, ignoreElevation?: boolean, result?: Vector[] }
+    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }: scanOptions
 ) {     
         let map = Game.instance.match.map
         for (let x = 0; x <= map.width; x++) {
