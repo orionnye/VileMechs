@@ -148,12 +148,12 @@ export default class Match {
 
     endTurn() {
         // Health ReCapped at turn start
-        console.log("Ending turn")
-        this.teams[this.turn].endTurn()
+        console.log( "Ending turn" )
+        this.teams[ this.turn ].endTurn()
         this.turn++
         this.turn %= this.teams.length
-        this.teams[this.turn].startTurn()
-        console.log("STEP: ", this.cardAnim.step)
+        this.teams[ this.turn ].startTurn()
+        console.log( "STEP: ", this.cardAnim.step )
     }
 
     update() {
@@ -190,16 +190,19 @@ export default class Match {
         let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
 
-        //  Draw unit path
-        if (this.playerTurn()) {
-            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1) {
-                let walkableTiles = targetsWithinRange(selectedUnit.pos, 0, selectedUnit.speed)
-                walkableTiles.forEach(tile => {
-                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed)
-                    if (path && path.length <= selectedUnit!.speed) {
+        // let elevation = this.map.getElevation( cursor )
+        // console.log( elevation )
 
-                        g.drawRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
-                        g.strokeRect(tile.scale(tileSize), new Vector(tileSize, tileSize), "rgba(0, 0, 255, 0.1)")
+        //  Draw unit path
+        if ( this.playerTurn() ) {
+            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 ) {
+                let walkableTiles = targetsWithinRange( selectedUnit.pos, 0, selectedUnit.speed )
+                walkableTiles.forEach( tile => {
+                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed )
+                    if ( path && path.length <= selectedUnit!.speed ) {
+
+                        g.drawRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
+                        g.strokeRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
                     }
                 } )
                 let path = findPath( this, selectedUnit.pos, cursor, 100 )
