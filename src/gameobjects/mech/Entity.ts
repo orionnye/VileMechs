@@ -3,7 +3,7 @@ import { Vector } from "../../math/Vector"
 import Matrix from "../../math/Matrix"
 import Graphics, { TextAlignY } from "../../common/Graphics"
 import names from "../../common/names"
-import { getFrameNumber, getImg } from "../../common/utils"
+import { flash, getFrameNumber, getImg } from "../../common/utils"
 import Game from "../../Game"
 import Scene from "../../common/Scene"
 import Match from "../../stages/Match"
@@ -150,9 +150,7 @@ export default class Entity {
             // Color outline
             g.c.globalCompositeOperation = "destination-over"
             g.c.fillStyle = outlineColor
-            let t = performance.now()
-            let alpha = ( Math.cos( t / 300 ) + 1 ) * .5
-            g.c.globalAlpha = lerp( 0.7, 1, alpha )
+            g.c.globalAlpha = flash( 300, 0, 0.7, 1 )
             g.c.fillRect( -s, -s, 32 + 2 * s, 32 + 2 * s )
             g.c.globalCompositeOperation = "source-over"
         }
@@ -166,7 +164,10 @@ export default class Entity {
         return this.pos.y
     }
 
-    drawStats() {
+    static drawStats_defaults = { drawSpeed: false }
+    drawStats( options = Entity.drawStats_defaults ) {
+        options = Object.assign( {}, Entity.drawStats_defaults, options )
+
         let g = Graphics.instance
         g.c.save()
         g.c.translate( 0, -3 )
@@ -174,13 +175,13 @@ export default class Entity {
         this.drawHealth()
 
         //drawing Speed
-        let speed = {
-            pos: new Vector( 0, 5 )
+        if ( options.drawSpeed ) {
+            let pos = new Vector( 0, 5 )
+            g.strokeRect( pos, new Vector( 7, 8 ), "rgb(0, 0, 225)" )
+            g.drawRect( pos, new Vector( 7, 8 ), "rgb(50, 50, 255)" )
+            g.setFont( 7, "pixel2" )
+            g.drawText( pos.add( new Vector( 2, 0 ) ), ( this.speed - 1 ).toString(), "rgb(0, 0, 45)" )
         }
-        g.strokeRect( speed.pos, new Vector( 7, 8 ), "rgb(0, 0, 225)" )
-        g.drawRect( speed.pos, new Vector( 7, 8 ), "rgb(50, 50, 255)" )
-        g.setFont( 7, "pixel2" )
-        g.drawText( speed.pos.add( new Vector( 2, 0 ) ), ( this.speed - 1 ).toString(), "rgb(0, 0, 45)" )
 
         g.c.restore()
     }

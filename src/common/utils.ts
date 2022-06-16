@@ -1,3 +1,5 @@
+import { lerp } from "../math/math"
+
 export function getImg( src: string ) {
     let result = new Image()
     result.src = src
@@ -31,4 +33,11 @@ export function arrayArgMin<T>( array: T[], func: ( T ) => number ) {
         }
     }
     return { element: minElem, value: minValue, index: minIndex }
+}
+
+export function flash( period: number, phase: number, min: number, max: number ) {
+    let t = performance.now()
+    let u = t / period + phase
+    let alpha = ( Math.cos( u ) + 1 ) / 2
+    return lerp( min, max, alpha )
 }

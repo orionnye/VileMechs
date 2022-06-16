@@ -12,6 +12,7 @@ import UnitTray from "../gameobjects/ui/UnitTray"
 import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import AI from "../gameobjects/mech/AI"
 import Unit from "../gameobjects/mech/Unit"
+import { flash } from "../common/utils"
 
 
 export default class Match {
@@ -201,15 +202,17 @@ export default class Match {
                 let walkableNodes = generatePathingNodes( this, selectedUnit.pos, depth )
                 for ( let node of walkableNodes ) {
                     let { depth, pos } = node
-                    if ( pos == undefined )
+                    if ( pos == undefined || depth == 0 )
                         continue
 
                     let energy = Math.ceil( depth / stepsPerEnergy )
+                    let bright = ( energy - 1 ) * 100
                     let lighten = energy % 2 == 0
 
                     let renderPos = pos.scale( tileSize )
                     let dims = new Vector( tileSize, tileSize )
-                    let color = lighten ? "rgba(100, 255, 100, 0.3)" : "rgba(0, 255, 0, 0.3)"
+                    // let color = lighten ? "rgba(100, 255, 100, 0.3)" : "rgba(0, 255, 0, 0.3)"
+                    let color = `rgba(${ bright }, 255, ${ bright }, ${ flash( 300, -energy * .75, 0.3, 0.5 ) })`
                     g.drawRect( renderPos, dims, color )
                     g.strokeRect( renderPos, dims, color )
                 }
