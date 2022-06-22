@@ -27,12 +27,12 @@ const gorge = getImg( require( "../../www/images/cards/icon/gorge.png" ) )
 const blastCharge = getImg( require( "../../www/images/cards/icon/blastCharge.png" ) )
 const dynamite = getImg( require( "../../www/images/cards/icon/dynamite.png" ) )
 
-
 const claw = getImg( require( "../../www/images/cards/icon/claw.png" ) )
 const frendzi = getImg( require( "../../www/images/cards/icon/frendzi.png" ) )
-const lump = getImg( require( "../../www/images/cards/icon/lump.png" ) )
 const leap = getImg( require( "../../www/images/cards/icon/leap.png" ) )
+const lump = getImg( require( "../../www/images/cards/icon/lump.png" ) )
 const chomp = getImg( require( "../../www/images/cards/icon/chomp.png" ) )
+const acid = getImg( require( "../../www/images/cards/icon/acid.png" ) )
 
 const sprint = getImg( require( "../../www/images/cards/icon/sprint.png" ) )
 const repair = getImg( require( "../../www/images/cards/icon/repair.png" ) )
@@ -40,18 +40,17 @@ const grapplingHook = getImg( require( "../../www/images/cards/icon/grapplingHoo
 const rifle = getImg( require( "../../www/images/cards/icon/gun.png" ) )
 
 const pollen = getImg( require( "../../www/images/cards/icon/pollen.png" ) )
-const fungus = getImg( require( "../../www/images/cards/icon/fungus.png" ) )
 const fruit = getImg( require( "../../www/images/cards/icon/fruit.png" ) )
 const root = getImg( require( "../../www/images/cards/icon/root.png" ) )
 const flower = getImg( require( "../../www/images/cards/icon/flower.png" ) )
+const fungus = getImg( require( "../../www/images/cards/icon/fungus.png" ) )
 const boomShroom = getImg( require( "../../www/images/cards/icon/boomShroom.png" ) )
+const worms = getImg( require( "../../www/images/cards/icon/worms.png" ) )
 
 const jelly = getImg( require( "../../www/images/cards/icon/jelly.png" ) )
-const acid = getImg( require( "../../www/images/cards/icon/acid.png" ) )
 const tentacle = getImg( require( "../../www/images/cards/icon/tentacle.png" ) )
-const frost = getImg( require( "../../www/images/cards/icon/frost.png" ) )
 const warp = getImg( require( "../../www/images/cards/icon/warp.png" ) )
-const worms = getImg( require( "../../www/images/cards/icon/worms.png" ) )
+const frost = getImg( require( "../../www/images/cards/icon/frost.png" ) )
 
 
 //Card Background
@@ -182,28 +181,36 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     energyFist: {
         name: "Energy Fist",
-        getDescription: card => `Punch Target and knock them back`,
+        getDescription: card => `Deal ${card.type.damage} damage, knockback target ${card.type.minDist} tiles`,
         color: "#6BB5FF",
         sprite: energyFist,
         backing: metal,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
         onApplyToTile: ( card, user, pos, target ) => {
-            // user.gainCard( CardTypes.energyArmor, card.type.damage )
-            console.log( "Energy Fist has no effect currently, please build" )
+            let match = Game.instance.match
+            target?.addHealth(-card.type.damage)
+            //use targetalongline
+            if (target) {
+                let backboard = targetsAlongLine( target.pos, pos.subtract(user.pos).unit(), { range: card.type.minDist, ignoreObstacles: false } )
+                let lastTile = backboard.pop()
+                if (lastTile && match.map.contains(lastTile)) {
+                    target.pos = lastTile
+                }
+            }
         },
 
         cost: 1,
-        damage: 2,
-        range: 0,
-        minDist: 0,
-        friendly: true,
+        damage: 6,
+        range: 1,
+        minDist: 3,
+        friendly: false,
         playable: true
     },
     //------------------------------------------------------- EARTH -----------------------------------------------------
     bouldertoss: {
         name: "Boulder Toss",
-        getDescription: card => `Place a Mountain, Deal ${ card.type.damage } damage`,
+        getDescription: card => `Deal ${ card.type.damage } damage, -Creates Mountain`,
         color: "#b87420",
         sprite: boulder,
         backing: brown,
@@ -248,14 +255,14 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
 
     },
-    gorge: {
-        name: "Gorge",
-        getDescription: card => `Place ${ card.type.dim!.x }x${ card.type.dim!.y } Mountains`,
+    plateShift: {
+        name: "Plate Shift",
+        getDescription: card => `Drop ${ card.type.dim!.x }x${ card.type.dim!.y } Mountains`,
         color: "#b87420",
         sprite: gorge,
         backing: brown,
         canApplyToEmptyTiles: true,
-        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
         onApplyToTile: ( card, user, pos, target ) => {
             let match = Game.instance.match
             match.map.set( pos, Tiles.GrassHill )
@@ -275,46 +282,44 @@ const CardTypes: { [ name: string ]: CardType } = {
             }
             return tilesEffected
         },
+        // render: ( animationFrame, user, pos ) => {
+        //     let g = Graphics.instance
+        //     let game = Game.instance
+        //     let tileSize = 32
+        //     let tiles = CardTypes.gorge.getTilesEffected!( user, pos )
 
-        render: ( animationFrame, user, pos ) => {
-            let g = Graphics.instance
-            let game = Game.instance
-            let tileSize = 32
-            let tiles = CardTypes.gorge.getTilesEffected!( user, pos )
-
-            tiles.forEach( tile => {
-                //THE BIG LIE
-                //rendering an empty tile even though its actually already a mountain
-                let endTile = tile.scale( tileSize )
-                g.drawSheetFrame( grass, 32, endTile.x, endTile.y, 0 )
-            } )
-            tiles.forEach( tile => {
-                //The big ball movement
-                let halfTile = new Vector( tileSize / 2, tileSize / 2 )
-                let midPos = user.pos.lerp( tile, animationFrame ).scale( tileSize )
-                let yCurve = new Vector( 0, -Math.sin( animationFrame * Math.PI ) * 20 )
-                for ( let i = 0; i < 5; i++ ) {
-                    let noiseVector = new Vector( Math.sin( i ) * 8, Math.cos( i ) * 8 )
-                    let spot = midPos.add( noiseVector ).add( yCurve ).add( halfTile )
-                    g.fillCircle( spot, 10, `rgba(${ i * 15 }, 0, 0, 1)` )
-                }
-            } )
-        },
-        renderFrames: 25,
-
+        //     tiles.forEach( tile => {
+        //         //THE BIG LIE
+        //         //rendering an empty tile even though its actually already a mountain
+        //         let endTile = tile.scale( tileSize )
+        //         g.drawSheetFrame( grass, 32, endTile.x, endTile.y, 0 )
+        //     } )
+        //     tiles.forEach( tile => {
+        //         //The big ball movement
+        //         let halfTile = new Vector( tileSize / 2, tileSize / 2 )
+        //         let midPos = user.pos.lerp( tile, animationFrame ).scale( tileSize )
+        //         let yCurve = new Vector( 0, -Math.sin( animationFrame * Math.PI ) * 20 )
+        //         for ( let i = 0; i < 5; i++ ) {
+        //             let noiseVector = new Vector( Math.sin( i ) * 8, Math.cos( i ) * 8 )
+        //             let spot = midPos.add( noiseVector ).add( yCurve ).add( halfTile )
+        //             g.fillCircle( spot, 10, `rgba(${ i * 15 }, 0, 0, 1)` )
+        //         }
+        //     } )
+        // },
+        // renderFrames: 25,
 
         cost: 1,
         damage: 0,
         dim: new Vector( 3, 3 ),
-        range: 6,
-        minDist: 4,
+        range: 2,
+        minDist: 3,
         friendly: false,
         playable: true,
 
     },
     mine: {
         name: "Mine",
-        getDescription: card => `Destroy Mountain, Deal ${ card.type.damage } damage, Gain 1 FUEL`,
+        getDescription: card => `Deal ${ card.type.damage } damage, Gain 1 FUEL, -Clears Mountains`,
         color: "#b87420",
         sprite: mine,
         backing: brown,
@@ -346,7 +351,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     fuel: {
         name: "Fuel",
-        getDescription: card => `Gain ${ card.type.damage } energy -Exhaustive`,
+        getDescription: card => `Gain ${ card.type.damage } energy, -Exhaustive`,
         color: "#aaaaaa",
         sprite: ore,
         backing: black,
@@ -368,8 +373,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
         exhaustive: true
     },
-    blastCharge: {
-        name: "Blast Charge",
+    gorge: {
+        name: "Gorge",
         getDescription: card => `Charge through a line of Mountains`,
         color: "#b87420",
         sprite: blastCharge,
@@ -379,7 +384,11 @@ const CardTypes: { [ name: string ]: CardType } = {
             range: card.type.range,
             ignoreObstacles: false,
             ignoreElevation: false,
-            passable: ( match, pos ) => match.map.getElevation( pos ) >= 0
+            passable: ( match, pos ) =>  {
+                let elevation = match.map.getElevation( pos )
+                // console.log(elevation)
+                return !(elevation < 0)
+            }
         } ),
         // getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         getTilesEffected( user, pos ) {
@@ -412,14 +421,212 @@ const CardTypes: { [ name: string ]: CardType } = {
             }
             user.pos = pos
         },
-
         cost: 1,
         damage: 3,
         range: 5,
         minDist: 1,
         friendly: false,
         playable: true,
+    },
+    dynamite: {
+        name: "Dynamite",
+        getDescription: card => `Deal ${card.type.damage} damage, in a ${card.type.dim?.x}x${card.type.dim?.y} area -Clears Mountains`,
+        color: "#b87420",
+        sprite: dynamite,
+        backing: brown,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            let match = Game.instance.match
+            if (match.map.getElevation(pos) == 1) {
+                match.map.set( pos, Tiles.Grass )
+            }
+            if ( target ) {
+                target?.addHealth( -card.type.damage )
+            }
+        },
+        getTilesEffected( user, pos ) {
+            let match = Game.instance.match
+            let tilesEffected: Vector[] = [ pos ]
+            let dim = this.dim!
+            //get relative direction from user
+            for ( let x = 0; x < dim.x; x++ ) {
+                for ( let y = 0; y < dim.y; y++ ) {
+                    let tile = pos.add( new Vector( x - 1, y - 1 ) )
+                    if ( !tile.equals( pos ) ) {
+                        tilesEffected.push( tile )
+                    }
+                }
+            }
+            return tilesEffected
+        },
 
+        cost: 1,
+        damage: 3,
+        dim: new Vector( 3, 3 ),
+        range: 5,
+        minDist: 2,
+        friendly: false,
+        playable: true,
+
+    },
+
+    //------------------------------------------------------- FLESH -----------------------------------------------------
+    claw: {
+        name: "Claw",
+        getDescription: card => `Deal ${ card.type.damage } damage, -Exhaustive`,
+        color: "#af0000",
+        sprite: claw,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+
+            if ( target ) {
+                // let bonusDMG = user.maxHealth - user.health
+                // card.type.damage = bonusDMG + 1
+                target.addHealth( -card.type.damage )
+            }
+        },
+
+        cost: 0,
+        damage: 3,
+        range: 1,
+        minDist: 1,
+        friendly: false,
+        playable: true,
+        exhaustive: true
+    },
+    frenzy: {
+        name: "Frenzy",
+        getDescription: card => `-Draw ${card.type.drawCount} Cards -Gain ${card.type.damage} Claw`,
+        color: "#af0000",
+        sprite: frendzi,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            user.drawCard( card.type.drawCount )
+            for ( let i = 0; i < card.type.damage; i++ ) {
+                let card = new Card()
+                card.type = CardTypes.claw
+                user.draw.cards.push( card )
+            }
+        },
+
+        cost: 1,
+        damage: 2,
+        drawCount: 2,
+        range: 0,
+        minDist: 0,
+        friendly: false,
+        playable: true,
+
+    },
+    leap: {
+        name: "Leap",
+        getDescription: card => `Leap to a tile within range, -Ignore Obstacles`,
+        color: "#af0000",
+        sprite: leap,
+        backing: flesh,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            if (Game.instance.match.map.contains(pos)) {
+                user.pos = pos
+            }
+        },
+
+        cost: 1,
+        damage: 0,
+        range: 7,
+        minDist: 5,
+        friendly: false,
+        playable: true,
+
+    },
+    lump: {
+        name: "Lump",
+        getDescription: card => `Gain ${card.type.damage} HP,     Draw ${card.type.drawCount} Card, -Exhaustive`,
+        color: "#af0000",
+        sprite: lump,
+        backing: flesh,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            user.addHealth( card.type.damage )
+            user.drawCard( card.type.drawCount )
+        },
+
+        cost: 0,
+        damage: 4,
+        maxHp: 5,
+        energy: 1,
+        drawCount: 1,
+
+        range: 0,
+        minDist: 0,
+        friendly: false,
+        playable: true,
+        exhaustive: true
+    },
+    chomp: {
+        name: "Chomp",
+        getDescription: card => `Deal ${card.type.damage} damage, -Gain ${card.type.drawCount} "Lump" -Gain ${card.type.maxHp} MaxHP`,
+        color: "#af0000",
+        sprite: chomp,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            if ( target ) {
+                for ( let i = 0; i < card.type.drawCount; i++ ) {
+                    let card = new Card()
+                    card.type = CardTypes.lump
+                    user.draw.cards.push( card )
+                }
+                user.addMaxHealth( card.type.maxHp )
+
+                target.addHealth( -card.type.damage )
+            }
+        },
+
+        cost: 1,
+        damage: 4,
+        drawCount: 1,
+        maxHp: 2,
+
+        range: 2,
+        minDist: 0,
+        friendly: false,
+        playable: true,
+
+    },
+    acid: {
+        name: "Acid Spit",
+        getDescription: card => `Discard a random card, Deal ${card.type.damage} damage`,
+        color: "#af0000",
+        sprite: acid,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            
+            if (user.hand.length > 0) {
+                let random = randomFloor(user.hand.length)
+                user.discardCardAt(random)
+            }
+            if ( target ) {
+                target.addHealth( -card.type.damage)
+            }
+        },
+
+        cost: 1,
+        damage: 5,
+        range: 5,
+        minDist: 2,
+        friendly: false,
+        playable: true,
     },
 
     //------------------------------------------------------- UNIVERSAL -----------------------------------------------------
@@ -535,57 +742,37 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: false,
         playable: true
     },
-    //------------------------------------------------------- FLESH -----------------------------------------------------
-    claw: {
-        name: "Claw",
-        getDescription: card => `Deal ${ card.type.damage } damage`,
-        color: "#af0000",
-        sprite: claw,
-        backing: flesh,
+    grapplingHook: {
+        name: "Grappling Hook",
+        getDescription: card => `Pull you to target from ${ card.type.range } tiles away.`,
+        color: "#969696",
+        sprite: grapplingHook,
+        backing: metal,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-
             if ( target ) {
-                // let bonusDMG = user.maxHealth - user.health
-                // card.type.damage = bonusDMG + 1
-                target.addHealth( -card.type.damage )
+                let xShift = ( target.pos.x < user.pos.x ) ?
+                    target.pos.x + 1 : ( target.pos.x == user.pos.x ) ?
+                        target.pos.x : target.pos.x - 1
+                let yShift = ( target.pos.y < user.pos.y ) ?
+                    target.pos.y + 1 : ( target.pos.y == user.pos.y ) ?
+                        target.pos.y : target.pos.y - 1
+                let newPos = new Vector( xShift, yShift )
+                let path = [ user.pos, newPos ]
+                user.move( path )
             }
+
         },
 
-        cost: 0,
-        damage: 3,
-        range: 1,
+        cost: 1,
+        damage: 0,
+        range: 8,
         minDist: 1,
         friendly: false,
         playable: true,
 
     },
-    // acid: {
-    //     name: "Acid",
-    //     getDescription: card => `Melts Armor, target maxHealth -= ${card.type.damage} target speed += 1`,
-    //     color: "#32a852",
-    //     sprite: acid,
-    //     backing: purple,
-    //     canApplyToEmptyTiles: false,
-    //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-    //     onApplyToTile: ( card, user, pos, target ) => {
-    //         
-
-    //         if ( target ) {
-    //             target.addMaxHealth(-card.type.damage)
-    //             target.maxSpeed += 2
-    //             target.addHealth(-2)
-    //         }
-    //     },
-
-    //     cost: 1,
-    //     damage: 3,
-    //     range: 5,
-    //     minDist: 0,
-    //     friendly: false,
-    //     playable: true,
-    // },
     //------------------------------------------------------- TREE --------------------------------------------------------
     perfume: {
         name: "Perfume",
@@ -617,7 +804,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         sprite: root,
         backing: green,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => bishopStyleTargets( user.pos, { range: card.type.range } ),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
 
             if ( target ) {
@@ -646,7 +833,6 @@ const CardTypes: { [ name: string ]: CardType } = {
                 target.draw.add( CardTypes.fruit, 2 )
             }
         },
-
         cost: 1,
         damage: 2,
         range: 4,
@@ -731,32 +917,31 @@ const CardTypes: { [ name: string ]: CardType } = {
         playable: true,
 
     },
-    // frost: {
-    //     name: "Frost",
-    //     getDescription: card => `Deals ${card.type.damage} damage (unit's missing health)`,
-    //     color: "#0000aa",
-    //     sprite: frost,
-    //     backing: purple,
-    //     canApplyToEmptyTiles: false,
-    //     getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
-    //     onApplyToTile: ( card, user, pos, target ) => {
-    //         
-    //         // user.health -= 2
-    //         //deals damage to target based on previously sustained damage
-    //         if ( target ) {
-    //             let damage = target.maxHealth - target.health
-    //             card.type.damage = damage
-    //             target.addHealth(-card.type.damage)
-    //         }
-    //     },
+    warp: {
+        name: "Wrong Warp",
+        getDescription: card => `Swap places with target, Gain ${card.type.damage} Wrong Warp`,
+        color: "#990099",
+        sprite: warp,
+        backing: purple,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
 
-    //     cost: 1,
-    //     damage: 2,
-    //     range: 3,
-    //     minDist: 0,
-    //     friendly: false,
-    //     playable: true,
-    // }
+            if (target) {
+                let store = target.pos
+                target.pos = user.pos
+                user.pos = store
+                user.discard.add(card.type, card.type.damage)
+            }
+        },
+
+        cost: 1,
+        damage: 1,
+        range: 6,
+        minDist: 2,
+        friendly: false,
+        playable: true,
+    },  
 }
 
 export default CardTypes
@@ -779,7 +964,10 @@ type scanOptions = {
 function targetsAlongLine(
     pos: Vector, delta: Vector,
     {
-        range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [],
+        range = Infinity,
+        ignoreObstacles = false,
+        ignoreElevation = false,
+        result = [],
         passable = undefined
     }: scanOptions
 ) {
@@ -829,7 +1017,10 @@ function rookStyleTargets(
 
 function bishopStyleTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }: scanOptions
+    {
+        range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [],
+        passable = undefined
+    }: scanOptions
 ) {
     targetsAlongLine( pos, new Vector( 1, 1 ), { range, ignoreObstacles, result } )
     targetsAlongLine( pos, new Vector( -1, -1 ), { range, ignoreObstacles, result } )
@@ -840,7 +1031,10 @@ function bishopStyleTargets(
 
 function lineOfSightTargets(
     pos: Vector,
-    { range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [] }: scanOptions
+    {
+        range = Infinity, ignoreObstacles = false, ignoreElevation = false, result = [],
+        passable = undefined
+    }: scanOptions
 ) {
     let map = Game.instance.match.map
     for ( let x = 0; x <= map.width; x++ ) {

@@ -148,6 +148,13 @@ export default class Unit {
             }
         }
     }
+    discardCardAt( index: number ) {
+        if (index < this.hand.length) {
+            this.discard.insertAtRandom( this.hand.cards.splice( index, 1 )[0] )
+        } else {
+            console.log("Error: index is out of range in Unit hand")
+        }
+    }
 
     move( path: Vector[] ) {
         this.pos = path[ path.length - 1 ]
