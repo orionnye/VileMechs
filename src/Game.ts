@@ -50,8 +50,8 @@ export default class Game {
         playerTeam.units = [
             new Chrome(new Vector(1, 0), 0),
             new Flesh(new Vector(1, 0), 0),
-            // new Earth(new Vector(2, 0), 0),
-            // new Treant(new Vector(1, 0), 0),
+            new Earth(new Vector(2, 0), 0),
+            new Treant(new Vector(1, 0), 0),
         ]
         this.match = new Match( playerTeam )
         Game.instance = this

@@ -19,6 +19,7 @@ const laser = getImg( require( "../../www/images/cards/icon/laser.png" ) )
 const energyArmor = getImg( require( "../../www/images/cards/icon/energyArmor.png" ) )
 const shieldCharge = getImg( require( "../../www/images/cards/icon/shieldCharge.png" ) )
 const energyFist = getImg( require( "../../www/images/cards/icon/energyFist.png" ) )
+const barrier = getImg( require( "../../www/images/cards/icon/dead/barrier.png" ) )
 // const chargeBeam = getImg( require( "../../www/images/cards/icon/chargeBeam.png" ) )
 
 const boulder = getImg( require( "../../www/images/cards/icon/boulder.png" ) )
@@ -26,6 +27,7 @@ const mine = getImg( require( "../../www/images/cards/icon/mine.png" ) )
 const gorge = getImg( require( "../../www/images/cards/icon/gorge.png" ) )
 const blastCharge = getImg( require( "../../www/images/cards/icon/blastCharge.png" ) )
 const dynamite = getImg( require( "../../www/images/cards/icon/dynamite.png" ) )
+const plating = getImg( require( "../../www/images/cards/icon/dead/plating.png" ) )
 
 const claw = getImg( require( "../../www/images/cards/icon/claw.png" ) )
 const frendzi = getImg( require( "../../www/images/cards/icon/frendzi.png" ) )
@@ -33,6 +35,7 @@ const leap = getImg( require( "../../www/images/cards/icon/leap.png" ) )
 const lump = getImg( require( "../../www/images/cards/icon/lump.png" ) )
 const chomp = getImg( require( "../../www/images/cards/icon/chomp.png" ) )
 const acid = getImg( require( "../../www/images/cards/icon/acid.png" ) )
+const bloodClot = getImg( require( "../../www/images/cards/icon/dead/bloodClot.png" ) )
 
 const sprint = getImg( require( "../../www/images/cards/icon/sprint.png" ) )
 const repair = getImg( require( "../../www/images/cards/icon/repair.png" ) )
@@ -43,9 +46,11 @@ const pollen = getImg( require( "../../www/images/cards/icon/pollen.png" ) )
 const fruit = getImg( require( "../../www/images/cards/icon/fruit.png" ) )
 const root = getImg( require( "../../www/images/cards/icon/root.png" ) )
 const flower = getImg( require( "../../www/images/cards/icon/flower.png" ) )
+const bark = getImg( require( "../../www/images/cards/icon/dead/bark.png" ) )
 const fungus = getImg( require( "../../www/images/cards/icon/fungus.png" ) )
 const boomShroom = getImg( require( "../../www/images/cards/icon/boomShroom.png" ) )
 const worms = getImg( require( "../../www/images/cards/icon/worms.png" ) )
+
 
 const jelly = getImg( require( "../../www/images/cards/icon/jelly.png" ) )
 const tentacle = getImg( require( "../../www/images/cards/icon/tentacle.png" ) )
@@ -206,6 +211,22 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 3,
         friendly: false,
         playable: true
+    },
+    barrier: {
+        name: "Barrier",
+        getDescription: card => `"A static field that mitigates kinetic forces" -Sloan Weathers`,
+        color: "#6BB5FF",
+        sprite: barrier,
+        backing: metal,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+
+        cost: 1,
+        damage: 0,
+        range: 0,
+        minDist: 0,
+        friendly: false,
+        playable: false
     },
     //------------------------------------------------------- EARTH -----------------------------------------------------
     bouldertoss: {
@@ -471,6 +492,23 @@ const CardTypes: { [ name: string ]: CardType } = {
 
     },
 
+    plating: {
+        name: "Plating",
+        getDescription: card => `"If it protects my fuel tank, I'll do it" -Roach Smithers`,
+        color: "#b87420",
+        sprite: plating,
+        backing: brown,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+
+        cost: 1,
+        damage: 0,
+        range: 0,
+        minDist: 0,
+        friendly: false,
+        playable: false
+    },
+
     //------------------------------------------------------- FLESH -----------------------------------------------------
     claw: {
         name: "Claw",
@@ -627,6 +665,22 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 2,
         friendly: false,
         playable: true,
+    },
+    bloodClot: {
+        name: "Blood Clot",
+        getDescription: card => `"Nothing eats a bullet like rigor mortis" -Altair Patches`,
+        color: "#af0000",
+        sprite: bloodClot,
+        backing: flesh,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+
+        cost: 1,
+        damage: 0,
+        range: 0,
+        minDist: 0,
+        friendly: false,
+        playable: false
     },
 
     //------------------------------------------------------- UNIVERSAL -----------------------------------------------------
@@ -859,6 +913,22 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: true,
         playable: true,
         exhaustive: true,
+    },
+    bark: {
+        name: "Bark",
+        getDescription: card => `"Growing mech parts is a cheap simple practice." -Vinny Morose`,
+        color: "#026822",
+        sprite: bark,
+        backing: green,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+
+        cost: 1,
+        damage: 0,
+        range: 0,
+        minDist: 0,
+        friendly: false,
+        playable: false
     },
     //----------------------------------------------- ELDRITCH --------------------------------------------
     tentacle: {
