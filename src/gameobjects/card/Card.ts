@@ -51,19 +51,24 @@ export default class Card {
             //graphic
             g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 7, 7, Card.dimensions.x * 0.75, Card.dimensions.y * 0.75 )
             //background boxing
-            let costDimensions = new Vector(10, 10)
-            let costPos = new Vector(0, 7)
-            g.drawRect(costPos, costDimensions, this.type.color)
             g.drawRect(new Vector(0, 0), new Vector(Card.dimensions.x, 8), this.type.color)
             //title
             g.setFont( 5, "pixel2" )
             g.drawText( new Vector( 3, 1 ), this.type.name, "#f0ead8" )
             
             //Cost Display
-            g.setFont(Card.dimensions.x/4, "pixel2")
-            g.drawText(costPos.add(new Vector(1.9, -2.7)), this.type.cost.toString(), "rgb(30, 125, 30)")
-            g.setFont(Card.dimensions.x/6, "pixel2")
-            g.drawText(costPos.add(new Vector(3, 0)), this.type.cost.toString(), "rgb(0, 240, 0)")
+            if (this.type.onApplyToTile) {
+                let costDimensions = new Vector(10, 10)
+                let costPos = new Vector(0, 7)
+                let darkGreen = "rgb(30, 125, 30)"
+                let lightGreen = "rgb(0, 240, 0)"
+                g.drawRect(costPos, costDimensions, this.type.color)
+                g.drawRect(costPos.add(new Vector(1.5, 1)), new Vector(6, 8), darkGreen)
+                g.setFont(Card.dimensions.x/4, "pixel2")
+                g.drawText(costPos.add(new Vector(1.9, -2.7)), this.type.cost.toString(), darkGreen)
+                g.setFont(Card.dimensions.x/6, "pixel2")
+                g.drawText(costPos.add(new Vector(3, 0)), this.type.cost.toString(), lightGreen)
+            }
             //card description
             g.drawRect( new Vector( 4, 40 ), new Vector( 40, 20 ), this.type.color )
             let description = this.type.getDescription( this )

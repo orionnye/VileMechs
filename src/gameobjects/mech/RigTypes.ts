@@ -17,9 +17,13 @@ export class Chrome extends Unit {
         this.draw.cards = []
         
         //custom cards
+        this.draw.add( CardTypes.barrier, 4 )
+
         this.draw.add( CardTypes.shieldCharge, 1 )
-        this.draw.add( CardTypes.laser, 1 )
         this.draw.add( CardTypes.rifle, 3 )
+        // this.draw.add( CardTypes.laser, 1 )
+        // this.draw.add( CardTypes.energyFist, 3 )
+        // this.draw.add( CardTypes.grapplingHook, 3 )
 
         this.cardCycle()
         this.statReset()
@@ -38,11 +42,13 @@ export class Treant extends Unit {
         this.speed = this.maxSpeed
 
         this.draw.cards = []
+
+        this.draw.add( CardTypes.bark, 4 )
+
         this.draw.add( CardTypes.root, 2 )
-        // this.draw.add( CardTypes.mine, 2 )
-        this.draw.add( CardTypes.perfume, 2 )
-        // this.draw.add( CardTypes.fruit, 2 )
-        this.draw.add( CardTypes.flower, 2 )
+        this.draw.add( CardTypes.perfume, 1 )
+        // this.draw.add( CardTypes.fruit, 1 )
+        this.draw.add( CardTypes.flower, 1 )
 
         this.cardCycle()
         this.statReset()
@@ -61,11 +67,14 @@ export class Earth extends Unit {
         this.drawSpeed = 5
 
         this.draw.cards = []
-        this.draw.add( CardTypes.bouldertoss, 3 )
-        // this.draw.add( CardTypes.laser, 2 )
+        
+        this.draw.add( CardTypes.plating, 4 )
+        
+        this.draw.add( CardTypes.bouldertoss, 1 )
         this.draw.add( CardTypes.mine, 2 )
-        // this.draw.add( CardTypes.gorge, 5 )
-        // this.draw.add( CardTypes.repair, 1 )
+        this.draw.add( CardTypes.dynamite, 1 )
+        // this.draw.add( CardTypes.gorge, 2 )
+        // this.draw.add( CardTypes.plateShift, 2 )
 
         this.cardCycle()
         this.statReset()
@@ -84,8 +93,13 @@ export class Flesh extends Unit {
         this.health = this.maxHealth
 
         this.draw.cards = []
-        this.draw.add( CardTypes.claw, 5 )
-        // this.draw.add( CardTypes.tentacle, 2 )
+
+        this.draw.add( CardTypes.bloodClot, 4 )
+
+        this.draw.add( CardTypes.frenzy, 1 )
+        this.draw.add( CardTypes.chomp, 2 )
+        this.draw.add( CardTypes.leap, 1 )
+
         // this.draw.add( CardTypes.acid, 2)
 
         this.cardCycle()

@@ -40,7 +40,7 @@ export default class Game {
     clock = new Clock()
 
     isPlayerDone = false
-    shopping = true
+    shopping = false
 
     constructor() {
         this.store = new Store()
@@ -48,10 +48,10 @@ export default class Game {
         let playerTeam = new Team( "Choden Warriors", false, 0 )
         this.scrip = 50
         playerTeam.units = [
-            // new Chrome(new Vector(1, 0), 0),
-            // new Flesh(new Vector(1, 0), 0),
-            // new Treant(new Vector(1, 0), 0),
-            // new Earth(new Vector(2, 0), 0)
+            new Chrome(new Vector(1, 0), 0),
+            new Flesh(new Vector(1, 0), 0),
+            new Earth(new Vector(2, 0), 0),
+            new Treant(new Vector(1, 0), 0),
         ]
         this.match = new Match( playerTeam )
         Game.instance = this
