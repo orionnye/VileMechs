@@ -92,7 +92,6 @@ export type CardType = {
     range: number,
     minDist: number,
     friendly: boolean,
-    playable: boolean,
     exhaustive?: true
 
     [ index: string ]: any
@@ -139,13 +138,11 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 6,
         range: 8,
         minDist: 2,
-
-        friendly: false,
-        playable: true
+        friendly: false
     },
     energyArmor: {
         name: "Energy Armor",
-        getDescription: card => `Reduce incoming damage by ${ card.type.damage }, Use to draw 1 card`,
+        getDescription: card => `Block ${ card.type.damage } damage while in hand, -Draw 1 card, -Exhaustive`,
         color: "#6BB5FF",
         sprite: energyArmor,
         backing: metal,
@@ -153,7 +150,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
             user.drawCard( 1 )
-            // user.discard.cards.pop()
         },
 
         cost: 0,
@@ -161,7 +157,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 0,
         minDist: 0,
         friendly: true,
-        playable: true,
         exhaustive: true
     },
     shieldCharge: {
@@ -181,8 +176,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 0,
         minDist: 0,
-        friendly: true,
-        playable: true
+        friendly: true
     },
     energyFist: {
         name: "Energy Fist",
@@ -209,8 +203,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 6,
         range: 1,
         minDist: 3,
-        friendly: false,
-        playable: true
+        friendly: false
     },
     barrier: {
         name: "Barrier",
@@ -273,7 +266,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 2,
 
         friendly: false,
-        playable: true,
 
     },
     plateShift: {
@@ -335,7 +327,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 2,
         minDist: 3,
         friendly: false,
-        playable: true,
 
     },
     mine: {
@@ -367,7 +358,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 1,
         friendly: false,
-        playable: true,
 
     },
     fuel: {
@@ -391,12 +381,11 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 0,
         friendly: true,
-        playable: true,
         exhaustive: true
     },
     gorge: {
         name: "Gorge",
-        getDescription: card => `Charge through a line of Mountains`,
+        getDescription: card => `Charge through a line of Mountains, Deal ${card.type.damage}`,
         color: "#b87420",
         sprite: blastCharge,
         backing: brown,
@@ -446,8 +435,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 3,
         range: 5,
         minDist: 1,
-        friendly: false,
-        playable: true,
+        friendly: false
     },
     dynamite: {
         name: "Dynamite",
@@ -487,8 +475,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         dim: new Vector( 3, 3 ),
         range: 5,
         minDist: 2,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
 
@@ -532,19 +519,18 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 1,
         friendly: false,
-        playable: true,
         exhaustive: true
     },
     frenzy: {
         name: "Frenzy",
-        getDescription: card => `-Draw ${card.type.drawCount} Cards -Gain ${card.type.damage} Claw`,
+        getDescription: card => `-Generate ${card.type.damage} Claw`,
         color: "#af0000",
         sprite: frendzi,
         backing: flesh,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            user.drawCard( card.type.drawCount )
+            // user.drawCard( card.type.drawCount )
             for ( let i = 0; i < card.type.damage; i++ ) {
                 let card = new Card()
                 card.type = CardTypes.claw
@@ -554,11 +540,9 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         cost: 1,
         damage: 2,
-        drawCount: 2,
         range: 0,
         minDist: 0,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
     leap: {
@@ -579,8 +563,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 7,
         minDist: 5,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
     lump: {
@@ -605,7 +588,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 0,
         minDist: 0,
         friendly: false,
-        playable: true,
         exhaustive: true
     },
     chomp: {
@@ -636,8 +618,7 @@ const CardTypes: { [ name: string ]: CardType } = {
 
         range: 2,
         minDist: 0,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
     acid: {
@@ -663,8 +644,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 5,
         range: 5,
         minDist: 2,
-        friendly: false,
-        playable: true,
+        friendly: false
     },
     bloodClot: {
         name: "Blood Clot",
@@ -720,7 +700,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 0,
         friendly: true,
-        playable: true,
         exhaustive: true
 
 
@@ -747,7 +726,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 0,
         friendly: true,
-        playable: true,
         exhaustive: true
 
     },
@@ -823,8 +801,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 8,
         minDist: 1,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
     //------------------------------------------------------- TREE --------------------------------------------------------
@@ -848,8 +825,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 6,
         minDist: 0,
-        friendly: false,
-        playable: true,
+        friendly: false
     },
     root: {
         name: "Root",
@@ -871,8 +847,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 8,
         range: 6,
         minDist: 0,
-        friendly: false,
-        playable: true,
+        friendly: false
     },
     flower: {
         name: "Flower",
@@ -891,8 +866,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 4,
         minDist: 0,
-        friendly: false,
-        playable: true,
+        friendly: false
     },
     fruit: {
         name: "Fruit",
@@ -911,7 +885,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 1,
         minDist: 0,
         friendly: true,
-        playable: true,
         exhaustive: true,
     },
     bark: {
@@ -960,8 +933,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 6,
         minDist: 1,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
     bubbletoss: {
@@ -983,8 +955,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 5,
         minDist: 2,
-        friendly: false,
-        playable: true,
+        friendly: false
 
     },
     warp: {
@@ -1009,8 +980,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 1,
         range: 6,
         minDist: 2,
-        friendly: false,
-        playable: true,
+        friendly: false
     },  
 }
 

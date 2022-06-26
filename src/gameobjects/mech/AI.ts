@@ -34,12 +34,12 @@ export default class AI {
         let { cardTray } = match
 
         this.chodiness += 1
-        // console.log("Thinking!!!!:", this.chodiness)
 
         if ( team.units.length > 0 && team.selectedUnitIndex > -1 ) {
             let unit = team.selectedUnit()!
             let card = cardTray.selectedCard( unit )
             if ( card && card.type.playable ) {
+                // console.log("Card playability:", card.type.playable)
                 let idealSpot: Vector | null = this.idealSpot( unit, card )
                 let enemies = this.getEnemiesOf( unit )
                 //step two: move within range
@@ -53,7 +53,6 @@ export default class AI {
                 }
             } else {
                 //Step ONE, select a card if available
-                console.log( "Selecting Card" )
                 this.selectBestCard( unit )
             }
         }
@@ -145,15 +144,16 @@ export default class AI {
         //----------------AVOID CARDS THAT ARE UNPLAYABLE OR COST ABOVE YOUR ENERGY AVAILABLE
         let playableCards: Card[] = []
         unit.hand.cards.forEach( ( card: Card ) => {
-            if ( card.type.playable && card.type.cost <= unit.energy ) {
+            if ( card.type.cost <= unit.energy && card.type.onApplyToTile ) {
                 playableCards.push( card )
             }
         } )
-        // console.log(playableCards)
 
         if ( playableCards.length > 0 ) {
-            let choice = randomFloor( playableCards.length )
-            game.match.cardTray.selectIndex( choice )
+            let choice = playableCards[randomFloor( playableCards.length )]
+
+            let index = game.match.selectedUnit()!.hand.cards.indexOf(choice)
+            game.match.cardTray.selectIndex( index )
         }
     }
     useCard( target: Vector ) {

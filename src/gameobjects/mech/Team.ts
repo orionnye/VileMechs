@@ -42,10 +42,12 @@ export default class Team {
     }
 
     toggleSelectIndex( index: number ) {
-        if ( this.hasUnitSelected && index == this.selectedUnitIndex )
+        if ( this.hasUnitSelected && index == this.selectedUnitIndex ) {
             this.deselect()
-        else
+            Game.instance.match.cardTray.deselect()
+        } else {
             this.setUnitIndex( index )
+        }
     }
 
     toggleSelectUnit( unit: Unit ) {

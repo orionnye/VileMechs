@@ -18,6 +18,9 @@ export default class Match {
     static tileSize = 32
     map: Grid
 
+    //timer
+    timer: number = 0
+
     //Units
     teams: Team[]
     turn = 0
@@ -36,8 +39,8 @@ export default class Match {
         rate: 0.02,
         cap: 1,
         step: 1,
-        type: <CardType | undefined>undefined,
-        pos: <Vector>new Vector( 0, 0 )
+        type: <CardType | undefined> undefined,
+        pos: <Vector> new Vector( 0, 0 )
     }
 
     //Node
@@ -153,6 +156,7 @@ export default class Match {
         this.turn++
         this.turn %= this.teams.length
         this.teams[ this.turn ].startTurn()
+        this.timer += 1
         console.log( "STEP: ", this.cardAnim.step )
     }
 

@@ -2,7 +2,7 @@ import CardTypes from "../card/CardTypes"
 import { getImg } from "../../common/utils"
 import Unit from "./Unit"
 
-// const treant = getImg( require( "../www/images/units/Vinecent1.png" ) )
+// const treant = getImg( require( "../../www/images/units/moosEnt.png" ) )
 const treant = getImg( require( "../../www/images/units/Vinecent2.png" ) )
 const earth = getImg( require( "../../www/images/units/EarthMech.png" ) )
 const chrome = getImg( require( "../../www/images/units/ChromeMech2.png" ) )

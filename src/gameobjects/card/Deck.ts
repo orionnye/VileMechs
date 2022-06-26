@@ -76,7 +76,7 @@ export class Deck {
     }
     emptyInto(deck: Deck) {
         if (this.length > 0) {
-            deck.addCards(this.removeCards(this.length));
+            deck.addCardsatRandom(this.removeCards(this.length));
         } else {
             console.log("Deck already empty:", deck)
         }
