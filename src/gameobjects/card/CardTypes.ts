@@ -542,7 +542,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 2,
         range: 0,
         minDist: 0,
-        friendly: false
+        friendly: true
 
     },
     leap: {

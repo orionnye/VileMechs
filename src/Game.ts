@@ -34,6 +34,7 @@ export default class Game {
 
     store: Store
     scrip: number
+    scripRewards : number[]
 
     showSceneDebug = false
     showFPS = false
@@ -47,11 +48,12 @@ export default class Game {
         this.store.reset()
         let playerTeam = new Team( "Choden Warriors", false, 0 )
         this.scrip = 50
+        this.scripRewards = [50, 20, 0]
         playerTeam.units = [
-            new Chrome(new Vector(1, 0), 0),
-            new Flesh(new Vector(1, 0), 0),
+            // new Chrome(new Vector(1, 0), 0),
+            // new Flesh(new Vector(1, 0), 0),
             new Earth(new Vector(2, 0), 0),
-            new Treant(new Vector(1, 0), 0),
+            // new Treant(new Vector(1, 0), 0),
         ]
         this.match = new Match( playerTeam )
         this.generateEnemies(2)
@@ -95,6 +97,10 @@ export default class Game {
         let units = this.match.activeTeam().units
         if ( units.length == 0 ) return
         this.moveCamToUnit( units[ 0 ] )
+    }
+    get scripReward() {
+        let rewardIndex = this.match.timer >= this.scripRewards.length ? this.scripRewards.length - 1 : this.match.timer
+        return this.scripRewards[ rewardIndex ]
     }
     //----------------------UPDATE----------------------------
     update() {
@@ -193,7 +199,7 @@ export default class Game {
                     this.store.reset()
                     this.match.turn = 0
                     this.shopping = true
-                    this.scrip += 10
+                    this.scrip += this.scripReward
                 } else if ( this.shopping ) {
                     //----GO Fighting!------
                     this.match.teams[ 0 ].units.forEach( unit => {
@@ -258,10 +264,18 @@ export default class Game {
             onRenderPost: () => {
                 if ( !this.shopping ) {
                     //TEAM NAME DISPLAY
+                    // g.setFont( 6, "pixel" )
+                    // g.drawTextBox( new Vector( center.x, 0 ), this.match.activeTeam().name, {
+                    //     textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
+                    // } )
+                    //Money / Reward for current round, and Timer
                     g.setFont( 6, "pixel" )
-                    g.drawTextBox( new Vector( center.x, 0 ), this.match.activeTeam().name, {
-                        textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
+                    g.drawTextBox( new Vector( center.x/2, 0 ), `SCRIP: ${ this.scripReward } `, {
+                        textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.center
                     } )
+                    // g.drawTextBox( new Vector( center.x/2, 0 ), `SCRIP: ${ this.scrip } `, {
+                    //     textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.center
+                    // } )
                 }
             },
             content: () => {

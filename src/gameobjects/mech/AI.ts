@@ -38,7 +38,9 @@ export default class AI {
         if ( team.units.length > 0 && team.selectedUnitIndex > -1 ) {
             let unit = team.selectedUnit()!
             let card = cardTray.selectedCard( unit )
-            if ( card && card.type.playable ) {
+            let validCard = card && card.type.onApplyToTile
+            
+            if ( validCard ) {
                 // console.log("Card playability:", card.type.playable)
                 let idealSpot: Vector | null = this.idealSpot( unit, card )
                 let enemies = this.getEnemiesOf( unit )
