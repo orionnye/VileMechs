@@ -15,10 +15,14 @@ import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
 import Store from "./stages/Store"
 import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
+import Title from "./stages/Title"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
+
+// activity 
+type Activity = "shop" | "match" | "title"
 
 export default class Game {
     static instance: Game
@@ -29,36 +33,50 @@ export default class Game {
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     mouseOverData: PickingResult = { node: undefined, point: new Vector( 0, 0 ) }
+    
+    //Scene List (paired with their relevant stats)
+    title: Title
+
     match: Match
     level: number = 1
-
+    
     store: Store
     scrip: number
     scripRewards : number[]
 
+
+    //Dev stats
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
 
     isPlayerDone = false
-    shopping = false
+
+    activity: Activity = "title"
 
     constructor() {
+        Game.instance = this
+
+        this.title = new Title()
+
+        //Store Init
         this.store = new Store()
         this.store.reset()
-        let playerTeam = new Team( "Choden Warriors", false, 0 )
         this.scrip = 50
+        
+        //player team Init
         this.scripRewards = [50, 20, 0]
-        playerTeam.units = [
-            // new Chrome(new Vector(1, 0), 0),
-            // new Flesh(new Vector(1, 0), 0),
-            new Earth(new Vector(2, 0), 0),
-            // new Treant(new Vector(1, 0), 0),
-        ]
+        let playerTeam = new Team( "Choden Warriors", false, 0 )
+        playerTeam.units = []
+        
+        //Math init
         this.match = new Match( playerTeam )
-        this.generateEnemies(2)
-        this.match.placeUnits()
-        Game.instance = this
+        this.match.activeTeam().cycleUnits()
+        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
+            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
+        }
+
+
         window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
         window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
@@ -66,10 +84,9 @@ export default class Game {
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
-        this.match.activeTeam().cycleUnits()
-        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
-            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-        }
+    }
+    get shopping() {
+        return (this.activity == "shop")
     }
     generateEnemies( amount: number ) {
         this.match.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
@@ -198,7 +215,7 @@ export default class Game {
                     //----GO Shopping!------
                     this.store.reset()
                     this.match.turn = 0
-                    this.shopping = true
+                    this.activity = "shop"
                     this.scrip += this.scripReward
                 } else if ( this.shopping ) {
                     //----GO Fighting!------
@@ -212,16 +229,12 @@ export default class Game {
                     this.match.map.newMap()
                     this.match.placeUnits()
                     this.match.turn = 0
-                    this.shopping = false
+                    this.activity = "match"
                     this.level += 1
                 }
                 //Team Selection
                 this.match.activeTeam().cycleUnits()
                 this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-                //Enemy Turn?
-                // if (!this.match.playerTurn()) {
-                //     this.match.ai.think(this.match.activeTeam())
-                // }
             }
         }
     }
@@ -255,14 +268,14 @@ export default class Game {
     }
     makeSceneNode() {
         let g = Graphics.instance
-        let { match } = this
+        let { match, store } = this
         let { unitTray, cardTray } = this.match
         let selectedUnit = this.match.activeTeam().selectedUnit()
         let center = Game.instance.screenCenter()
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
             onRenderPost: () => {
-                if ( !this.shopping ) {
+                if ( this.activity == "match" ) {
                     //TEAM NAME DISPLAY
                     // g.setFont( 6, "pixel" )
                     // g.drawTextBox( new Vector( center.x, 0 ), this.match.activeTeam().name, {
@@ -279,23 +292,31 @@ export default class Game {
                 }
             },
             content: () => {
-                if ( this.shopping ) {
-                    //-----------------Shopping Display-------------------
-                    this.store.makeSceneNode()
-                    unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
-                } else {
-                    //-----------------Match Display-----------------------
-                    match.makeSceneNode()
-                    //displays unitTray forward for first player
-                    g.c.restore()
-                    if ( this.match.turn == 0 ) {
+
+                switch (this.activity) {
+                    case "shop":
+                        //-----------------Shopping Display-------------------
+                        store.makeSceneNode()
                         unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
-                    } else {
-                        //display Unit Tray backwords for second player
-                        unitTray.makeSceneNode( new Vector( this.screenDimensions().x, 0 ), match.activeTeam(), true )
-                    }
-                    if ( selectedUnit )
-                        cardTray.makeSceneNode( selectedUnit )
+                        break
+                    case "match":
+                        //-----------------Match Display-----------------------
+                        match.makeSceneNode()
+                        g.c.restore()
+                        if ( this.match.turn == 0 ) {
+                            unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
+                        } else {
+                            //display Unit Tray backwords for second player
+                            unitTray.makeSceneNode( new Vector( this.screenDimensions().x, 0 ), match.activeTeam(), true )
+                        }
+                        if ( selectedUnit ) {
+                            cardTray.makeSceneNode( selectedUnit )
+                        }
+                        break
+                    case "title":
+                        //Title
+                        this.title.makeSceneNode()
+                        break 
                 }
             }
         } )

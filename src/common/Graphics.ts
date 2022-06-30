@@ -29,7 +29,18 @@ export default class Graphics {
         this.c.beginPath()
         this.c.fillRect( pos.x, pos.y, size.x, size.y )
     }
+    drawRoundRect( pos: Vector, size: Vector, color: string = "black", radius: number ) {
+        this.c.fillStyle = color
+        this.c.beginPath()
 
+        this.c.moveTo(pos.x + radius, pos.y)
+        this.c.arcTo( pos.x + size.x, pos.y, pos.x + size.x, pos.y + size.y, radius )
+        this.c.arcTo( pos.x + size.x, pos.y + size.y, pos.x, pos.y + size.y, radius )
+        this.c.arcTo( pos.x, pos.y + size.y, pos.x, pos.y, radius )
+        this.c.arcTo( pos.x, pos.y, pos.x + size.x, pos.y, radius )
+        this.c.closePath()
+        this.c.fill()
+    }
     strokeRect( pos: Vector, size: Vector, color: string = "black" ) {
         this.c.strokeStyle = color
         this.c.beginPath()
@@ -120,6 +131,26 @@ export default class Graphics {
         return textBoxDims
     }
 
+    drawRoundTextBox( pos: Vector, text: string, options: { padding?: number, textColor?: string, boxColor?: string, alignX?: TextAlignX, alignY?: TextAlignY, borderRadius?: number } ) {
+        let padding = options.padding ?? 1
+        let textColor = options.textColor ?? "white"
+        let boxColor = options.boxColor ?? "black"
+        let alignX = options.alignX ?? TextAlignX.left
+        let alignY = options.alignY ?? TextAlignY.top
+        let borderRadius = options.borderRadius ?? 0
+
+        let metrics = this.c.measureText( text )
+
+        let p = padding, p2 = padding * 2
+        let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
+        let textBoxDims = textDims.addXY( p2, p2 )
+        let textBoxOffset = pos.addXY( -textBoxDims.x * alignX, -textBoxDims.y * alignY )
+        let textOffset = textBoxOffset.addXY( p, p + metrics.actualBoundingBoxAscent )
+        this.drawRoundRect( textBoxOffset, textBoxDims, boxColor, borderRadius )
+        this.drawText( textOffset, text, textColor )
+
+        return textBoxDims
+    }
     drawSheetFrame( img: HTMLImageElement, frameHeight: number, x: number, y: number, frame: number ) {
         let w = img.width
         let h = frameHeight
