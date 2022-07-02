@@ -26,7 +26,6 @@ export default class Graphics {
 
     drawRect( pos: Vector, size: Vector, color: string = "red" ) {
         this.c.fillStyle = color
-        this.c.beginPath()
         this.c.fillRect( pos.x, pos.y, size.x, size.y )
     }
     drawRoundRect( pos: Vector, size: Vector, color: string = "black", radius: number ) {
@@ -106,9 +105,24 @@ export default class Graphics {
         return new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
     }
 
-    drawText( pos: Vector, text: string, color: string = "black" ) {
-        this.c.fillStyle = color
-        this.c.fillText( text, pos.x, pos.y )
+    drawText( pos: Vector, text: string, color: string,  options?: { padding?: number, boxColor?: string, alignX?: TextAlignX, alignY?: TextAlignY } ) {
+        let padding = options?.padding ?? 1
+        let textColor = color ?? "white"
+        let boxColor = options?.boxColor ?? "black"
+        let alignX = options?.alignX ?? TextAlignX.left
+        let alignY = options?.alignY ?? TextAlignY.top
+
+        let metrics = this.c.measureText( text )
+
+        let p = padding, p2 = padding * 2
+        let textDims = new Vector( metrics.width, metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent )
+        let textBoxDims = textDims.addXY( p2, p2 )
+        let textBoxOffset = pos.addXY( -textBoxDims.x * alignX, -textBoxDims.y * alignY )
+        let textOffset = textBoxOffset.addXY( p, p + metrics.actualBoundingBoxAscent )
+        this.c.fillStyle = textColor
+        this.c.fillText( text, textOffset.x, textOffset.y )
+
+        return textBoxDims
     }
 
     drawTextBox( pos: Vector, text: string, options: { padding?: number, textColor?: string, boxColor?: string, alignX?: TextAlignX, alignY?: TextAlignY } ) {

@@ -124,7 +124,7 @@ export default class Title {
                     },
                     onClick: () => {
                         console.log("Trying to startGame!!!!!!")
-                        Game.instance.activity = "shop"
+                        Game.instance.activity = "origin"
                     },
                 } ),
                 Scene.node( {

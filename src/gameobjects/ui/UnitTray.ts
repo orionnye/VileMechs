@@ -62,7 +62,12 @@ export default class UnitTray {
                             g.c.lineWidth = 1
                             g.strokeRect( new Vector( 0, 0 ), dim, "black" )
                             //unit drawn
-                            unit.render( false )
+                            // if ( i == team.selectedUnitIndex ) {
+                            //     unit.render( true )
+                            // } else {
+                            //     unit.render( false )
+                            // }
+                            unit.render(false)
 
                             //unit name display
                             unit.renderName( new Vector( 0, 23.5 ), "black", nameBacking )

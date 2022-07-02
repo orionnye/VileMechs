@@ -385,7 +385,7 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     gorge: {
         name: "Gorge",
-        getDescription: card => `Charge through a line of Mountains, Deal ${card.type.damage}`,
+        getDescription: card => `Charge through a line of Mountains, Deal ${card.type.damage} damage`,
         color: "#b87420",
         sprite: blastCharge,
         backing: brown,

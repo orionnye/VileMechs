@@ -10,7 +10,9 @@ import Team from "../gameobjects/mech/Team"
 import CardTray from "../gameobjects/ui/CardTray"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
+import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import AI from "../gameobjects/mech/AI"
+import { randomFloor } from "../math/math"
 
 
 export default class Match {
@@ -47,7 +49,7 @@ export default class Match {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor( playerTeam: Team = new Team( "Drunken Scholars", false, 0 ) ) {
-        this.map = new Grid( 17, 17 )
+        this.map = new Grid( 10, 10 )
 
         this.teams = [
             playerTeam,
@@ -80,6 +82,13 @@ export default class Match {
                     yield unit
         }
         return unitsGenerator()
+    }
+    generateEnemies( amount: number ) {
+        this.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
+        // console.log(mechList[0])
+        for ( let i = 0; i < amount; i++ ) {
+            this.teams[ 1 ].units.push( Game.instance.randomUnit )
+        }
     }
 
     playerTurn() {

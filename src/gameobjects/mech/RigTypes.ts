@@ -68,10 +68,10 @@ export class Earth extends Unit {
 
         this.draw.cards = []
         
-        this.draw.add( CardTypes.plating, 4 )
+        this.draw.add( CardTypes.plating, 2 )
         
         this.draw.add( CardTypes.bouldertoss, 1 )
-        this.draw.add( CardTypes.mine, 2 )
+        this.draw.add( CardTypes.mine, 1 )
         this.draw.add( CardTypes.dynamite, 1 )
         // this.draw.add( CardTypes.gorge, 2 )
         // this.draw.add( CardTypes.plateShift, 2 )

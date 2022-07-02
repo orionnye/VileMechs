@@ -273,13 +273,13 @@ export default class Unit {
         this.drawHealth()
 
         //drawing Speed
-        let speed = {
-            pos: new Vector( 0, 5 )
-        }
-        g.strokeRect( speed.pos, new Vector( 7, 8 ), "rgb(0, 0, 225)" )
-        g.drawRect( speed.pos, new Vector( 7, 8 ), "rgb(50, 50, 255)" )
-        g.setFont( 7, "pixel2" )
-        g.drawText( speed.pos.add( new Vector( 2, 0 ) ), ( this.speed - 1 ).toString(), "rgb(0, 0, 45)" )
+        // let speed = {
+        //     pos: new Vector( 0, 5 )
+        // }
+        // g.strokeRect( speed.pos, new Vector( 7, 8 ), "rgb(0, 0, 225)" )
+        // g.drawRect( speed.pos, new Vector( 7, 8 ), "rgb(50, 50, 255)" )
+        // g.setFont( 7, "pixel2" )
+        // g.drawText( speed.pos.add( new Vector( 2, 0 ) ), ( this.speed - 1 ).toString(), "rgb(0, 0, 45)" )
 
         g.c.restore()
     }

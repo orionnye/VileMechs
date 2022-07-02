@@ -12,17 +12,18 @@ import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
 import Team from "./gameobjects/mech/Team"
 import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
-import Store from "./stages/Store"
+import CardStore from "./stages/CardStore"
 import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
 import Title from "./stages/Title"
+import Origin from "./stages/Origin"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
 
 // activity 
-type Activity = "shop" | "match" | "title"
+type Activity = "shop" | "match" | "title" | "origin"
 
 export default class Game {
     static instance: Game
@@ -36,13 +37,15 @@ export default class Game {
     
     //Scene List (paired with their relevant stats)
     title: Title
+    origin: Origin
 
     match: Match
     level: number = 1
     
-    store: Store
+    store: CardStore
     scrip: number
     scripRewards : number[]
+    units : Unit[]
 
 
     //Dev stats
@@ -52,25 +55,33 @@ export default class Game {
 
     isPlayerDone = false
 
-    activity: Activity = "title"
+    activity: Activity = "shop"
 
     constructor() {
         Game.instance = this
 
         this.title = new Title()
+        this.origin = new Origin()
 
         //Store Init
-        this.store = new Store()
+        this.store = new CardStore()
         this.store.reset()
-        this.scrip = 50
+        this.scrip = 15
+        this.scripRewards = [50, 20, 0]
         
         //player team Init
-        this.scripRewards = [50, 20, 0]
-        let playerTeam = new Team( "Choden Warriors", false, 0 )
-        playerTeam.units = []
+        this.units = [
+            new Earth(new Vector(0, 0), 0),
+            new Chrome(new Vector(0, 0), 0),
+            // new Treant(new Vector(0, 0), 0),
+            // new Flesh(new Vector(0, 0), 0),
+        ]
+        // this.units = []
         
-        //Math init
-        this.match = new Match( playerTeam )
+        //Match Init
+        this.match = new Match( this.team )
+        this.generateEnemies(1)
+        this.match.placeUnits()
         this.match.activeTeam().cycleUnits()
         if ( this.match.activeTeam().selectedUnit() !== undefined ) {
             this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
@@ -85,27 +96,38 @@ export default class Game {
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
     }
+    get team() {
+        let playerTeam = new Team("Choden Warriors", false, 0)
+        playerTeam.units = this.units
+        return playerTeam
+    }
     get shopping() {
         return (this.activity == "shop")
     }
-    generateEnemies( amount: number ) {
-        this.match.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
+    get randomUnit() {
         let mechList = [
             new Chrome( new Vector( 0, 0 ), 1 ),
-            new Treant( new Vector( 0, 0 ), 1 ),
-            new Flesh( new Vector( 0, 0 ), 1 ),
+            // new Treant( new Vector( 0, 0 ), 1 ),
+            // new Flesh( new Vector( 0, 0 ), 1 ),
             new Earth( new Vector( 0, 0 ), 1 ),
         ]
+        let random = randomFloor( mechList.length )
+        return mechList[ random ]
+    } 
+    matchStart() {
+        this.match = new Match( this.team )
+        this.generateEnemies(1)
+        this.match.placeUnits()
+        this.match.activeTeam().cycleUnits()
+        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
+            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
+        }
+    }
+    generateEnemies( amount: number ) {
+        this.match.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
         // console.log(mechList[0])
         for ( let i = 0; i < amount; i++ ) {
-            let random = randomFloor( mechList.length )
-            this.match.teams[ 1 ].units.push( mechList[ random ] )
-            mechList = [
-                new Chrome( new Vector( 0, 0 ), 1 ),
-                new Treant( new Vector( 0, 0 ), 1 ),
-                new Flesh( new Vector( 0, 0 ), 1 ),
-                new Earth( new Vector( 0, 0 ), 1 ),
-            ]
+            this.match.teams[ 1 ].units.push( this.randomUnit )
         }
     }
     //----------------MODEL------------------
@@ -316,6 +338,10 @@ export default class Game {
                     case "title":
                         //Title
                         this.title.makeSceneNode()
+                        break 
+                    case "origin":
+                        //Origin
+                        this.origin.makeSceneNode()
                         break 
                 }
             }

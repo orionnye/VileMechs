@@ -63,11 +63,11 @@ export default class Card {
                 let darkGreen = "rgb(30, 125, 30)"
                 let lightGreen = "rgb(0, 240, 0)"
                 g.drawRect(costPos, costDimensions, this.type.color)
-                g.drawRect(costPos.add(new Vector(1.5, 1)), new Vector(6, 8), darkGreen)
-                g.setFont(Card.dimensions.x/4, "pixel2")
-                g.drawText(costPos.add(new Vector(1.9, -2.7)), this.type.cost.toString(), darkGreen)
+                g.drawRect(costPos.add(new Vector(1.5, 1)), new Vector(7, 8), darkGreen)
+                // g.setFont(Card.dimensions.x/4, "pixel2")
+                // g.drawText(costPos.add(new Vector(1.9, -2.7)), this.type.cost.toString(), darkGreen)
                 g.setFont(Card.dimensions.x/6, "pixel2")
-                g.drawText(costPos.add(new Vector(3, 0)), this.type.cost.toString(), lightGreen)
+                g.drawText(costPos.add(new Vector(1.5, 1)), this.type.cost.toString(), lightGreen)
             }
             //card description
             g.drawRect( new Vector( 4, 40 ), new Vector( 40, 20 ), this.type.color )
@@ -103,7 +103,7 @@ export default class Card {
     }
 }
 
-function getLines( text: string, charsPerLine: number ) {
+export function getLines( text: string, charsPerLine: number ) {
     let words = text.split( " " )
     if ( words.length == 0 ) return []
     let lines: string[] = []
