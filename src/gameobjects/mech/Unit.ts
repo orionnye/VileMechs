@@ -73,13 +73,20 @@ export default class Unit {
 
     // Model
     addHealth( amount: number ) {
-        let { energyArmor } = CardTypes
+        let { energyArmor, plating } = CardTypes
+        let armorCards = [
+            energyArmor,
+            plating
+        ]
         let reduction = 0
         if ( amount < 0 ) {
             // console.log(this.hand.typeCount(energyArmor))
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
             this.hand.cards.forEach( ( card, index ) => {
-                if ( card.type == energyArmor && reduction < Math.abs( amount ) ) {
+                if (card.type == plating) {
+                    reduction += plating.damage
+                }
+                if (card.type == energyArmor && reduction < Math.abs(amount)) {
                     reduction += energyArmor.damage
                     let store = this.hand.cards.splice( index, 1 )
                     this.discard.cards.push( store[ 0 ] )

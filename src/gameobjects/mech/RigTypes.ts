@@ -19,7 +19,7 @@ export class Chrome extends Unit {
         //custom cards
         this.draw.add( CardTypes.barrier, 4 )
 
-        this.draw.add( CardTypes.shieldCharge, 1 )
+        this.draw.add( CardTypes.coreCharge, 1 )
         this.draw.add( CardTypes.rifle, 3 )
         // this.draw.add( CardTypes.laser, 1 )
         // this.draw.add( CardTypes.energyFist, 3 )

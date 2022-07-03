@@ -46,10 +46,15 @@ export default class AI {
                 let enemies = this.getEnemiesOf( unit )
                 //step two: move within range
                 if ( idealSpot && !unit.pos.equals( idealSpot ) ) {
-                    this.moveTowards( unit, idealSpot )
+                    if ( card.type.mobile ) {
+                        this.useCard( idealSpot )
+                    } else {
+                        this.moveTowards( unit, idealSpot )
+                    }
                 } else if ( enemies.length > 0 ) {
                     let bestTarget = this.bestTargetOf( unit, card )
                     if ( bestTarget ) {
+                        // console.log("using card in think")
                         this.useCard( bestTarget.pos )
                     }
                 }
@@ -160,7 +165,7 @@ export default class AI {
     }
     useCard( target: Vector ) {
         let game = Game.instance
-        // console.log("target:", target)
+        // console.log("Using card")
         game.match.applyCardAt( target )
     }
     //---------------------MOBILITY FUNCTIONS------------------------------
@@ -205,28 +210,34 @@ export default class AI {
         //store closestTile
         let enemies = this.getEnemiesOf( unit )
         let targets = enemies
-        if ( card.type.friendly ) {
-            targets = this.getFriendsOf( unit )
-        }
         let closest: Vector | null = null
-        targets.forEach( target => {
-            let tiles = card.getTilesInRange( target )
-            tiles.forEach( tile => {
-                let tilePath = findPath( match, unit.pos, tile )
-                if ( tilePath ) {
-                    if ( closest == undefined ) {
-                        //if unnasigned and validPath
-                        closest = tile
-                    } else {
-                        let closestPath = findPath( match, unit.pos, closest )
-                        // console.log(closest)
-                        if ( tilePath.length < closestPath!.length ) {
+
+        if (card.type.mobile) {
+            let tiles = card.getTilesInRange( unit )
+            //----gonna need to finish cutom code for mobility cards 
+        } else {
+            if ( card.type.friendly ) {
+                targets = this.getFriendsOf( unit )
+            }
+            targets.forEach( target => {
+                let tiles = card.getTilesInRange( target )
+                tiles.forEach( tile => {
+                    let tilePath = findPath( match, unit.pos, tile )
+                    if ( tilePath ) {
+                        if ( closest == undefined ) {
+                            //if unnasigned and validPath
                             closest = tile
+                        } else {
+                            let closestPath = findPath( match, unit.pos, closest )
+                            // console.log(closest)
+                            if ( tilePath.length < closestPath!.length ) {
+                                closest = tile
+                            }
                         }
                     }
-                }
+                } )
             } )
-        } )
+        }
         return closest
     }
     friendlySpace( unit ) {

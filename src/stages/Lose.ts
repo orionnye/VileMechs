@@ -20,20 +20,16 @@ const Backgrounds = [ Jungle, Jungle2, Swamp, Forest ]
 
 const dirt = getImg( require( "../www/images/cards/backing/BrownCardBase.png" ) )
 
-type origin = "earth" | "chrome"
-export default class Origin {
+export default class Lose {
 
     //-----STORE DATA------
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     isPlayerDone = false
 
     image: HTMLImageElement
-    options : Unit[]
-    selecting: origin | undefined
 
     constructor() {
         this.image = Backgrounds[ Math.floor( Math.random() * 4 ) ]
-        this.options = [ new Earth( new Vector(0, 0), 0 ), new Chrome( new Vector(0, 0), 0 ) ]
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
     }
 
@@ -69,107 +65,77 @@ export default class Origin {
                 // g.c.drawImage( this.image, 0, 0, this.image.width, this.image.height, 0, 0, game.screenDimensions().x, game.screenDimensions().y )
 
                 g.setFont( 25, "Pixel2" )
-                g.drawText( game.screenCenter().add(new Vector(0, -game.screenDimensions().scale(0.4).y)), "Select Your Origin", "white", {alignX: TextAlignX.center})
+                g.drawText( game.screenCenter().add(new Vector(0, -game.screenDimensions().scale(0.4).y)), "You Lost", "white", {alignX: TextAlignX.center})
             },
             content: () => {
                 const screenDims = game.screenDimensions()
                 const buffer = 5
-                let earth = {
-                    dim: new Vector(100, 100),
+                let retry = {
+                    dim: new Vector(80, 50),
                     pos: new Vector(screenDims.x/4- buffer, screenDims.y/4*2),
                 }
-                let chrome = {
-                    dim: new Vector(100, 100),
-                    pos: new Vector(screenDims.x/4*2+ buffer, screenDims.y/4*2),
+                let quit = {
+                    dim: new Vector(80, 50),
+                    pos: new Vector(screenDims.x/4*2 + buffer, screenDims.y/4*2),
                 }
                 let selecting = <string> ""
+
                 Scene.node( {
-                    description: "Select a Earth Mech backstory",
-                    localMatrix: Matrix.identity.vTranslate(earth.pos),
-                    rect: { width: earth.dim.x, height: earth.dim.y },
+                    description: "Try again",
+                    localMatrix: Matrix.identity.vTranslate(retry.pos),
+                    rect: { width: retry.dim.x, height: retry.dim.y },
                     
                     onRender: () => {
                         g.c.imageSmoothingEnabled = false
                         
-                        let mech = this.options[0]
-                        let textColor = "rgb(75, 20, 20)"
                         //background
-                        g.drawRect(new Vector(0, 0), earth.dim, "orange")
-
-                        //mech render
-                        g.c.save()
-                        g.c.translate(5, 0)
-                        g.c.scale(1.5, 1.5)
-                        mech.render()
-                        g.c.restore()
+                        g.drawRect(new Vector(0, 0), retry.dim, "white")
 
                         //header
-                        g.setFont(12, "Pixel2")
-                        g.drawText(new Vector(5, 50), "Roq Co:", textColor)
-                        //description
-                        g.setFont(5, "Pixel2")
-                        g.drawText(new Vector(7, 65), "Retired Miner, with a ", textColor)
-                        g.drawText(new Vector(7, 70), "debt to pay off", textColor)
-                        //gameplay description
-                        g.drawText(new Vector(7, 80), "High Area of Effect and Damage", textColor)
+                        g.setFont(17, "Pixel2")
+                        g.drawText(new Vector(5, 20), "Retry?", "black")
 
                         //highlight on hover
-                        if ( selecting == "earth" ) {
-                            g.strokeRect(new Vector(0, 0), chrome.dim, "rgba(255, 255, 255)")
+                        if ( selecting == "retry" ) {
+                            g.c.lineWidth = 5
+                            g.strokeRect(new Vector(0, 0), retry.dim, "black")
                         }
                     },
                     onHover: () => {
-                        selecting = "earth"
+                        selecting = "retry"
                     },
                     onClick: () => {
-                        console.log("Begin with Earth mech")
-
-                        Game.instance.units = [new Earth(new Vector(0, 0), 0)]
-                        Game.instance.match.start()
+                        console.log("Trying to go again!")
+                        Game.instance.activity = "origin"
                     }
                 }),
                 Scene.node( {
-                    description: "Select a Chrome Mech backstory",
-                    localMatrix: Matrix.identity.vTranslate(chrome.pos),
-                    rect: { width: chrome.dim.x, height: chrome.dim.y },
+                    description: "Back to title",
+                    localMatrix: Matrix.identity.vTranslate(quit.pos),
+                    rect: { width: quit.dim.x, height: quit.dim.y },
                     
                     onRender: () => {
                         g.c.imageSmoothingEnabled = false
                         
-                        let mech = this.options[1]
-                        g.drawRect(new Vector(0, 0), chrome.dim, "rgb(120, 120, 255)")
-                        
-                        //mech render
-                        g.c.save()
-                        g.c.translate(5, 0)
-                        g.c.scale(1.5, 1.5)
-                        mech.render()
-                        g.c.restore()
-                        
-                        //Header
-                        g.setFont(12, "Pixel2")
-                        g.drawText(new Vector(5, 50), "M&P inc:", "white")
-                        
-                        //description
-                        g.setFont(5, "Pixel2")
-                        g.drawText(new Vector(7, 65), "Ex Peace Agent with a", "white")
-                        g.drawText(new Vector(7, 70), "debt to pay off", "white")
-                        //gameplay description
-                        g.drawText(new Vector(7, 80), "High Defense and Damage", "white")
+                        //background
+                        g.drawRect(new Vector(0, 0), quit.dim, "black")
+
+                        //header
+                        g.setFont(8, "Pixel2")
+                        g.drawText(new Vector(5, 20), "Back to Title?", "white")
 
                         //highlight on hover
-                        if ( selecting == "chrome" ) {
-                            g.strokeRect(new Vector(0, 0), chrome.dim, "rgba(255, 255, 255)")
+                        if ( selecting == "quit" ) {
+                            g.c.lineWidth = 5
+                            g.strokeRect(new Vector(0, 0), quit.dim, "rgba(255, 255, 255)")
                         }
                     },
                     onHover: () => {
-                        selecting = "chrome"
+                        selecting = "quit"
                     },
                     onClick: () => {
-                        console.log("Begin with Chrome mech")
-
-                        Game.instance.units = [new Chrome(new Vector(0, 0), 0)]
-                        Game.instance.match.start()
+                        console.log("Trying to Quit!")
+                        Game.instance.activity = "title"
                     }
                 })
             }

@@ -10,6 +10,8 @@ import { Deck } from "../gameobjects/card/Deck"
 import Card, { getLines } from "../gameobjects/card/Card"
 import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
+import Team from "../gameobjects/mech/Team"
+import Grid from "../gameobjects/map/Grid"
 
 
 const Jungle = getImg( require( "../www/images/gui/BackgroundPixel1.png" ) )
@@ -54,8 +56,10 @@ export default class CardStore {
 
     //---------------------------User Input---------------------------
     onKeyup( ev: KeyboardEvent ) {
-        if ( ev.key == "Enter" ) {
+        if ( ev.key == "Enter" && Game.instance.activity == "shop") {
+            let game = Game.instance
             this.isPlayerDone = true
+            game.match.start()
         }
     }
 

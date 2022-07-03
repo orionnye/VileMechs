@@ -13,12 +13,16 @@ import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import AI from "../gameobjects/mech/AI"
 import { randomFloor } from "../math/math"
+import { match } from "assert"
+import Unit from "../gameobjects/mech/Unit"
+import Camera from "../gameobjects/Camera"
 
 
 export default class Match {
     //Map
     static tileSize = 32
     map: Grid
+    camera = new Camera()
 
     //timer
     timer: number = 0
@@ -49,7 +53,7 @@ export default class Match {
     scene: SceneNode = { localMatrix: Matrix.identity }
 
     constructor( playerTeam: Team = new Team( "Drunken Scholars", false, 0 ) ) {
-        this.map = new Grid( 10, 10 )
+        this.map = new Grid( 15, 15 )
 
         this.teams = [
             playerTeam,
@@ -57,18 +61,7 @@ export default class Match {
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
-        // let randomTerrain = false
-        let randomTerrain = true
-        if ( randomTerrain ) {
-            this.map.newMap()
-            this.placeUnits()
-        } else {
-            //custom map
-            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
-            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), Tiles.Grass )
-            this.map.set( new Vector( 4, 3 ), Tiles.Grass )
-            this.map.set( new Vector( 5, 6 ), Tiles.Grass )
-        }
+        window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
 
         //Move camera to first Unit
         // this.moveCamToFirstUnit()
@@ -82,6 +75,25 @@ export default class Match {
                     yield unit
         }
         return unitsGenerator()
+    }
+    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) ) }
+    moveCamToFirstUnit() {
+        let units = this.activeTeam().units
+        if ( units.length == 0 ) return
+        this.moveCamToUnit( units[ 0 ] )
+    }
+    generateMap() {
+        let randomTerrain = true
+        if ( randomTerrain ) {
+            this.map.newMap()
+            this.placeUnits()
+        } else {
+            //custom map
+            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
+            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), Tiles.Grass )
+            this.map.set( new Vector( 4, 3 ), Tiles.Grass )
+            this.map.set( new Vector( 5, 6 ), Tiles.Grass )
+        }
     }
     generateEnemies( amount: number ) {
         this.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
@@ -167,9 +179,89 @@ export default class Match {
         this.teams[ this.turn ].startTurn()
         this.timer += 1
         console.log( "STEP: ", this.cardAnim.step )
+        if (this.playerUnits().length == 0) {
+            Game.instance.activity = "lose"
+        }
+    }
+    start() {
+        let game = Game.instance
+        //Toggle!
+        game.activity = "match"
+
+        //----GO Fighting!------
+        game.units.forEach( unit => {
+            unit.statReset()
+        } )
+        this.teams[0].units = game.units
+        this.map = new Grid( 15, 15 )
+        this.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
+        //Generate enemies to fight
+        game.generateEnemies( game.level )
+        this.generateMap()
+        this.activeTeam().cycleUnits()
+        if ( this.activeTeam().selectedUnit() !== undefined ) {
+            this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+        }
+        this.turn = 0
+        game.level += 1
+    }
+    onMousedown( ev: MouseEvent ) {
+        let game = Game.instance
+        let button = ev.button
+        let leftClick = button == 0
+        let middleClick = button == 1
+        let rightClick = button == 2
+        if ( leftClick || middleClick ) {
+            let cursor = game.input.cursor
+            let node = Scene.pickNode( this.scene, cursor )
+            let worldClicked = node == this.scene
+            let nothingClicked = node == undefined
+            let unitSelected = this.activeTeam().selectedUnit() !== undefined
+            let isMovingUnit = unitSelected && !this.isPickingCard()
+            let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || game.input.keys.get( "shift" )
+            if ( canLeftClickDrag || middleClick )
+                this.camera.startDragging()
+        } else if ( rightClick ) {
+            this.goBack()
+        }
+    }
+    onMouseup( ev: MouseEvent ) {
+        this.camera.stopDragging()
+    }
+    onWheel( ev: WheelEvent ) {
+        this.camera.onWheel( ev )
+    }
+
+    onKeyup( ev: KeyboardEvent ) {
+        this.camera.onKeyup( ev )
+
+        if (this.playerTurn()) {
+            if ( ev.key == "Tab" ) {
+                this.activeTeam().cycleUnits()
+            }
+            if ( ev.key == "Escape" ) {
+                this.goBack()
+            }
+            if ( ev.key == "Enter" && Game.instance.activity == "match") {
+                this.endTurn()
+                if ( this.teams[ 1 ].units.length == 0 ) {
+                    let game = Game.instance
+                    //----GO Shopping!------
+                    game.store.reset()
+                    game.match.turn = 0
+                    game.activity = "shop"
+                    game.scrip += game.scripReward
+                } else {
+                    // Team Selection
+                    this.activeTeam().cycleUnits()
+                    this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+                }
+            }
+        }
     }
 
     update() {
+        this.camera.update()
         this.teams.forEach( team => {
             team.update()
         } )
@@ -183,6 +275,27 @@ export default class Match {
                 this.cardAnim.step += rate
             }
         }
+
+        if ( !this.playerTurn() ) {
+            let AI = this.ai
+            AI.update()
+            if ( AI.startTime == undefined ) {
+                AI.think( this.activeTeam() )
+            }
+            if ( AI.chodiness >= AI.maxChodiness ) {
+                if ( this.activeTeam().selectedUnitIndex >= this.activeTeam().units.length - 1 ) {
+                    this.endTurn()
+                    this.activeTeam().cycleUnits()
+                    if ( this.playerUnits.length > 0 )
+                        this.moveCamToUnit( this.selectedUnit()! )
+                    AI.reset()
+                } else {
+                    this.activeTeam().cycleUnits()
+                    this.moveCamToUnit( this.selectedUnit()! )
+                    AI.reset()
+                }
+            }
+        }
     }
 
     // View
@@ -191,7 +304,7 @@ export default class Match {
         let game = Game.instance
         let tileSize = Match.tileSize
 
-        if ( game.camera.zoom * Game.uiScale <= 1.5 ) {
+        if ( this.camera.zoom * Game.uiScale <= 1.5 ) {
             g.c.imageSmoothingEnabled = true
             g.c.imageSmoothingQuality = "low"
         }
@@ -322,7 +435,7 @@ export default class Match {
 
         this.scene = Scene.node( {
             description: "match",
-            localMatrix: game.cameraTransform(),
+            localMatrix: this.cameraTransform(),
             rect: { width: width * tileSize, height: height * tileSize, },
             onClick: ( node, pos: Vector ) => {
                 if ( this.playerTurn() ) {
@@ -393,5 +506,10 @@ export default class Match {
             },
             onRender: () => this.render(),
         } )
+    }
+    cameraTransform() {
+        let game = Game.instance
+        let screenDims = game.screenDimensions()
+        return this.camera.worldToCamera( screenDims.x, screenDims.y )
     }
 }

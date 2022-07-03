@@ -17,20 +17,20 @@ import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
 import Title from "./stages/Title"
 import Origin from "./stages/Origin"
+import Lose from "./stages/Lose"
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
 
 // activity 
-type Activity = "shop" | "match" | "title" | "origin"
+type Activity = "shop" | "match" | "title" | "origin" | "lose"
 
 export default class Game {
     static instance: Game
     static uiScale = 3
     static camVelocityDecay = 0.85
     graphics = new Graphics()
-    camera = new Camera()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     mouseOverData: PickingResult = { node: undefined, point: new Vector( 0, 0 ) }
@@ -38,6 +38,7 @@ export default class Game {
     //Scene List (paired with their relevant stats)
     title: Title
     origin: Origin
+    lose: Lose
 
     match: Match
     level: number = 1
@@ -55,13 +56,14 @@ export default class Game {
 
     isPlayerDone = false
 
-    activity: Activity = "shop"
+    activity: Activity = "match"
 
     constructor() {
         Game.instance = this
 
         this.title = new Title()
         this.origin = new Origin()
+        this.lose = new Lose()
 
         //Store Init
         this.store = new CardStore()
@@ -80,18 +82,10 @@ export default class Game {
         
         //Match Init
         this.match = new Match( this.team )
-        this.generateEnemies(1)
-        this.match.placeUnits()
-        this.match.activeTeam().cycleUnits()
-        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
-            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-        }
+        this.match.start()
 
 
         window.addEventListener( "click", ev => this.onClick( ev ) )
-        window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
-        window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
-        window.addEventListener( "wheel", ev => this.onWheel( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
@@ -109,19 +103,10 @@ export default class Game {
             new Chrome( new Vector( 0, 0 ), 1 ),
             // new Treant( new Vector( 0, 0 ), 1 ),
             // new Flesh( new Vector( 0, 0 ), 1 ),
-            new Earth( new Vector( 0, 0 ), 1 ),
+            // new Earth( new Vector( 0, 0 ), 1 ),
         ]
         let random = randomFloor( mechList.length )
         return mechList[ random ]
-    } 
-    matchStart() {
-        this.match = new Match( this.team )
-        this.generateEnemies(1)
-        this.match.placeUnits()
-        this.match.activeTeam().cycleUnits()
-        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
-            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-        }
     }
     generateEnemies( amount: number ) {
         this.match.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
@@ -131,12 +116,6 @@ export default class Game {
         }
     }
     //----------------MODEL------------------
-    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) ) }
-    moveCamToFirstUnit() {
-        let units = this.match.activeTeam().units
-        if ( units.length == 0 ) return
-        this.moveCamToUnit( units[ 0 ] )
-    }
     get scripReward() {
         let rewardIndex = this.match.timer >= this.scripRewards.length ? this.scripRewards.length - 1 : this.match.timer
         return this.scripRewards[ rewardIndex ]
@@ -147,29 +126,8 @@ export default class Game {
         this.clock.nextFrame()
 
         this.match.update()
-        //toggle to determine if AI should be feeding input
-        if ( !this.match.playerTurn() ) {
-            let AI = this.match.ai
-            AI.update()
-            if ( AI.startTime == undefined ) {
-                AI.think( this.match.activeTeam() )
-            }
-            if ( AI.chodiness >= AI.maxChodiness ) {
-                if ( match.activeTeam().selectedUnitIndex >= match.activeTeam().units.length - 1 ) {
-                    match.endTurn()
-                    match.activeTeam().cycleUnits()
-                    if ( match.playerUnits.length > 0 )
-                        this.moveCamToUnit( match.selectedUnit()! )
-                    AI.reset()
-                } else {
-                    match.activeTeam().cycleUnits()
-                    this.moveCamToUnit( match.selectedUnit()! )
-                    AI.reset()
-                }
-            }
-        }
+
         this.makeSceneNode()
-        this.camera.update()
         //user Input Display
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
@@ -186,78 +144,13 @@ export default class Game {
                 node.onClick( node, point )
         }
     }
-    onMousedown( ev: MouseEvent ) {
-        let button = ev.button
-        let leftClick = button == 0
-        let middleClick = button == 1
-        let rightClick = button == 2
-        if ( leftClick || middleClick ) {
-            let cursor = this.input.cursor
-            let node = Scene.pickNode( this.scene, cursor )
-            let worldClicked = node == this.match.scene
-            let nothingClicked = node == undefined
-            let unitSelected = this.match.activeTeam().selectedUnit() !== undefined
-            let isMovingUnit = unitSelected && !this.match.isPickingCard()
-            let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || this.input.keys.get( "shift" )
-            if ( canLeftClickDrag || middleClick )
-                this.camera.startDragging()
-        } else if ( rightClick ) {
-            this.match.goBack()
-        }
-    }
-    onMouseup( ev: MouseEvent ) {
-        this.camera.stopDragging()
-    }
-    onWheel( ev: WheelEvent ) {
-        this.camera.onWheel( ev )
-    }
+    
     onKeyup( ev: KeyboardEvent ) {
-        this.camera.onKeyup( ev )
-        if ( ev.key == "`" )
+        if ( ev.key == "`" ) {
             this.showSceneDebug = !this.showSceneDebug
-        if ( ev.key == "," )
+        }
+        if ( ev.key == "," ) {
             this.showFPS = !this.showFPS
-        if ( ev.key == "Escape" ) {
-            if ( this.match.playerTurn() )
-                this.match.goBack()
-        }
-        if ( ev.key == "Tab" ) {
-            if ( this.match.playerTurn() ) {
-                this.match.activeTeam().cycleUnits()
-                if ( this.match.activeTeam().selectedUnit() !== undefined ) {
-                    this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-                }
-            }
-        }
-        if ( ev.key == "Enter" ) {
-            //stops you from skipping enemies turn
-            if ( this.match.playerTurn() ) {
-                this.match.endTurn()
-                if ( this.match.teams[ 1 ].units.length == 0 && !this.shopping ) {
-                    //----GO Shopping!------
-                    this.store.reset()
-                    this.match.turn = 0
-                    this.activity = "shop"
-                    this.scrip += this.scripReward
-                } else if ( this.shopping ) {
-                    //----GO Fighting!------
-                    this.match.teams[ 0 ].units.forEach( unit => {
-                        unit.statReset()
-                    } );
-                    this.match.map = new Grid( 20, 20 )
-                    this.match.teams[ 1 ] = new Team( "Choden Warriors", true, 1 )
-                    //Generate enemies to fight
-                    this.generateEnemies( this.level )
-                    this.match.map.newMap()
-                    this.match.placeUnits()
-                    this.match.turn = 0
-                    this.activity = "match"
-                    this.level += 1
-                }
-                //Team Selection
-                this.match.activeTeam().cycleUnits()
-                this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-            }
         }
     }
     onKeydown( ev: KeyboardEvent ) {
@@ -343,13 +236,13 @@ export default class Game {
                         //Origin
                         this.origin.makeSceneNode()
                         break 
+                    case "lose":
+                        //Origin
+                        this.lose.makeSceneNode()
+                        break 
                 }
             }
         } )
-    }
-    cameraTransform() {
-        let screenDims = this.screenDimensions()
-        return this.camera.worldToCamera( screenDims.x, screenDims.y )
     }
     screenDimensions() { return this.graphics.size.scale( 1 / Game.uiScale ) }
     screenCenter() { return this.graphics.size.scale( 0.5 / Game.uiScale ) }

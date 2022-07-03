@@ -178,6 +178,27 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 0,
         friendly: true
     },
+    coreCharge: {
+        name: "Core Charge",
+        getDescription: card => `Gain ${ card.type.count } Fuel in your draw pile`,
+        color: "#6BB5FF",
+        sprite: shieldCharge,
+        backing: metal,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            user.draw.add( CardTypes.fuel, card.type.count )
+            // user.gainCard( CardTypes.fuel, card.type.count )
+
+        },
+
+        cost: 1,
+        damage: 0,
+        range: 0,
+        minDist: 0,
+        friendly: true,
+        count: 1
+    },
     energyFist: {
         name: "Energy Fist",
         getDescription: card => `Deal ${card.type.damage} damage, knockback target ${card.type.minDist} tiles`,
@@ -206,20 +227,23 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: false
     },
     barrier: {
-        name: "Barrier",
-        getDescription: card => `"A static field that mitigates kinetic forces" -Sloan Weathers`,
+        name: "Quantum Shift",
+        getDescription: card => `Move ${card.type.range} in any direction`,
         color: "#6BB5FF",
         sprite: barrier,
         backing: metal,
-        canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range, ignoreObstacles: true }),
+        onApplyToTile(card, user, pos, target?) {
+            user.pos = pos
+        },
 
-        cost: 1,
+        cost: 0,
         damage: 0,
-        range: 0,
-        minDist: 0,
+        range: 1,
+        minDist: 1,
         friendly: false,
-        playable: false
+        mobile: true
     },
     //------------------------------------------------------- EARTH -----------------------------------------------------
     bouldertoss: {
@@ -481,19 +505,18 @@ const CardTypes: { [ name: string ]: CardType } = {
 
     plating: {
         name: "Plating",
-        getDescription: card => `"If it protects my fuel tank, I'll do it" -Roach Smithers`,
+        getDescription: card => `Reduce inbound damage by ${card.type.damage}`,
         color: "#b87420",
         sprite: plating,
         backing: brown,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
 
-        cost: 1,
-        damage: 0,
+        cost: 0,
+        damage: 1,
         range: 0,
         minDist: 0,
-        friendly: false,
-        playable: false
+        friendly: false
     },
 
     //------------------------------------------------------- FLESH -----------------------------------------------------
@@ -659,8 +682,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 0,
         minDist: 0,
-        friendly: false,
-        playable: false
+        friendly: false
     },
 
     //------------------------------------------------------- UNIVERSAL -----------------------------------------------------
@@ -771,8 +793,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 5,
         minDist: 2,
 
-        friendly: false,
-        playable: true
+        friendly: false
     },
     grapplingHook: {
         name: "Grappling Hook",
@@ -900,8 +921,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         damage: 0,
         range: 0,
         minDist: 0,
-        friendly: false,
-        playable: false
+        friendly: false
     },
     //----------------------------------------------- ELDRITCH --------------------------------------------
     tentacle: {
