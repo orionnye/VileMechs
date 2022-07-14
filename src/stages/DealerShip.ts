@@ -22,50 +22,51 @@ const Backgrounds = [ Jungle, Jungle2, Swamp, Forest ]
 
 const Grunt = getImg( require( "../www/images/characters/grunt.png" ) )
 
-export default class CardStore {
-    static instance: CardStore
+export default class DealerShip {
 
     //-----STORE DATA------
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     unitTray = new UnitTray()
-    stockTotal = 4
-    stock = new Deck( this.stockTotal )
     isPlayerDone = false
-    
+    stock = <Unit[]> []
+
+    image: HTMLImageElement
+
     //shop keeper dialogue
     dialogue: {
         text: string
         pos: Vector
         offset: Vector
     }
-    
-    constructor() {
-        let game = Game.instance
 
+    constructor() {
+        this.image = Backgrounds[ Math.floor( Math.random() * 4 ) ]
         this.dialogue = {
             text: "Buy something!",
-            pos: new Vector( game.screenDimensions().x - 150, 70 ),
+            pos: new Vector(Game.instance.screenDimensions().x - 150, 70),
             offset: new Vector(0, 0)
         }
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
     }
 
     reset() {
-        this.stock = new Deck( this.stockTotal )
+        //console.log()
+        this.stock = [
+            new Chrome(new Vector(0, 0), 0),
+            new Earth(new Vector(0, 0), 0),
+            new Treant(new Vector(0, 0), 0)
+        ]
     }
 
     //---------------------------User Input---------------------------
     onKeyup( ev: KeyboardEvent ) {
         let game = Game.instance
-        if (game.activity == "shop") {
-
+        if (game.activity == "dealerShip") {
             if ( ev.key == "Enter" ) {
                 game.match.start()
                 game.activity = "match"
             }
             if (ev.key == "Tab") {
-                // console.log(game.team.units)
-                // this.team.units = game.units
                 game.team.cycleUnits()
             }
         }
@@ -75,6 +76,7 @@ export default class CardStore {
         let g = Graphics.instance
         let game = Game.instance
         let match = game.match
+        let selected
 
         this.scene = Scene.node( {
             localMatrix: Matrix.identity,
@@ -89,29 +91,29 @@ export default class CardStore {
                 }
                 this.dialogue.pos = new Vector(Game.instance.screenDimensions().x - 150, 70)
 
-                g.c.imageSmoothingEnabled = false
-
                 //Background
+                g.c.imageSmoothingEnabled = false
                 g.drawRect(new Vector(0, 0), g.size, "rgba(205, 205, 255, 1)" )
 
                 //unit display
-                let selected = Game.instance.match.selectedUnit()
-                if (selected) {
+                // let selected = Game.instance.match.selectedUnit()
+                if (selected !== undefined) {
                     g.c.save()
                     g.c.translate(-20, -10)
                     g.c.scale(7, 7)
-                    selected.render(false)
+                    this.stock[selected].render(false)
                     g.c.restore()
                 }
 
+                //Background layering
                 let maxI = 15
                 for (let i = 0; i < maxI; i++) {
                     g.drawRect(new Vector(0, 0), new Vector(g.size.x, (g.size.y/maxI)*i), "rgba(50, 50, 50, 0.1)" )
                 }
 
+
                 //Shop Keeper
                 g.c.drawImage( Grunt, 0, 0, Grunt.width, Grunt.height, game.screenDimensions().x - 150, 80, 150, 150 )
-
                 //shop keeper dialogue
                 let dialogue = this.dialogue
                 if (dialogue.text.length > 0) {
@@ -126,7 +128,7 @@ export default class CardStore {
                 
                 //Shop Sign
                 g.setFont( Sign.text.size, "Pixel2" )
-                g.drawText( Sign.pos, "Part Shop", "black", { boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 } )
+                g.drawText( Sign.pos, "DealerShip", "black", { boxColor: "rgba(0, 0, 100, 0.5)", alignX: TextAlignX.center, padding: 10 } )
                 //Scrip display
                 let scrip = new Vector( game.screenCenter().x, 40 )
                 g.setFont( Sign.text.size-10, "Pixel2" )
@@ -136,7 +138,7 @@ export default class CardStore {
                 g.drawRect(new Vector(0, 230), new Vector( game.screenDimensions().x, 40), "black")
                 g.setFont( 10, "Pixel2" )
                 g.drawTextBox(new Vector(game.screenDimensions().x - 150,  240), "Press 'Enter' to leave", {})
-                
+
             },
             content: () => {
                 //Unitray
@@ -148,17 +150,17 @@ export default class CardStore {
                     dim: new Vector( ( screenDims.x / 5 ) * 3, Card.dimensions.y * 1.3 ),
                     pos: new Vector( screenDims.x / 7, screenDims.y * 0.6 ),
                     margin: 10,
-                    cost: 5,
+                    cost: 20,
                     stockPos: ( index: number ) => {
                         //break and divide the cardSpace by total cards and then divide remaining space evenly
-                        let spacePerCard = shelf.dim.x / ( this.stock.length )
-                        return new Vector( index * spacePerCard + shelf.margin * index, 0 )
+                        let spacePerMech = shelf.dim.x / ( this.stock.length )
+                        return new Vector( index * spacePerMech + shelf.margin * index, 0 )
                     }
                 }
                 let selectedIndex = -1
 
                 Scene.node( {
-                    description: "card-Shelf",
+                    description: "mech-Shelf",
                     rect: { width: shelf.dim.x, height: shelf.dim.y },
                     localMatrix: Matrix.identity.vTranslate( shelf.pos ),
                     onRender: () => {
@@ -166,31 +168,36 @@ export default class CardStore {
                         g.drawTextBox( new Vector( -50, 35 ), "Cost: " + shelf.cost, { boxColor: "rgba(200, 80, 80, 0.9)" } )
                     },
                     content: () => {
-                        this.stock.cards.forEach( ( card, i ) => Scene.node( {
+                        this.stock.forEach( ( mech, i ) => Scene.node( {
                             description: "store-Stock",
                             localMatrix: Matrix.translation( shelf.stockPos( i ).x, shelf.stockPos( i ).y ),
-                            scalar: 5,
+                            scalar: 7,
 
                             rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                             onRender: () => {
-                                card.render()
+                                g.c.save()
+                                g.c.scale(1.5, 1.5)
+                                mech.render()
+                                g.c.restore()
                                 if (selectedIndex == i) {
-                                    g.strokeRect(card.pos, Card.dimensions, "rgba(255, 255, 255, 0.5)")
+                                    g.strokeRect(mech.pos, Card.dimensions, "rgba(255, 255, 255, 0.5)")
                                 }
                             },
                             onHover: () => {
                                 // console.log(card.type.name)
                                 selectedIndex = i
+                                selected = i
                             },
                             onClick: () => {
                                 // console.log("Unit:", unitTray.selectedUnit())
                                 let game = Game.instance
-                                if ( match.selectedUnit() ) {
+                                if ( game.team.units.length < game.unitMax ) {
                                     if (game.scrip >= shelf.cost) {
                                         game.scrip -= shelf.cost
-                                        let copy = this.stock.cards.splice( i, 1 )[ 0 ]
+                                        let copy = this.stock.splice( i, 1 )[ 0 ]
                                         // console.log("COPY:", copy[0])
-                                        match.selectedUnit()?.draw.addCard( copy )
+                                        game.team.units.push(copy)
+                                        // match.selectedUnit()?.draw.addCard( copy )
                                         // console.log("trying to buy!")
                                         let possibleText = [
                                             "Good Choice",
@@ -211,7 +218,12 @@ export default class CardStore {
                                         this.dialogue.text = possibleText[randomFloor(possibleText.length)]
                                     }
                                 } else {
-                                    this.dialogue.text = "Hit 'Tab' to select which mech you want that on"
+                                    let possibleText = [
+                                        "You can't store any more bud",
+                                        "You've reached your max amount of Mechs pal",
+                                        "Come back with less Mechs"
+                                    ]
+                                    this.dialogue.text = possibleText[randomFloor(possibleText.length)]
                                 }
                             }
                         } ) )

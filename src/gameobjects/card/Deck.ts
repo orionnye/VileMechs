@@ -50,23 +50,23 @@ export class Deck {
             this.insertAtRandom(card)
         }
     }
-    addCard(card) {
+    addCard( card: Card ) {
         if (this.cards.length < this.max) {
             this.cards.push(card);
         }
     }
-    addCards( cards ) {
+    addCards( cards: Card[] ) {
         cards.forEach(card => {
             this.addCard(card);
         });
     }
-    addCardsatRandom(cards) {
+    addCardsatRandom( cards: Card[] ) {
         cards.forEach(card => {
             this.insertAtRandom(card);
         });
     }
 
-    removeCards(desired) {
+    removeCards( desired: number ) {
         let count = desired > this.length ? this.length : desired;
         let cards: Card[] = [];
         for (let i = 0; i < count; i++) {

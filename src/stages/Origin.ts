@@ -34,14 +34,6 @@ export default class Origin {
     constructor() {
         this.image = Backgrounds[ Math.floor( Math.random() * 4 ) ]
         this.options = [ new Earth( new Vector(0, 0), 0 ), new Chrome( new Vector(0, 0), 0 ) ]
-        window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
-    }
-
-    //---------------------------User Input---------------------------
-    onKeyup( ev: KeyboardEvent ) {
-        if ( ev.key == "Enter" ) {
-            this.isPlayerDone = true
-        }
     }
 
     makeSceneNode() {
@@ -124,7 +116,7 @@ export default class Origin {
                     onClick: () => {
                         console.log("Begin with Earth mech")
 
-                        Game.instance.units = [new Earth(new Vector(0, 0), 0)]
+                        Game.instance.team.units = [new Earth(new Vector(0, 0), 0)]
                         Game.instance.match.start()
                     }
                 }),
@@ -168,7 +160,7 @@ export default class Origin {
                     onClick: () => {
                         console.log("Begin with Chrome mech")
 
-                        Game.instance.units = [new Chrome(new Vector(0, 0), 0)]
+                        Game.instance.team.units = [new Chrome(new Vector(0, 0), 0)]
                         Game.instance.match.start()
                     }
                 })

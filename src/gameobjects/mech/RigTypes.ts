@@ -17,7 +17,7 @@ export class Chrome extends Unit {
         this.draw.cards = []
         
         //custom cards
-        this.draw.add( CardTypes.barrier, 4 )
+        this.draw.add( CardTypes.barrier, 3 )
 
         this.draw.add( CardTypes.coreCharge, 1 )
         this.draw.add( CardTypes.rifle, 3 )
@@ -68,13 +68,13 @@ export class Earth extends Unit {
 
         this.draw.cards = []
         
-        this.draw.add( CardTypes.plating, 2 )
+        this.draw.add( CardTypes.plating, 4 )
         
-        this.draw.add( CardTypes.bouldertoss, 1 )
-        this.draw.add( CardTypes.mine, 1 )
-        this.draw.add( CardTypes.dynamite, 1 )
+        this.draw.add( CardTypes.bouldertoss, 2 )
+        this.draw.add( CardTypes.mine, 2 )
+        // this.draw.add( CardTypes.dynamite, 1 )
         // this.draw.add( CardTypes.gorge, 2 )
-        // this.draw.add( CardTypes.plateShift, 2 )
+        // this.draw.add( CardTypes.plateShift, 1 )
 
         this.cardCycle()
         this.statReset()

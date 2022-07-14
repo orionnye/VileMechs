@@ -52,12 +52,12 @@ export default class Match {
     //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor( playerTeam: Team = new Team( "Drunken Scholars", false, 0 ) ) {
+    constructor( playerTeam: Team = Game.instance.team ) {
         this.map = new Grid( 15, 15 )
 
         this.teams = [
             playerTeam,
-            new Team( "Choden Warriors", true, 1 ),
+            this.generateEnemies(2)
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
@@ -96,11 +96,13 @@ export default class Match {
         }
     }
     generateEnemies( amount: number ) {
-        this.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
+        let units : Unit[] = []
         // console.log(mechList[0])
         for ( let i = 0; i < amount; i++ ) {
-            this.teams[ 1 ].units.push( Game.instance.randomUnit )
+            units.push( Game.instance.randomUnit )
         }
+        let team = new Team( "Drunken Scholars", units, true, 1 )
+        return team
     }
 
     playerTurn() {
@@ -172,13 +174,13 @@ export default class Match {
 
     endTurn() {
         // Health ReCapped at turn start
-        console.log( "Ending turn" )
+        // console.log( "Ending turn" )
         this.teams[ this.turn ].endTurn()
         this.turn++
         this.turn %= this.teams.length
         this.teams[ this.turn ].startTurn()
         this.timer += 1
-        console.log( "STEP: ", this.cardAnim.step )
+        // console.log( "STEP: ", this.cardAnim.step )
         if (this.playerUnits().length == 0) {
             Game.instance.activity = "lose"
         }
@@ -189,14 +191,13 @@ export default class Match {
         game.activity = "match"
 
         //----GO Fighting!------
-        game.units.forEach( unit => {
+        this.teams[ 0 ] = game.team
+        game.team.units.forEach( unit => {
             unit.statReset()
         } )
-        this.teams[0].units = game.units
         this.map = new Grid( 15, 15 )
-        this.teams[ 1 ] = new Team( "Drunken Scholars", true, 1 )
         //Generate enemies to fight
-        game.generateEnemies( game.level )
+        this.teams[ 1 ] = this.generateEnemies(game.level)
         this.generateMap()
         this.activeTeam().cycleUnits()
         if ( this.activeTeam().selectedUnit() !== undefined ) {
@@ -234,27 +235,27 @@ export default class Match {
 
     onKeyup( ev: KeyboardEvent ) {
         this.camera.onKeyup( ev )
-
-        if (this.playerTurn()) {
-            if ( ev.key == "Tab" ) {
-                this.activeTeam().cycleUnits()
-            }
-            if ( ev.key == "Escape" ) {
-                this.goBack()
-            }
-            if ( ev.key == "Enter" && Game.instance.activity == "match") {
-                this.endTurn()
-                if ( this.teams[ 1 ].units.length == 0 ) {
-                    let game = Game.instance
-                    //----GO Shopping!------
-                    game.store.reset()
-                    game.match.turn = 0
-                    game.activity = "shop"
-                    game.scrip += game.scripReward
-                } else {
-                    // Team Selection
+        if (Game.instance.activity == "match") {
+            if (this.playerTurn()) {
+                if ( ev.key == "Tab" ) {
                     this.activeTeam().cycleUnits()
-                    this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+                }
+                if ( ev.key == "Escape" ) {
+                    this.goBack()
+                }
+                if ( ev.key == "Enter" ) {
+                    this.endTurn()
+                    if ( this.teams[ 1 ].units.length == 0 ) {
+                        let game = Game.instance
+                        //----GO Shopping!------
+                        game.match.turn = 0
+                        game.scrip += game.scripReward
+                        game.activity = "route"
+                    } else {
+                        // Team Selection
+                        this.activeTeam().cycleUnits()
+                        this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+                    }
                 }
             }
         }

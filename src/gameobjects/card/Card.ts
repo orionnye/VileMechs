@@ -99,7 +99,7 @@ export default class Card {
             }
             type.onApplyToTile( this, user, pos, target )
         }
-        console.log("Logging CardCost: ", type.cost)
+        // console.log("Logging CardCost: ", type.cost)
         user.addEnergy( -type.cost )
     }
 }

@@ -35,7 +35,7 @@ export default class AI {
 
         this.chodiness += 1
 
-        if ( team.units.length > 0 && team.selectedUnitIndex > -1 ) {
+        if ( team.units.length > 0 && team.selectedUnitIndex > -1 && match.teams[0].length > 0 ) {
             let unit = team.selectedUnit()!
             let card = cardTray.selectedCard( unit )
             let validCard = card && card.type.onApplyToTile
@@ -68,7 +68,7 @@ export default class AI {
     update() {
         if ( this.startTime && Date.now() - this.startTime >= this.delay ) {
             this.startTime = undefined
-            console.log( "Timing Out" )
+            // console.log( "Timing Out" )
         }
     }
     active() {
@@ -115,6 +115,23 @@ export default class AI {
             } )
         }
         return best
+    }
+    closestTargetTo(unit: Unit) {
+        let targets = this.getEnemiesOf(unit)
+        let closest
+        // console.log("enemies:", this.getEnemiesOf(unit))
+        targets.forEach(target => {
+            if ( closest !== undefined) {
+                let best = closest.pos.distance(unit.pos)
+                let distance = target.pos.distance(unit.pos)
+                if (distance < best) {
+                    closest = target
+                }
+            } else {
+                closest = target
+            }
+        })
+        return closest
     }
     possibleTargets( unit: Unit, card: Card ) {
         let game = Game.instance
@@ -212,25 +229,48 @@ export default class AI {
         let targets = enemies
         let closest: Vector | null = null
 
+        if ( card.type.friendly ) {
+            console.log("Unit's don't know how to use friendly cards")
+        }
+        
         if (card.type.mobile) {
-            let tiles = card.getTilesInRange( unit )
-            //----gonna need to finish cutom code for mobility cards 
+            let targetPos = this.closestTargetTo(unit).pos
+            let tiles = card.getTilesInRange(unit)
+            // console.log("unitpos:", unit.pos)
+            // console.log("tiles:", tiles)
+            tiles.forEach(tile => {
+                // console.log("distance:", tile.distance(targetPos))
+                // console.log("targetPos:", targetPos)
+                // console.log("tile:", tile)
+                if ( closest ) {
+                    let best = closest.distance(targetPos)
+                    let distance = tile.distance(targetPos)
+                    if (distance < best) {
+                        // console.log("new closest:", tile)
+                        closest = tile
+                    }
+                } else {
+                    closest = tile
+                }
+            })
         } else {
-            if ( card.type.friendly ) {
-                targets = this.getFriendsOf( unit )
-            }
             targets.forEach( target => {
                 let tiles = card.getTilesInRange( target )
+                if (card.type.mobile) {
+                    tiles = card.getTilesInRange( unit )
+                }
                 tiles.forEach( tile => {
                     let tilePath = findPath( match, unit.pos, tile )
-                    if ( tilePath ) {
+                    if (tilePath) {
                         if ( closest == undefined ) {
                             //if unnasigned and validPath
-                            closest = tile
+                            let testPath = findPath( match, unit.pos, tile )
+                            if ( testPath !== undefined ) {
+                                closest = tile
+                            }
                         } else {
                             let closestPath = findPath( match, unit.pos, closest )
-                            // console.log(closest)
-                            if ( tilePath.length < closestPath!.length ) {
+                            if ( closestPath && tilePath.length < closestPath.length ) {
                                 closest = tile
                             }
                         }
@@ -238,6 +278,7 @@ export default class AI {
                 } )
             } )
         }
+
         return closest
     }
     friendlySpace( unit ) {

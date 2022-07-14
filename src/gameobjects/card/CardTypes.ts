@@ -227,8 +227,8 @@ const CardTypes: { [ name: string ]: CardType } = {
         friendly: false
     },
     barrier: {
-        name: "Quantum Shift",
-        getDescription: card => `Move ${card.type.range} in any direction`,
+        name: "Phase Shift",
+        getDescription: card => `Move ${card.type.range} in any direction, Ignores obstacles`,
         color: "#6BB5FF",
         sprite: barrier,
         backing: metal,
