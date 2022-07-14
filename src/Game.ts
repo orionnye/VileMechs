@@ -67,7 +67,7 @@ export default class Game {
 
     isPlayerDone = false
 
-    activity: Activity = "route"
+    activity: Activity = "title"
 
     constructor() {
         Game.instance = this
@@ -87,8 +87,8 @@ export default class Game {
         this.pawnShop.reset()
 
         //Store Init
-        this.scrip = 15
-        this.scripRewards = [50, 20, 0]
+        this.scrip = 20
+        this.scripRewards = [50, 50, 40, 40, 30 ,30, 30, 20, 20, 20, 10]
         
         //player team Init
         let units = [
@@ -227,13 +227,13 @@ export default class Game {
                     //     textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
                     // } )
                     //Money / Reward for current round, and Timer
-                    g.setFont( 6, "pixel" )
-                    g.drawTextBox( new Vector( center.x/2, 0 ), `SCRIP: ${ this.scripReward } `, {
-                        textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.center
+                    g.setFont( 5, "pixel" )
+                    g.drawTextBox( new Vector( center.x/4, 0 ), `SCRIP Reward: ${ this.scripReward } `, {
+                        textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.left
                     } )
-                    // g.drawTextBox( new Vector( center.x/2, 0 ), `SCRIP: ${ this.scrip } `, {
-                    //     textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.center
-                    // } )
+                    g.drawTextBox( new Vector( center.x/4, 8 ), `SCRIP: ${ this.scrip } `, {
+                        textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.left
+                    } )
                 }
             },
             content: () => {
