@@ -117,7 +117,7 @@ export default class Origin {
                         console.log("Begin with Earth mech")
 
                         Game.instance.team.units = [new Earth(new Vector(0, 0), 0)]
-                        Game.instance.match.start()
+                        Game.instance.changeStage("match")
                     }
                 }),
                 Scene.node( {
@@ -161,7 +161,7 @@ export default class Origin {
                         console.log("Begin with Chrome mech")
 
                         Game.instance.team.units = [new Chrome(new Vector(0, 0), 0)]
-                        Game.instance.match.start()
+                        Game.instance.changeStage("match")
                     }
                 })
             }

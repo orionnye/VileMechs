@@ -35,7 +35,8 @@ export default class Card {
 
     render() {
         let g = Graphics.instance
-
+        let { color, backing, sprite, name } = this.type
+        
         let c = Math.cos( -this.yRotation )
         g.vTranslate( Card.dimensions.scale( 0.5 ) )
         g.c.scale( c, 1 )
@@ -44,30 +45,63 @@ export default class Card {
         if ( this.yRotation >= Math.PI / 2 ) {
             // Back face
             g.strokeRect( new Vector( 0, 0 ), Card.dimensions, "#ffddff" )
-            g.drawRect( new Vector( 0, 0 ), Card.dimensions, this.type.color )
+            g.drawRect( new Vector( 0, 0 ), Card.dimensions, color )
         } else {
             // Front face
-            g.c.drawImage( this.type.backing, 0, 0, Card.dimensions.x, Card.dimensions.y, 0, 0, Card.dimensions.x, Card.dimensions.y )
+            g.c.drawImage( backing, 0, 0, Card.dimensions.x, Card.dimensions.y, 0, 0, Card.dimensions.x, Card.dimensions.y )
             //graphic
-            g.c.drawImage( this.type.sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 7, 7, Card.dimensions.x * 0.75, Card.dimensions.y * 0.75 )
+            g.c.drawImage( sprite, 0, 0, Card.dimensions.x, Card.dimensions.y, 7, 7, Card.dimensions.x * 0.75, Card.dimensions.y * 0.75 )
             //background boxing
-            g.drawRect(new Vector(0, 0), new Vector(Card.dimensions.x, 8), this.type.color)
+            g.drawRect(new Vector(0, 0), new Vector(Card.dimensions.x, 8), color)
             //title
             g.setFont( 5, "pixel2" )
-            g.drawText( new Vector( 3, 1 ), this.type.name, "#f0ead8" )
+            g.drawText( new Vector( 3, 1 ), name, "#f0ead8" )
             
             //Cost Display
-            if (this.type.onApplyToTile) {
-                let costDimensions = new Vector(10, 10)
-                let costPos = new Vector(0, 7)
-                let darkGreen = "rgb(30, 125, 30)"
-                let lightGreen = "rgb(0, 240, 0)"
-                g.drawRect(costPos, costDimensions, this.type.color)
-                g.drawRect(costPos.add(new Vector(1.5, 1)), new Vector(7, 8), darkGreen)
-                // g.setFont(Card.dimensions.x/4, "pixel2")
-                // g.drawText(costPos.add(new Vector(1.9, -2.7)), this.type.cost.toString(), darkGreen)
-                g.setFont(Card.dimensions.x/6, "pixel2")
-                g.drawText(costPos.add(new Vector(1.5, 1)), this.type.cost.toString(), lightGreen)
+            let cost = {
+                dim: new Vector(10, 10),
+                pos: new Vector(0, 7),
+                green: {
+                    dark: "rgb(30, 125, 30)",
+                    light: "rgb(0, 240, 0)"
+                },
+                red: {
+                    light: "rgb(255, 0, 0)",
+                    // dark: "rgb(75, 0, 0)",
+                    dark: "rgb(100, 0, 0)",
+                },
+                blue: {
+                    light: "rgb(150, 150, 255)",
+                    // dark: "rgb(75, 0, 0)",
+                    dark: "rgb(0, 0, 75)",
+                },
+                index: 0
+            }
+            let isCostDefined = this.type.cost || this.type.healthCost || this.type.speedCost
+            if ( isCostDefined ) {
+                //branching down backing
+                g.drawRect(cost.pos, cost.dim, this.type.color)
+            }
+            //Energy Cost Display
+            if (this.type.cost !== undefined) {
+                //energy display
+                g.costDisplay(cost.pos, this.type.cost, cost.green.light, cost.green.dark, Card.dimensions.x/6)
+                cost.index += 1
+            }
+            //Health Cost Display
+            if (this.type.healthCost !== undefined) {
+                //health display
+                let offset = new Vector(cost.dim.x, 0)
+                let pos = cost.index > 0 ? cost.pos.add(offset) : cost.pos
+                g.costDisplay(pos, this.type.healthCost, cost.red.light, cost.red.dark, Card.dimensions.x/6)
+                cost.index += 1
+            }
+            //Speed Cost Display
+            if (this.type.speedCost !== undefined) {
+                //health display
+                let offset = new Vector(0, cost.dim.y)
+                let pos = cost.index > 0 ? cost.pos.add(offset) : cost.pos
+                g.costDisplay(pos, this.type.speedCost, cost.blue.light, cost.blue.dark, Card.dimensions.x/6)
             }
             //card description
             g.drawRect( new Vector( 4, 40 ), new Vector( 40, 20 ), this.type.color )
@@ -100,7 +134,15 @@ export default class Card {
             type.onApplyToTile( this, user, pos, target )
         }
         // console.log("Logging CardCost: ", type.cost)
-        user.addEnergy( -type.cost )
+        if ( type.cost !== undefined) {
+            user.addEnergy( -type.cost )
+        }
+        if ( type.healthCost !== undefined) {
+            user.addHealth( -type.healthCost)
+        }
+        if ( type.speedCost !== undefined) {
+            user.addSpeed( -type.speedCost)
+        }
     }
 }
 

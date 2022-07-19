@@ -19,7 +19,7 @@ import Title from "./stages/Title"
 import Origin from "./stages/Origin"
 import Lose from "./stages/Lose"
 import DealerShip from "./stages/DealerShip"
-import PawnShop from "./stages/pawnShop"
+import PawnShop from "./stages/PawnShop"
 import Route from "./stages/Route"
 
 const vacationurl = require( './www/audio/Vacation.mp3' )
@@ -47,13 +47,12 @@ export default class Game {
     dealerShip: DealerShip
     pawnShop: PawnShop
     route: Route
-
     
     scrip: number
     scripRewards : number[]
 
     match: Match
-    level: number = 1
+    level: number = 0
     
     // units : Unit[]
     team: Team
@@ -67,7 +66,7 @@ export default class Game {
 
     isPlayerDone = false
 
-    activity: Activity = "title"
+    activity: Activity = "match"
 
     constructor() {
         Game.instance = this
@@ -88,13 +87,13 @@ export default class Game {
 
         //Store Init
         this.scrip = 20
-        this.scripRewards = [50, 50, 40, 40, 30 ,30, 30, 20, 20, 20, 10]
+        this.scripRewards = [50, 40, 30, 30, 20, 20, 20, 10]
         
         //player team Init
         let units = [
-            new Earth(new Vector(0, 0), 0),
-            new Chrome(new Vector(0, 0), 0),
-            // new Treant(new Vector(0, 0), 0),
+            // new Earth(new Vector(0, 0), 0),
+            // new Chrome(new Vector(0, 0), 0),
+            new Treant(new Vector(0, 0), 0),
             // new Flesh(new Vector(0, 0), 0),
         ]
         
@@ -115,9 +114,6 @@ export default class Game {
     //     // playerTeam.units = this.units
     //     return playerTeam
     // }
-    get shopping() {
-        return (this.activity == "shop")
-    }
     get randomUnit() {
         let mechList = [
             new Chrome( new Vector( 0, 0 ), 1 ),
@@ -136,14 +132,26 @@ export default class Game {
         let randomPick = options[randomFloor(options.length)]
         return randomPick
     }
+    reset() {
+        this.level = 1
+        this.scrip = 20
+    }
     
-    generateEnemies( amount: number ) {
-        // console.log(mechList[0])
-        let units : Unit[] = []
-        for ( let i = 0; i < amount; i++ ) {
-            units.push( this.randomUnit )
-        }
-        this.match.teams[ 1 ] = new Team( "Drunken Scholars", units, true, 1 )
+    changeStage( stage: Activity ) {
+        window.setTimeout(() => {
+            switch (stage) {
+                case "match": {
+                    this.match.start()
+                }
+                case "shop": {
+                    this.store.reset()
+                    this.activity = stage
+                }
+                default: {
+                    this.activity = stage
+                }
+            }
+        }, 100)
     }
     //----------------MODEL------------------
     get scripReward() {
@@ -155,7 +163,9 @@ export default class Game {
         let { match } = this
         this.clock.nextFrame()
 
-        this.match.update()
+        if (this.activity == "match") {
+            this.match.update()
+        }
 
         this.makeSceneNode()
         //user Input Display

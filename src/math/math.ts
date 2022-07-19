@@ -9,6 +9,9 @@ export function equals( a: number, b: number ) {
 export function randomFloor( upperLimit: number ) {
     return Math.floor( Math.random() * upperLimit )
 }
+export function randomCeil( upperLimit: number ) {
+    return Math.ceil( Math.random() * upperLimit )
+}
 export function randomInt( upperLimit: number ) {
     return Math.random() * upperLimit
 }

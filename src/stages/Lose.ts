@@ -106,7 +106,8 @@ export default class Lose {
                     },
                     onClick: () => {
                         console.log("Trying to go again!")
-                        Game.instance.activity = "origin"
+                        Game.instance.reset()
+                        Game.instance.changeStage("origin")
                     }
                 }),
                 Scene.node( {
@@ -135,7 +136,7 @@ export default class Lose {
                     },
                     onClick: () => {
                         console.log("Trying to Quit!")
-                        Game.instance.activity = "title"
+                        Game.instance.changeStage("title")
                     }
                 })
             }

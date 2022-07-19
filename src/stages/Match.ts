@@ -9,13 +9,14 @@ import * as Tiles from "../gameobjects/map/Tiles"
 import Team from "../gameobjects/mech/Team"
 import CardTray from "../gameobjects/ui/CardTray"
 import UnitTray from "../gameobjects/ui/UnitTray"
-import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
+import { CardType, randomCardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import AI from "../gameobjects/mech/AI"
-import { randomFloor } from "../math/math"
+import { randomCeil, randomFloor } from "../math/math"
 import { match } from "assert"
 import Unit from "../gameobjects/mech/Unit"
 import Camera from "../gameobjects/Camera"
+import Card from "../gameobjects/card/Card"
 
 
 export default class Match {
@@ -57,7 +58,7 @@ export default class Match {
 
         this.teams = [
             playerTeam,
-            this.generateEnemies(2)
+            new Team("Drunken Scholars", [], true, 1)
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
@@ -95,13 +96,25 @@ export default class Match {
             this.map.set( new Vector( 5, 6 ), Tiles.Grass )
         }
     }
-    generateEnemies( amount: number ) {
-        let units : Unit[] = []
-        // console.log(mechList[0])
-        for ( let i = 0; i < amount; i++ ) {
-            units.push( Game.instance.randomUnit )
+    generateEnemies( funds: number ) {
+        let enemies = <Unit[]> []
+        funds += 1
+        let mechCost = 20
+        let cardCost = 5
+        let enemyTotal = randomCeil(funds / mechCost)
+        funds = funds - mechCost*enemyTotal
+        let bonusCardTotal = Math.floor( funds / cardCost )
+        
+        for (let i = 0; i < enemyTotal; i++) {
+            enemies.push(Game.instance.randomUnit)
         }
-        let team = new Team( "Drunken Scholars", units, true, 1 )
+        if (enemyTotal)
+        for (let i = 0; i < bonusCardTotal; i++) {
+            let unit: Unit = enemies[randomFloor(enemies.length)]
+            let randomCard = new Card(randomCardType())
+            unit.draw.cards.push(randomCard)
+        }
+        let team = new Team( "Drunken Scholars", enemies, true, 1 )
         return team
     }
 
@@ -131,7 +144,14 @@ export default class Match {
         let card = this.selectedCard()
         this.cardTray.deselect()
         if ( unit && card ) {
-            if ( unit.energy >= card.type.cost ) {
+            let costs = {
+                energy: card.type.cost == undefined ? 0 : card.type.cost,
+                speed: card.type.speedCost == undefined ? 0 : card.type.speedCost,
+                // health: card.type.healthCost == undefined ? 0 : card.type.healthCost,
+            }
+            let isEnoughEnergy = unit.energy >= costs.energy
+            let isEnoughSpeed = unit.speed >= costs.speed
+            if ( isEnoughEnergy && isEnoughSpeed ) {
                 let index = unit.hand.cards.indexOf( card )
                 if ( index < 0 )
                     throw new Error( "Selected card is not in selected unit's hand." )
@@ -142,11 +162,14 @@ export default class Match {
                 card.apply( unit, pos )
 
                 //Triggers Card Animtaion
-                this.cardAnim.step = 0
-                this.cardAnim.type = card?.type
-                this.cardAnim.pos = pos
+                this.animateCard(pos, card.type)
             }
         }
+    }
+    animateCard(pos: Vector, type: CardType) {
+        this.cardAnim.step = 0
+        this.cardAnim.type = type
+        this.cardAnim.pos = pos
     }
 
     getUnit( pos: Vector ) {
@@ -184,12 +207,21 @@ export default class Match {
         if (this.playerUnits().length == 0) {
             Game.instance.activity = "lose"
         }
+        if ( this.teams[ 1 ].units.length == 0 ) {
+            let game = Game.instance
+            //----GO Shopping!------
+            game.match.turn = 0
+            game.scrip += game.scripReward
+            game.changeStage("route")
+        } else {
+            // Team Selection
+            this.activeTeam().cycleUnits()
+            this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+        }
     }
     start() {
         let game = Game.instance
-        //Toggle!
-        game.activity = "match"
-
+        
         //----GO Fighting!------
         this.teams[ 0 ] = game.team
         game.team.units.forEach( unit => {
@@ -197,14 +229,18 @@ export default class Match {
         } )
         this.map = new Grid( 15, 15 )
         //Generate enemies to fight
-        this.teams[ 1 ] = this.generateEnemies(game.level)
+        let funds = Math.floor(game.level * 11.5)
+        this.teams[ 1 ] = this.generateEnemies(funds)
         this.generateMap()
+        this.turn = 0
         this.activeTeam().cycleUnits()
-        if ( this.activeTeam().selectedUnit() !== undefined ) {
+        if ( this.activeTeam().selectedUnit() ) {
             this.moveCamToUnit( this.activeTeam().selectedUnit()! )
         }
         this.turn = 0
         game.level += 1
+        //Toggle!
+        game.activity = "match"
     }
     onMousedown( ev: MouseEvent ) {
         let game = Game.instance
@@ -244,18 +280,8 @@ export default class Match {
                     this.goBack()
                 }
                 if ( ev.key == "Enter" ) {
+                    // console.log("logging enter!")
                     this.endTurn()
-                    if ( this.teams[ 1 ].units.length == 0 ) {
-                        let game = Game.instance
-                        //----GO Shopping!------
-                        game.match.turn = 0
-                        game.scrip += game.scripReward
-                        game.activity = "route"
-                    } else {
-                        // Team Selection
-                        this.activeTeam().cycleUnits()
-                        this.moveCamToUnit( this.activeTeam().selectedUnit()! )
-                    }
                 }
             }
         }
@@ -266,6 +292,12 @@ export default class Match {
         this.teams.forEach( team => {
             team.update()
         } )
+
+        //Match exit
+        if (this.teams[0].length == 0 || this.teams[1].length == 0) {
+            this.endTurn()
+        }
+
         if ( this.activeTeam().selectedUnit() ) {
             this.cardTray.update( this.activeTeam().selectedUnit()! )
         }

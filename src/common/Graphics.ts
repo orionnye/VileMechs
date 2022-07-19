@@ -1,3 +1,4 @@
+import Card from "../gameobjects/card/Card"
 import { Vector } from "../math/Vector"
 
 export default class Graphics {
@@ -85,6 +86,12 @@ export default class Graphics {
                 this.drawPip(pipPos, pipDim, empty)
             }
         }
+    }
+    costDisplay(pos: Vector, cost: string, color1: string, color2: string, fontSize = 10 ) {
+        // this.drawRect(pos, dim, this.type.color)
+        this.drawRect(pos.add(new Vector(1.5, 1)), new Vector(7, 8), color2)
+        this.setFont(fontSize, "pixel2")
+        this.drawText(pos.add(new Vector(1.5, 1)), cost, color1)
     }
 
     makePath( path: Vector[] ) {

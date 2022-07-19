@@ -10,7 +10,7 @@ import { Deck } from "../gameobjects/card/Deck"
 import Card from "../gameobjects/card/Card"
 import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
-import PawnShop from "./pawnShop"
+import PawnShop from "./PawnShop"
 import { type } from "os"
 
 
@@ -41,9 +41,6 @@ export default class Route {
         for (let i = 0; i < 2; i++) {
             this.options.push(Game.instance.randomStage)
         }
-    }
-    makeActivityNode() {
-
     }
 
     makeSceneNode() {
@@ -93,7 +90,7 @@ export default class Route {
                     title: "Bounty Hunt",
                     onClick: () => {
                         console.log("Begin a fight")
-                        Game.instance.match.start()
+                        Game.instance.changeStage("match")
                     }
                 }
                 let pawnShop = <Stage> {
@@ -103,7 +100,7 @@ export default class Route {
                     title: "Pawn Shop",
                     onClick: () => {
                         console.log("Off to the pawn shop")
-                        Game.instance.activity = "pawnShop"
+                        Game.instance.changeStage("pawnShop")
                     }
                 }
                 let dealerShip = <Stage> {
@@ -113,7 +110,7 @@ export default class Route {
                     title: "Mech Dealer",
                     onClick: () => {
                         console.log("Off to the dealer ship")
-                        Game.instance.activity = "dealerShip"
+                        Game.instance.changeStage("dealerShip")
                     }
                 }
 
@@ -124,7 +121,7 @@ export default class Route {
                     title: "Mechanic",
                     onClick: () => {
                         console.log("Begin shopping")
-                        Game.instance.activity = "shop"
+                        Game.instance.changeStage("shop")
                     }
                 }
                 //UI Variable

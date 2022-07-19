@@ -40,7 +40,7 @@ export default class PawnShop {
         let game = Game.instance
 
         this.dialogue = {
-            text: "Sell something!",
+            text: "Hit 'Tab' to sell mech parts!",
             pos: new Vector( game.screenDimensions().x - 150, 70 ),
             offset: new Vector(0, 0)
         }
@@ -59,16 +59,19 @@ export default class PawnShop {
     //---------------------------User Input---------------------------
     onKeyup( ev: KeyboardEvent ) {
         let game = Game.instance
-        if (game.activity == "pawnShop") {  
+        if (game.activity == "pawnShop") {
             if ( ev.key == "Enter" ) {
-                game.match.start()
-                game.activity = "match"
+                window.setTimeout(() => {
+                    game.match.start()
+                }, 100)
+                game.changeStage( "match" )
             }
             if (ev.key == "Tab") {
                 // console.log(game.team.units)
                 // this.team.units = game.units
                 game.team.cycleUnits()
                 this.toggleHand()
+                this.dialogue.text = "Sell something!"
             }
         }
     }
@@ -175,7 +178,7 @@ export default class PawnShop {
                                 description: "store-Stock",
                                 localMatrix: Matrix.translation( shelf.stockPos( i ).x, shelf.stockPos( i ).y ),
                                 scalar: 5,
-    
+                                
                                 rect: { width: Card.dimensions.x, height: Card.dimensions.y },
                                 onRender: () => {
                                     card.render()

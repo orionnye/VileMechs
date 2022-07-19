@@ -83,11 +83,13 @@ export default class Unit {
             // console.log(this.hand.typeCount(energyArmor))
             this.hurtTime += Math.sqrt( -amount + 1 ) * .1
             this.hand.cards.forEach( ( card, index ) => {
-                if (card.type == plating) {
-                    reduction += plating.damage
-                }
-                if (card.type == energyArmor && reduction < Math.abs(amount)) {
-                    reduction += energyArmor.damage
+                // if (card.type == plating) {
+                //     reduction += plating.damage
+                //     let store = this.hand.cards.splice( index, 1 )
+                //     this.discard.cards.push( store[ 0 ] )
+                // }
+                if (armorCards.includes(card.type) && reduction < Math.abs(amount)) {
+                    reduction += card.type.damage
                     let store = this.hand.cards.splice( index, 1 )
                     this.discard.cards.push( store[ 0 ] )
                 }

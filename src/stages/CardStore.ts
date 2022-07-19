@@ -58,10 +58,8 @@ export default class CardStore {
     onKeyup( ev: KeyboardEvent ) {
         let game = Game.instance
         if (game.activity == "shop") {
-
             if ( ev.key == "Enter" ) {
-                game.match.start()
-                game.activity = "match"
+                game.changeStage("match")
             }
             if (ev.key == "Tab") {
                 // console.log(game.team.units)
@@ -191,6 +189,7 @@ export default class CardStore {
                                         let copy = this.stock.cards.splice( i, 1 )[ 0 ]
                                         // console.log("COPY:", copy[0])
                                         match.selectedUnit()?.draw.addCard( copy )
+                                        game.team.selectedUnit()?.statReset()
                                         // console.log("trying to buy!")
                                         let possibleText = [
                                             "Good Choice",

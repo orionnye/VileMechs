@@ -43,12 +43,15 @@ export class Treant extends Unit {
 
         this.draw.cards = []
 
-        this.draw.add( CardTypes.bark, 4 )
+        this.draw.add( CardTypes.bark, 2 )
+        this.draw.add( CardTypes.sentience, 2 )
+        this.draw.add( CardTypes.bloodClot, 1 )
 
-        this.draw.add( CardTypes.root, 2 )
-        this.draw.add( CardTypes.perfume, 1 )
-        // this.draw.add( CardTypes.fruit, 1 )
-        this.draw.add( CardTypes.flower, 1 )
+
+        // this.draw.add( CardTypes.root, 2 )
+        // this.draw.add( CardTypes.perfume, 2 )
+        // // this.draw.add( CardTypes.fruit, 1 )
+        // this.draw.add( CardTypes.flower, 1 )
 
         this.cardCycle()
         this.statReset()
