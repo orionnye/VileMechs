@@ -45,7 +45,9 @@ export class Treant extends Unit {
 
         this.draw.add( CardTypes.bark, 2 )
         this.draw.add( CardTypes.sentience, 2 )
-        this.draw.add( CardTypes.bloodClot, 1 )
+        this.draw.add( CardTypes.fungus, 1 )
+        this.draw.add( CardTypes.boomShroom, 1 )
+        // this.draw.add( CardTypes.bloodClot, 1 )
 
 
         // this.draw.add( CardTypes.root, 2 )
@@ -71,10 +73,11 @@ export class Earth extends Unit {
 
         this.draw.cards = []
         
-        this.draw.add( CardTypes.plating, 4 )
+        this.draw.add( CardTypes.plating, 3 )
+        this.draw.add( CardTypes.exhaustPorts, 1 )
         
         this.draw.add( CardTypes.bouldertoss, 2 )
-        this.draw.add( CardTypes.mine, 2 )
+        this.draw.add( CardTypes.mine, 1 )
         // this.draw.add( CardTypes.dynamite, 1 )
         // this.draw.add( CardTypes.gorge, 2 )
         // this.draw.add( CardTypes.plateShift, 1 )

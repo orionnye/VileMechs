@@ -70,7 +70,7 @@ export default class UnitTray {
                             unit.render(false)
 
                             //unit name display
-                            unit.renderName( new Vector( 0, 23.5 ), "black", nameBacking )
+                            unit.renderName( new Vector( 0, 19.5 ), "black", nameBacking )
 
                             unit.drawStats()
 

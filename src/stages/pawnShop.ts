@@ -12,6 +12,7 @@ import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
 import Team from "../gameobjects/mech/Team"
 import Grid from "../gameobjects/map/Grid"
+import CardTray from "../gameobjects/ui/CardTray"
 
 const Jungle = getImg( require( "../www/images/gui/BackgroundPixel1.png" ) )
 const Jungle2 = getImg( require( "../www/images/gui/BackgroundPixel2.png" ) )
@@ -28,6 +29,7 @@ export default class PawnShop {
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     unitTray = new UnitTray()
     isPlayerDone = false
+    cardTray: CardTray = new CardTray()
     
     //shop keeper dialogue
     dialogue: {
@@ -53,7 +55,9 @@ export default class PawnShop {
     toggleHand() {
         let game = Game.instance
         // console.log( game.team.units[0].hand.cards )
+        // game.team.selectedUnit()?.statReset()
         game.team.selectedUnit()?.cardCycle()
+        
     }
 
     //---------------------------User Input---------------------------
@@ -145,6 +149,9 @@ export default class PawnShop {
             content: () => {
                 //Unitray
                 this.unitTray.makeSceneNode( new Vector(0, 0), game.team, false)
+                if (game.team.selectedUnit()) {
+                    this.cardTray.update(game.team.selectedUnit()!)
+                }
 
                 //display data(static except for UI Scaling)
                 const screenDims = game.screenDimensions()
@@ -201,7 +208,7 @@ export default class PawnShop {
                                             game.team.selectedUnit()?.statReset()
                                             // console.log("trying to sell!")
                                             let possibleText = [
-                                                "Been lokking for this part",
+                                                "Been looking for this part",
                                                 "I love this one",
                                                 "meh"
                                             ]

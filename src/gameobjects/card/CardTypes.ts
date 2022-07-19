@@ -367,7 +367,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         getDescription: card => `Gain ${ card.type.damage } energy, -Exhaustive`,
         color: "#aaaaaa",
         sprite: ore,
-        backing: black,
+        backing: brown,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
@@ -477,7 +477,6 @@ const CardTypes: { [ name: string ]: CardType } = {
         range: 5,
         minDist: 2,
         friendly: false
-
     },
 
     plating: {
@@ -489,10 +488,29 @@ const CardTypes: { [ name: string ]: CardType } = {
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
 
-        cost: 0,
         damage: 1,
         range: 0,
         minDist: 1,
+        friendly: false
+    },
+    exhaustPorts: {
+        name: "Exhaust Ports",
+        getDescription: card => `draw ${card.type.drawCount}`,
+        color: "#b87420",
+        sprite: plating,
+        backing: brown,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile(card, user, pos, target?) {
+            user.drawCard(card.type.drawCount)
+        },
+        healthCost: 2,
+        
+        drawCount: 2,
+        
+        damage: 1,
+        range: 0,
+        minDist: 0,
         friendly: false
     },
 
@@ -670,12 +688,19 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     bloodClot: {
         name: "Blood Clot",
-        getDescription: card => `"Nothing eats a bullet like rigor mortis" -Altair Patches`,
+        getDescription: card => `Heal ${card.type.heal} HP`,
         color: "#af0000",
         sprite: bloodClot,
         backing: flesh,
         canApplyToEmptyTiles: false,
-        getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range }),
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile(card, user, pos, target?) {
+            // user.addSpeed( -card.type.speed )
+            user.addHealth( card.type.heal )
+        },
+
+        heal: 3,
+        speedCost: 1,
 
         damage: 0,
         range: 0,
@@ -870,6 +895,27 @@ const CardTypes: { [ name: string ]: CardType } = {
         minDist: 0,
         friendly: false
     },
+    fungus: {
+        name: "Fungus",
+        getDescription: card => `Target Gains ${card.type.energy} Energy`,
+        color: "#026822",
+        sprite: fungus,
+        backing: green,
+        canApplyToEmptyTiles: false,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            if ( target ) {
+                target.addEnergy(card.type.energy)
+            }
+        },
+
+        speedCost: 2,
+        energy: 1,
+        damage: 8,
+        range: 4,
+        minDist: 0,
+        friendly: false
+    },
     flower: {
         name: "Flower",
         getDescription: card => `Grant Target ${ card.type.damage } Fruits`,
@@ -925,6 +971,46 @@ const CardTypes: { [ name: string ]: CardType } = {
         heal: 2,
         range: 2,
         minDist: 0,
+        friendly: false
+    },
+    boomShroom: {
+        name: "BoomShroom",
+        getDescription: card => `Reduce MaxHP: ${card.type.damage} in a ${card.type.dim?.x}x${card.type.dim?.y} area -Clears Mountains`,
+        color: "#026822",
+        sprite: boomShroom,
+        backing: green,
+        canApplyToEmptyTiles: true,
+        getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
+        onApplyToTile: ( card, user, pos, target ) => {
+            let match = Game.instance.match
+            if (match.map.getElevation(pos) == 1) {
+                match.map.set( pos, Tiles.Grass )
+            }
+            if ( target ) {
+                target?.addMaxHealth( -card.type.damage )
+            }
+        },
+        getTilesEffected( user, pos ) {
+            let match = Game.instance.match
+            let tilesEffected: Vector[] = [ pos ]
+            let dim = this.dim!
+            //get relative direction from user
+            for ( let x = 0; x < dim.x; x++ ) {
+                for ( let y = 0; y < dim.y; y++ ) {
+                    let tile = pos.add( new Vector( x - 1, y - 1 ) )
+                    if ( !tile.equals( pos ) ) {
+                        tilesEffected.push( tile )
+                    }
+                }
+            }
+            return tilesEffected
+        },
+
+        cost: 1,
+        damage: 3,
+        dim: new Vector( 3, 3 ),
+        range: 5,
+        minDist: 2,
         friendly: false
     },
     //----------------------------------------------- ELDRITCH --------------------------------------------

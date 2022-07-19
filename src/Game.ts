@@ -87,14 +87,14 @@ export default class Game {
 
         //Store Init
         this.scrip = 20
-        this.scripRewards = [50, 40, 30, 30, 20, 20, 20, 10]
+        this.scripRewards = [50, 40, 30, 20, 10]
         
         //player team Init
         let units = [
             // new Earth(new Vector(0, 0), 0),
             // new Chrome(new Vector(0, 0), 0),
-            new Treant(new Vector(0, 0), 0),
-            // new Flesh(new Vector(0, 0), 0),
+            // new Treant(new Vector(0, 0), 0),
+            new Flesh(new Vector(0, 0), 0),
         ]
         
         this.team = new Team("Choden Warriors", units, false, 0)

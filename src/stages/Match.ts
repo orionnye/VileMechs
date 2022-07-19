@@ -77,7 +77,11 @@ export default class Match {
         }
         return unitsGenerator()
     }
-    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) ) }
+    moveCamToUnit( unit: Unit ) {
+        if ( unit ) {
+            this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) )
+        }
+    }
     moveCamToFirstUnit() {
         let units = this.activeTeam().units
         if ( units.length == 0 ) return
@@ -114,6 +118,9 @@ export default class Match {
             let randomCard = new Card(randomCardType())
             unit.draw.cards.push(randomCard)
         }
+        enemies.forEach(enemy => {
+            enemy.statReset()
+        });
         let team = new Team( "Drunken Scholars", enemies, true, 1 )
         return team
     }
@@ -354,7 +361,7 @@ export default class Match {
 
         //  Draw unit path
         if ( this.playerTurn() ) {
-            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 ) {
+            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 && selectedUnit.speed > 0) {
                 let walkableTiles = targetsWithinRange( selectedUnit.pos, 0, selectedUnit.speed )
                 walkableTiles.forEach( tile => {
                     let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed )

@@ -71,7 +71,7 @@ export default class Card {
                     dark: "rgb(100, 0, 0)",
                 },
                 blue: {
-                    light: "rgb(150, 150, 255)",
+                    light: "rgb(100, 100, 255)",
                     // dark: "rgb(75, 0, 0)",
                     dark: "rgb(0, 0, 75)",
                 },

@@ -39,7 +39,8 @@ export default class Route {
         //option Variables
         this.options = []
         for (let i = 0; i < 2; i++) {
-            this.options.push(Game.instance.randomStage)
+            // this.options.push(Game.instance.randomStage)
+            this.options.push("pawnShop")
         }
     }
 

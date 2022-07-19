@@ -277,9 +277,10 @@ export default class Unit {
     drawStats() {
         let g = Graphics.instance
         g.c.save()
-        g.c.translate( 0, -3 )
-        this.drawEnergy()
-        this.drawHealth()
+        g.c.translate( 0, -7 )
+        this.drawEnergyPips( new Vector( 3, 4 ) )
+        this.drawHealthPips( new Vector( 0.5, 26.5 ) )
+        this.drawSpeedPips( new Vector( 0.5, 33 ) )
 
         //drawing Speed
         // let speed = {
@@ -293,12 +294,12 @@ export default class Unit {
         g.c.restore()
     }
 
-    drawEnergy() {
+    drawEnergyPips(pos: Vector) {
         let g = Graphics.instance
         //Energy Stats
         let energy = {
             pip: {
-                dim: new Vector( 3, 4 ),
+                dim: pos,
                 pad: new Vector( 1.5, 0 ),
                 filled: () => `rgb(0, ${ Math.random() * 55 + 200 }, 0)`,
                 empty: "rgb(0, 100, 0)",
@@ -336,12 +337,12 @@ export default class Unit {
         }
     }
 
-    drawHealth() {
+    drawHealthPips(pos: Vector) {
         let g = Graphics.instance
 
         //Health Stats
         let health = {
-            pos: new Vector( 0.5, 26.5 ),
+            pos: pos,
             dim: new Vector( 33, 4 ),
             pip: {
                 dim: new Vector( 2.5, 4 ),
@@ -384,7 +385,58 @@ export default class Unit {
                 g.strokeRect( pipPos, health.pip.dim, "yellow" )
                 g.drawRect( pipPos, health.pip.dim, health.pip.filled )
             }
-            jiggle = new Vector( randomInt( jiggleCap ), randomInt( jiggleCap ) )
+            jiggle = new Vector( 0, randomInt( jiggleCap ) )
+        }
+    }
+    drawSpeedPips(pos: Vector) {
+        let g = Graphics.instance
+
+        //Health Stats
+        let speed = {
+            pos: pos,
+            dim: new Vector( 33, 4 ),
+            pip: {
+                dim: new Vector( 2.5, 4 ),
+                pad: new Vector( 1.5, 0 ),
+                filled: "rgb(100, 100, 255)",
+                empty: "rgb(0, 0, 100)",
+                pit: "rgb(0, 0, 75)",
+                temp: "rgb(205, 205, 255)",
+            },
+            backingColor: "rgb(10, 10, 125)"
+        }
+
+        speed.dim.x = this.maxSpeed * speed.pip.dim.x + speed.pip.pad.x * this.maxSpeed
+        g.drawRect( speed.pos, speed.dim, speed.backingColor )
+        let jiggleCap = 0.4
+        let jiggle = new Vector( randomInt( jiggleCap ), randomInt( jiggleCap ) )
+
+        let mostSpeed = this.speed > this.maxSpeed ? this.speed : this.maxSpeed
+
+        for ( let h = 0; h < mostSpeed; h++ ) {
+            let pipPadding = speed.pip.pad.scale( h )
+            let pipOffset = new Vector( speed.pip.dim.scale( h ).x, 0 ).add( pipPadding )
+            let pipPos = speed.pos.add( new Vector( 1, 0 ) ).add( pipOffset )
+
+            if ( h >= this.speed ) {
+                // Empty Pips
+                g.drawRect( pipPos.add( jiggle ), speed.pip.dim, speed.pip.pit )
+                g.strokeRect( pipPos.add( jiggle ), speed.pip.dim, speed.pip.empty )
+            } else if ( h < this.maxSpeed ) {
+                // Filled Pips
+                g.strokeRect( pipPos, speed.pip.dim, speed.pip.empty )
+                g.drawRect( pipPos, speed.pip.dim, speed.pip.filled )
+            } else {
+                // Bonus Pips
+                let bonusTotal = h - this.maxSpeed
+                let bonusPipOffset = new Vector( 0, 0 )
+                pipPadding = speed.pip.pad.scale( bonusTotal ).add( new Vector( 2, 2 ) )
+                pipOffset = new Vector( speed.pip.dim.scale( bonusTotal ).x, 0 ).add( pipPadding )
+                pipPos = speed.pos.add( new Vector( 1, 0 ) ).add( pipOffset )
+                g.strokeRect( pipPos, speed.pip.dim, "white" )
+                g.drawRect( pipPos, speed.pip.dim, speed.pip.filled )
+            }
+            jiggle = new Vector( randomInt( jiggleCap ), 0 )
         }
     }
 
