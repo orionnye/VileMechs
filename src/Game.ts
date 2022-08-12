@@ -11,7 +11,7 @@ import Clock from "./common/Clock"
 import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
 import Team from "./gameobjects/mech/Team"
-import { Chrome, Earth, Flesh, Jelly, Treant } from "./gameobjects/mech/RigTypes"
+import { Bulwarkus_Johnson, Chrome, Earth, Flesh, Gelraug, Jelly, Treant } from "./gameobjects/mech/RigTypes"
 import CardStore from "./stages/CardStore"
 import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
@@ -66,7 +66,7 @@ export default class Game {
     scripRewards : number[]
 
     match: Match
-    level: number = 0
+    level: number = 6
     
     // units : Unit[]
     team: Team
@@ -80,7 +80,7 @@ export default class Game {
 
     isPlayerDone = false
 
-    activity: Activity = "route"
+    activity: Activity = "title"
 
     constructor() {
         Game.instance = this
@@ -138,9 +138,8 @@ export default class Game {
     }
     get randomBoss() {
         let mechList = [
-            new Flesh( new Vector( 0, 0 ), 1 ),
-            new Jelly( new Vector( 0, 0 ), 1 ),
-            new Treant( new Vector( 0, 0 ), 1 )
+            new Gelraug( new Vector( 0, 0 ), 1 ),
+            new Bulwarkus_Johnson( new Vector( 0, 0 ), 1 )
         ]
         let random = randomFloor( mechList.length )
         return mechList[ random ]
