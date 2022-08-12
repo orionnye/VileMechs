@@ -100,13 +100,13 @@ export class Flesh extends Unit {
 
         this.draw.cards = []
 
-        this.draw.add( CardTypes.bloodClot, 4 )
+        this.draw.add( CardTypes.bloodClot, 3 )
 
         this.draw.add( CardTypes.frenzy, 1 )
-        this.draw.add( CardTypes.chomp, 2 )
+        // this.draw.add( CardTypes.chomp, 1 )
         this.draw.add( CardTypes.leap, 1 )
 
-        // this.draw.add( CardTypes.acid, 2)
+        this.draw.add( CardTypes.acid, 1)
 
         this.cardCycle()
         this.statReset()

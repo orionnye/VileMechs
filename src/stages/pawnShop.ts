@@ -65,10 +65,8 @@ export default class PawnShop {
         let game = Game.instance
         if (game.activity == "pawnShop") {
             if ( ev.key == "Enter" ) {
-                window.setTimeout(() => {
-                    game.match.start()
-                }, 100)
-                game.changeStage( "match" )
+                game.changeStage( "route" )
+                game.level += 1
             }
             if (ev.key == "Tab") {
                 // console.log(game.team.units)
@@ -159,7 +157,7 @@ export default class PawnShop {
                     dim: new Vector( ( screenDims.x / 5 ) * 3, Card.dimensions.y * 1.3 ),
                     pos: new Vector( screenDims.x / 7, screenDims.y * 0.6 ),
                     margin: 10,
-                    cost: 2,
+                    cost: 10,
                     stockPos: ( index: number ) => {
                         //break and divide the cardSpace by total cards and then divide remaining space evenly
                         let spacePerCard = 0
@@ -202,7 +200,7 @@ export default class PawnShop {
                                     let game = Game.instance
                                     if ( game.team.selectedUnit() ) {
                                         if (game.scrip >= shelf.cost) {
-                                            game.scrip += shelf.cost
+                                            game.scrip -= shelf.cost
                                             //selling
                                             game.team.selectedUnit()!.hand.cards.splice( i, 1 )
                                             game.team.selectedUnit()?.statReset()

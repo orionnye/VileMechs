@@ -59,7 +59,8 @@ export default class CardStore {
         let game = Game.instance
         if (game.activity == "shop") {
             if ( ev.key == "Enter" ) {
-                game.changeStage("match")
+                game.changeStage("route")
+                game.level += 1
             }
             if (ev.key == "Tab") {
                 // console.log(game.team.units)
@@ -194,7 +195,10 @@ export default class CardStore {
                                         let possibleText = [
                                             "Good Choice",
                                             "I like that one",
-                                            "meh"
+                                            "meh",
+                                            "At this rate I might pay off the boss",
+                                            "Would you like gift wrap?",
+                                            "Thats what everyone gets, try a lil originality"
                                         ]
                                         this.dialogue.text = possibleText[randomFloor(possibleText.length)]
                                     } else {

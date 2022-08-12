@@ -63,7 +63,8 @@ export default class DealerShip {
         let game = Game.instance
         if (game.activity == "dealerShip") {
             if ( ev.key == "Enter" ) {
-                game.changeStage("match")
+                game.changeStage("route")
+                game.level += 1
             }
             if (ev.key == "Tab") {
                 game.team.cycleUnits()

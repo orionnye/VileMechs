@@ -11,7 +11,7 @@ import Clock from "./common/Clock"
 import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
 import Team from "./gameobjects/mech/Team"
-import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
+import { Chrome, Earth, Flesh, Jelly, Treant } from "./gameobjects/mech/RigTypes"
 import CardStore from "./stages/CardStore"
 import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
@@ -20,7 +20,7 @@ import Origin from "./stages/Origin"
 import Lose from "./stages/Lose"
 import DealerShip from "./stages/DealerShip"
 import PawnShop from "./stages/PawnShop"
-import Route from "./stages/Route"
+import Route from "./stages/route/Route"
 
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
@@ -28,7 +28,19 @@ const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
 
 // activity 
-export type Activity = "shop" | "match" | "title" | "origin" | "lose" | "dealerShip" | "pawnShop" | "route"
+export type Activity = 
+    //mid-screens
+    "title" |
+    "origin" |
+    "lose" |
+    //stat testing
+    "match" |
+    //stat management
+    "shop" |
+    "dealerShip" |
+    "pawnShop" |
+    //test plans
+    "route"
 
 export default class Game {
     static instance: Game
@@ -43,9 +55,11 @@ export default class Game {
     title: Title
     origin: Origin
     lose: Lose
+
     store: CardStore
     dealerShip: DealerShip
     pawnShop: PawnShop
+
     route: Route
     
     scrip: number
@@ -66,11 +80,11 @@ export default class Game {
 
     isPlayerDone = false
 
-    activity: Activity = "match"
+    activity: Activity = "route"
 
     constructor() {
         Game.instance = this
-        
+
         //Transition Stages
         this.title = new Title()
         this.lose = new Lose()
@@ -91,10 +105,10 @@ export default class Game {
         
         //player team Init
         let units = [
-            // new Earth(new Vector(0, 0), 0),
+            new Earth(new Vector(0, 0), 0),
             // new Chrome(new Vector(0, 0), 0),
             // new Treant(new Vector(0, 0), 0),
-            new Flesh(new Vector(0, 0), 0),
+            // new Flesh(new Vector(0, 0), 0),
         ]
         
         this.team = new Team("Choden Warriors", units, false, 0)
@@ -122,9 +136,27 @@ export default class Game {
         let random = randomFloor( mechList.length )
         return mechList[ random ]
     }
-    get randomStage() {
+    get randomBoss() {
+        let mechList = [
+            new Flesh( new Vector( 0, 0 ), 1 ),
+            new Jelly( new Vector( 0, 0 ), 1 ),
+            new Treant( new Vector( 0, 0 ), 1 )
+        ]
+        let random = randomFloor( mechList.length )
+        return mechList[ random ]
+    }
+    // get randomStage() {
+    //     let options: Activity[] = [
+    //         "match",
+    //         "shop",
+    //         "pawnShop",
+    //         "dealerShip"
+    //     ]
+    //     let randomPick = options[randomFloor(options.length)]
+    //     return randomPick
+    // }
+    get randomShop() {
         let options: Activity[] = [
-            "match",
             "shop",
             "pawnShop",
             "dealerShip"
@@ -138,20 +170,36 @@ export default class Game {
     }
     
     changeStage( stage: Activity ) {
+        let delay = 100
         window.setTimeout(() => {
             switch (stage) {
                 case "match": {
-                    this.match.start()
+                    if (this.level >= this.route.length) {
+                        this.match.startBoss()
+                    } else {
+                        this.match.start()
+                    }
                 }
                 case "shop": {
                     this.store.reset()
                     this.activity = stage
                 }
+                case "route": {
+                    let peak = 0
+                    this.route.options.forEach(option => {
+                        if (option.traverse().length >= peak) {
+                            peak = option.traverse().length
+                        }
+                    })
+                    if (this.level > peak) {
+                        this.route.reset(4)
+                    }
+                }
                 default: {
                     this.activity = stage
                 }
             }
-        }, 100)
+        }, delay)
     }
     //----------------MODEL------------------
     get scripReward() {
@@ -247,7 +295,6 @@ export default class Game {
                 }
             },
             content: () => {
-
                 switch (this.activity) {
                     case "shop":
                         //-----------------Card Shop Display-------------------
@@ -262,7 +309,7 @@ export default class Game {
                         this.pawnShop.makeSceneNode()
                         // unitTray.makeSceneNode( new Vector( 0, 0 ), this.team )
                         break
-                    case "match":
+                    case "match" || "boss":
                         //-----------------Match Display-----------------------
                         match.makeSceneNode()
                         g.c.restore()

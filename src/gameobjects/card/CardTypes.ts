@@ -541,22 +541,24 @@ const CardTypes: { [ name: string ]: CardType } = {
     },
     frenzy: {
         name: "Frenzy",
-        getDescription: card => `-Generate ${card.type.damage} Claw`,
+        getDescription: card => `-Generate ${card.type.damage} Claw, -Draw ${card.type.drawCount} cards`,
         color: "#af0000",
         sprite: frendzi,
         backing: flesh,
         canApplyToEmptyTiles: false,
         getTilesInRange: ( card, user ) => targetsWithinRange( user.pos, card.type.minDist, card.type.range ),
         onApplyToTile: ( card, user, pos, target ) => {
-            // user.drawCard( card.type.drawCount )
             for ( let i = 0; i < card.type.damage; i++ ) {
                 let card = new Card()
                 card.type = CardTypes.claw
-                user.draw.cards.push( card )
+                user.draw.insertAtRandom( card )
             }
+            user.drawCard(2)
         },
 
         cost: 1,
+        drawCount: 2,
+
         damage: 2,
         range: 0,
         minDist: 0,
@@ -631,7 +633,6 @@ const CardTypes: { [ name: string ]: CardType } = {
     chomp: {
         name: "Chomp",
         getDescription: card => `Deal ${card.type.damage} damage,
-         -Gain ${card.type.drawCount} "Lump"
          -Gain ${card.type.maxHp} MaxHP`,
         color: "#af0000",
         sprite: chomp,
@@ -640,11 +641,11 @@ const CardTypes: { [ name: string ]: CardType } = {
         getTilesInRange: ( card, user ) => rookStyleTargets( user.pos, { range: card.type.range } ),
         onApplyToTile: ( card, user, pos, target ) => {
             if ( target ) {
-                for ( let i = 0; i < card.type.drawCount; i++ ) {
-                    let card = new Card()
-                    card.type = CardTypes.lump
-                    user.draw.cards.push( card )
-                }
+                // for ( let i = 0; i < card.type.drawCount; i++ ) {
+                //     let card = new Card()
+                //     card.type = CardTypes.lump
+                //     user.draw.cards.push( card )
+                // }
                 user.addMaxHealth( card.type.maxHp )
 
                 target.addHealth( -card.type.damage )
@@ -654,7 +655,7 @@ const CardTypes: { [ name: string ]: CardType } = {
         cost: 1,
         damage: 4,
         drawCount: 1,
-        maxHp: 2,
+        maxHp: 1,
 
         range: 2,
         minDist: 0,
@@ -699,8 +700,8 @@ const CardTypes: { [ name: string ]: CardType } = {
             user.addHealth( card.type.heal )
         },
 
-        heal: 3,
-        speedCost: 1,
+        cost: 0,
+        heal: 2,
 
         damage: 0,
         range: 0,
@@ -966,9 +967,9 @@ const CardTypes: { [ name: string ]: CardType } = {
             target?.addHealth(card.type.heal)
         },
 
-        cost: 0,
+        speedCost: 2,
         damage: 0,
-        heal: 2,
+        heal: 3,
         range: 2,
         minDist: 0,
         friendly: false

@@ -10,7 +10,7 @@ import Team from "../gameobjects/mech/Team"
 import CardTray from "../gameobjects/ui/CardTray"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { CardType, randomCardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
-import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
+import { Chrome, Earth, Flesh, Jelly, Treant } from "../gameobjects/mech/RigTypes"
 import AI from "../gameobjects/mech/AI"
 import { randomCeil, randomFloor } from "../math/math"
 import { match } from "assert"
@@ -99,6 +99,13 @@ export default class Match {
             this.map.set( new Vector( 4, 3 ), Tiles.Grass )
             this.map.set( new Vector( 5, 6 ), Tiles.Grass )
         }
+    }
+    generateBoss() {
+        let enemies = <Unit[]> []
+        enemies.push(Game.instance.randomBoss)
+
+        let team = new Team( "Drunken Scholars", enemies, true, 1 )
+        return team
     }
     generateEnemies( funds: number ) {
         let enemies = <Unit[]> []
@@ -210,9 +217,9 @@ export default class Match {
         this.turn %= this.teams.length
         this.teams[ this.turn ].startTurn()
         this.timer += 1
-        // console.log( "STEP: ", this.cardAnim.step )
+
         if (this.playerUnits().length == 0) {
-            Game.instance.activity = "lose"
+            Game.instance.changeStage("lose")
         }
         if ( this.teams[ 1 ].units.length == 0 ) {
             let game = Game.instance
@@ -249,6 +256,28 @@ export default class Match {
         //Toggle!
         game.activity = "match"
     }
+    startBoss() {
+        let game = Game.instance
+        
+        //----GO Fighting!------
+        this.teams[ 0 ] = game.team
+        game.team.units.forEach( unit => {
+            unit.statReset()
+        } )
+        this.map = new Grid( 15, 15 )
+        //Generate enemies to fight
+        this.teams[ 1 ] = this.generateBoss()
+        this.generateMap()
+        this.turn = 0
+        this.activeTeam().cycleUnits()
+        if ( this.activeTeam().selectedUnit() ) {
+            this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+        }
+        this.turn = 0
+        game.level += 1
+        //Toggle!
+        game.activity = "match"
+    }
     onMousedown( ev: MouseEvent ) {
         let game = Game.instance
         let button = ev.button
@@ -271,6 +300,7 @@ export default class Match {
     }
     onMouseup( ev: MouseEvent ) {
         this.camera.stopDragging()
+        console.log(ev)
     }
     onWheel( ev: WheelEvent ) {
         this.camera.onWheel( ev )
