@@ -21,6 +21,7 @@ import Lose from "./stages/Lose"
 import DealerShip from "./stages/DealerShip"
 import PawnShop from "./stages/PawnShop"
 import Route from "./stages/route/Route"
+import { capitalize } from "./common/utils"
 
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
@@ -28,7 +29,7 @@ const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
 
 // activity 
-export type Activity = 
+export type Activity =
     //mid-screens
     "title" |
     "origin" |
@@ -50,7 +51,7 @@ export default class Game {
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     mouseOverData: PickingResult = { node: undefined, point: new Vector( 0, 0 ) }
-    
+
     //Scene List (paired with their relevant stats)
     title: Title
     origin: Origin
@@ -61,16 +62,16 @@ export default class Game {
     pawnShop: PawnShop
 
     route: Route
-    
+
     scrip: number
-    scripRewards : number[]
+    scripRewards: number[]
 
     match: Match
     level: number = 0
-    
+
     // units : Unit[]
     team: Team
-    unitMax : number = 3
+    unitMax: number = 3
 
 
     //Dev stats
@@ -79,7 +80,6 @@ export default class Game {
     clock = new Clock()
 
     isPlayerDone = false
-
     activity: Activity = "title"
 
     constructor() {
@@ -94,6 +94,7 @@ export default class Game {
         //Shop Stages
         this.store = new CardStore()
         this.store.reset()
+
         this.dealerShip = new DealerShip()
         this.dealerShip.reset()
         this.pawnShop = new PawnShop()
@@ -101,28 +102,29 @@ export default class Game {
 
         //Store Init
         this.scrip = 20
-        this.scripRewards = [50, 40, 30, 20, 10]
-        
+        this.scripRewards = [ 50, 40, 30, 20, 10 ]
+
         //player team Init
         let units = [
-            new Earth(new Vector(0, 0), 0),
+            new Earth( new Vector( 0, 0 ), 0 ),
             // new Chrome(new Vector(0, 0), 0),
             // new Treant(new Vector(0, 0), 0),
             // new Flesh(new Vector(0, 0), 0),
         ]
-        
-        this.team = new Team("Choden Warriors", units, false, 0)
+
+        this.team = new Team( "Choden Warriors", "cyan", units, false, 0 )
         //Match Init
         this.match = new Match( this.team )
-        if (this.activity == "match") {
+        if ( this.activity == "match" ) {
             this.match.start()
         }
 
-        window.addEventListener( "click", ev => this.onClick( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
-        window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
-        window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
+        // onWheel, onMouseup, onMousedown
+        for ( let name of [ "click", "keyup", "keydown", "wheel", "mouseup", "mousedown" ] )
+            window.addEventListener( name, ev => this[ "on" + capitalize( name ) ]( ev ) )
     }
+
     // get team() {
     //     let playerTeam = new Team("Choden Warriors", this.units, false, 0)
     //     // playerTeam.units = this.units
@@ -160,21 +162,21 @@ export default class Game {
             "pawnShop",
             "dealerShip"
         ]
-        let randomPick = options[randomFloor(options.length)]
+        let randomPick = options[ randomFloor( options.length ) ]
         return randomPick
     }
     reset() {
         this.level = 1
         this.scrip = 20
     }
-    
+
     changeStage( stage: Activity ) {
         let delay = 100
-        window.setTimeout(() => {
-            switch (stage) {
+        window.setTimeout( () => {
+            switch ( stage ) {
                 case "match": {
                     this.level += 1
-                    if (this.level >= this.route.length) {
+                    if ( this.level >= this.route.length ) {
                         this.match.startBoss()
                     } else {
                         this.match.start()
@@ -186,20 +188,20 @@ export default class Game {
                 }
                 case "route": {
                     let peak = 0
-                    this.route.options.forEach(option => {
-                        if (option.traverse().length >= peak) {
+                    this.route.options.forEach( option => {
+                        if ( option.traverse().length >= peak ) {
                             peak = option.traverse().length
                         }
-                    })
-                    if (this.level > peak) {
-                        this.route.reset(6)
+                    } )
+                    if ( this.level > peak ) {
+                        this.route.reset( 6 )
                     }
                 }
                 default: {
                     this.activity = stage
                 }
             }
-        }, delay)
+        }, delay )
     }
     //----------------MODEL------------------
     get scripReward() {
@@ -211,7 +213,7 @@ export default class Game {
         let { match } = this
         this.clock.nextFrame()
 
-        if (this.activity == "match") {
+        if ( this.activity == "match" ) {
             this.match.update()
         }
 
@@ -232,7 +234,7 @@ export default class Game {
                 node.onClick( node, point )
         }
     }
-    
+
     onKeyup( ev: KeyboardEvent ) {
         if ( ev.key == "`" ) {
             this.showSceneDebug = !this.showSceneDebug
@@ -245,6 +247,18 @@ export default class Game {
         if ( ev.key == "Tab" ) {
             ev.preventDefault()
         }
+    }
+    onMousedown( ev: MouseEvent ) {
+        if ( this.activity == "match" )
+            this.match.onMousedown( ev )
+    }
+    onMouseup( ev: MouseEvent ) {
+        if ( this.activity == "match" )
+            this.match.onMouseup( ev )
+    }
+    onWheel( ev: WheelEvent ) {
+        if ( this.activity == "match" )
+            this.match.onWheel( ev )
     }
 
     //--------------------------RENDER-----------------------------
@@ -286,16 +300,16 @@ export default class Game {
                     // } )
                     //Money / Reward for current round, and Timer
                     g.setFont( 5, "pixel" )
-                    g.drawTextBox( new Vector( center.x/4, 0 ), `SCRIP Reward: ${ this.scripReward } `, {
+                    g.drawTextBox( new Vector( center.x / 4, 0 ), `SCRIP Reward: ${ this.scripReward } `, {
                         textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.left
                     } )
-                    g.drawTextBox( new Vector( center.x/4, 8 ), `SCRIP: ${ this.scrip } `, {
+                    g.drawTextBox( new Vector( center.x / 4, 8 ), `SCRIP: ${ this.scrip } `, {
                         textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.left
                     } )
                 }
             },
             content: () => {
-                switch (this.activity) {
+                switch ( this.activity ) {
                     case "shop":
                         //-----------------Card Shop Display-------------------
                         store.makeSceneNode()
@@ -326,19 +340,19 @@ export default class Game {
                     case "title":
                         //Title
                         this.title.makeSceneNode()
-                        break 
+                        break
                     case "origin":
                         //Origin
                         this.origin.makeSceneNode()
-                        break 
+                        break
                     case "lose":
                         //Lose
                         this.lose.makeSceneNode()
-                        break 
+                        break
                     case "route":
                         //Pathfinding to the next match
                         this.route.makeSceneNode()
-                        break 
+                        break
                 }
             }
         } )

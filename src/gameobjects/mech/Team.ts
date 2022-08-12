@@ -12,6 +12,7 @@ export default class Team {
     selectedUnitIndex = -1
 
     name: string
+    color: string
     flipUnits: boolean
 
     units: Unit[] = []
@@ -19,9 +20,13 @@ export default class Team {
 
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor( name: string, units: Unit[], flip: boolean = false, teamNumber: number ) {
+    // TODO: Update references to respect new signature.
+    constructor( name: string, color: string, units: Unit[], flip: boolean = false, teamNumber: number ) {
+        if ( !Array.isArray( units ) )
+            throw new Error( "Units must be an array!" )
         this.units = units
         this.name = name
+        this.color = color
         this.flipUnits = flip
     }
     get length() {
@@ -86,14 +91,14 @@ export default class Team {
     }
 
     endTurn() {
-        this.units.forEach(unit => {
+        this.units.forEach( unit => {
             //resets speed
             unit.speed = unit.maxSpeed
-        })
+        } )
         this.deselect()
     }
     startTurn() {
-        this.units.forEach(unit => {
+        this.units.forEach( unit => {
             unit.energy = unit.maxEnergy
             unit.statCap()
         } )
@@ -101,6 +106,7 @@ export default class Team {
     }
 
     update() {
+        // debugger
         this.units = this.units.filter( unit => unit.health > 0 )
         for ( let unit of this.units )
             unit.update()
