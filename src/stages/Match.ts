@@ -9,16 +9,25 @@ import * as Tiles from "../gameobjects/map/Tiles"
 import Team from "../gameobjects/mech/Team"
 import CardTray from "../gameobjects/ui/CardTray"
 import UnitTray from "../gameobjects/ui/UnitTray"
-import { CardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
+import { CardType, randomCardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
+import { Chrome, Earth, Flesh, Jelly, Treant } from "../gameobjects/mech/RigTypes"
 import AI from "../gameobjects/mech/AI"
 import Unit from "../gameobjects/mech/Unit"
 import { flash } from "../common/utils"
-
+import { randomCeil, randomFloor } from "../math/math"
+import { match } from "assert"
+import Unit from "../gameobjects/mech/Unit"
+import Camera from "../gameobjects/Camera"
+import Card from "../gameobjects/card/Card"
 
 export default class Match {
     //Map
     static tileSize = 32
     map: Grid
+    camera = new Camera()
+
+    //timer
+    timer: number = 0
 
     //Units
     teams: Team[]
@@ -38,34 +47,25 @@ export default class Match {
         rate: 0.02,
         cap: 1,
         step: 1,
-        type: <CardType | undefined>undefined,
-        pos: <Vector>new Vector( 0, 0 )
+        type: <CardType | undefined> undefined,
+        pos: <Vector> new Vector( 0, 0 )
     }
 
     //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor( playerTeam: Team = new Team( "Drunken Scholars", "red", false, 0 ) ) {
-        this.map = new Grid( 17, 17 )
+
+//  constructor( playerTeam: Team = new Team( "Drunken Scholars", "red", false, 0 ) ) {
+    constructor( playerTeam: Team = Game.instance.team ) {
+        this.map = new Grid( 15, 15 )
 
         this.teams = [
             playerTeam,
-            new Team( "Choden Warriors", "orange", true, 1 ),
+            new Team("Drunken Scholars", [], true, 1)
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
-        // let randomTerrain = false
-        let randomTerrain = true
-        if ( randomTerrain ) {
-            this.map.newMap()
-            this.placeUnits()
-        } else {
-            //custom map
-            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
-            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), Tiles.Grass )
-            this.map.set( new Vector( 4, 3 ), Tiles.Grass )
-            this.map.set( new Vector( 5, 6 ), Tiles.Grass )
-        }
+        window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
 
         //Move camera to first Unit
         // this.moveCamToFirstUnit()
@@ -79,6 +79,60 @@ export default class Match {
                     yield unit
         }
         return unitsGenerator()
+    }
+    moveCamToUnit( unit: Unit ) {
+        if ( unit ) {
+            this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) )
+        }
+    }
+    moveCamToFirstUnit() {
+        let units = this.activeTeam().units
+        if ( units.length == 0 ) return
+        this.moveCamToUnit( units[ 0 ] )
+    }
+    generateMap() {
+        let randomTerrain = true
+        if ( randomTerrain ) {
+            this.map.newMap()
+            this.placeUnits()
+        } else {
+            //custom map
+            this.map.fillRect( new Vector( 3, 3 ), new Vector( 4, 4 ), Tiles.GrassHill )
+            this.map.fillRect( new Vector( 4, 4 ), new Vector( 2, 2 ), Tiles.Grass )
+            this.map.set( new Vector( 4, 3 ), Tiles.Grass )
+            this.map.set( new Vector( 5, 6 ), Tiles.Grass )
+        }
+    }
+    generateBoss() {
+        let enemies = <Unit[]> []
+        enemies.push(Game.instance.randomBoss)
+
+        let team = new Team( "Drunken Scholars", enemies, true, 1 )
+        return team
+    }
+    generateEnemies( funds: number ) {
+        let enemies = <Unit[]> []
+        funds += 1
+        let mechCost = 20
+        let cardCost = 5
+        let enemyTotal = randomCeil(funds / mechCost)
+        funds = funds - mechCost*enemyTotal
+        let bonusCardTotal = Math.floor( funds / cardCost )
+        
+        for (let i = 0; i < enemyTotal; i++) {
+            enemies.push(Game.instance.randomUnit)
+        }
+        if (enemyTotal)
+        for (let i = 0; i < bonusCardTotal; i++) {
+            let unit: Unit = enemies[randomFloor(enemies.length)]
+            let randomCard = new Card(randomCardType())
+            unit.draw.cards.push(randomCard)
+        }
+        enemies.forEach(enemy => {
+            enemy.statReset()
+        });
+        let team = new Team( "Drunken Scholars", enemies, true, 1 )
+        return team
     }
 
     playerTurn() {
@@ -107,7 +161,14 @@ export default class Match {
         let card = this.selectedCard()
         this.cardTray.deselect()
         if ( unit && card ) {
-            if ( unit.energy >= card.type.cost ) {
+            let costs = {
+                energy: card.type.cost == undefined ? 0 : card.type.cost,
+                speed: card.type.speedCost == undefined ? 0 : card.type.speedCost,
+                // health: card.type.healthCost == undefined ? 0 : card.type.healthCost,
+            }
+            let isEnoughEnergy = unit.energy >= costs.energy
+            let isEnoughSpeed = unit.speed >= costs.speed
+            if ( isEnoughEnergy && isEnoughSpeed ) {
                 let index = unit.hand.cards.indexOf( card )
                 if ( index < 0 )
                     throw new Error( "Selected card is not in selected unit's hand." )
@@ -118,11 +179,14 @@ export default class Match {
                 card.apply( unit, pos )
 
                 //Triggers Card Animtaion
-                this.cardAnim.step = 0
-                this.cardAnim.type = card?.type
-                this.cardAnim.pos = pos
+                this.animateCard(pos, card.type)
             }
         }
+    }
+    animateCard(pos: Vector, type: CardType) {
+        this.cardAnim.step = 0
+        this.cardAnim.type = type
+        this.cardAnim.pos = pos
     }
 
     getUnit( pos: Vector ) {
@@ -150,18 +214,129 @@ export default class Match {
 
     endTurn() {
         // Health ReCapped at turn start
-        console.log( "Ending turn" )
+        // console.log( "Ending turn" )
         this.teams[ this.turn ].endTurn()
         this.turn++
         this.turn %= this.teams.length
         this.teams[ this.turn ].startTurn()
-        console.log( "STEP: ", this.cardAnim.step )
+
+        this.timer += 1
+
+        if (this.playerUnits().length == 0) {
+            Game.instance.changeStage("lose")
+        }
+        if ( this.teams[ 1 ].units.length == 0 ) {
+            let game = Game.instance
+            //----GO Shopping!------
+            game.match.turn = 0
+            game.scrip += game.scripReward
+            game.changeStage("route")
+        } else {
+            // Team Selection
+            this.activeTeam().cycleUnits()
+            this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+        }
+    }
+    start() {
+        let game = Game.instance
+        
+        //----GO Fighting!------
+        this.teams[ 0 ] = game.team
+        game.team.units.forEach( unit => {
+            unit.statReset()
+        } )
+        this.map = new Grid( 15, 15 )
+        //Generate enemies to fight
+        let funds = Math.floor(game.level * 11.5)
+        this.teams[ 1 ] = this.generateEnemies(funds)
+        this.generateMap()
+        this.turn = 0
+        this.activeTeam().cycleUnits()
+        if ( this.activeTeam().selectedUnit() ) {
+            this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+        }
+        this.turn = 0
+        //Toggle!
+        game.activity = "match"
+    }
+    startBoss() {
+        let game = Game.instance
+        
+        //----GO Fighting!------
+        this.teams[ 0 ] = game.team
+        game.team.units.forEach( unit => {
+            unit.statReset()
+        } )
+        this.map = new Grid( 15, 15 )
+        //Generate enemies to fight
+        this.teams[ 1 ] = this.generateBoss()
+        this.generateMap()
+        this.turn = 0
+        this.activeTeam().cycleUnits()
+        if ( this.activeTeam().selectedUnit() ) {
+            this.moveCamToUnit( this.activeTeam().selectedUnit()! )
+        }
+        this.turn = 0
+        //Toggle!
+        game.activity = "match"
+    }
+    onMousedown( ev: MouseEvent ) {
+        let game = Game.instance
+        let button = ev.button
+        let leftClick = button == 0
+        let middleClick = button == 1
+        let rightClick = button == 2
+        if ( leftClick || middleClick ) {
+            let cursor = game.input.cursor
+            let node = Scene.pickNode( this.scene, cursor )
+            let worldClicked = node == this.scene
+            let nothingClicked = node == undefined
+            let unitSelected = this.activeTeam().selectedUnit() !== undefined
+            let isMovingUnit = unitSelected && !this.isPickingCard()
+            let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || game.input.keys.get( "shift" )
+            if ( canLeftClickDrag || middleClick )
+                this.camera.startDragging()
+        } else if ( rightClick ) {
+            this.goBack()
+        }
+    }
+    onMouseup( ev: MouseEvent ) {
+        this.camera.stopDragging()
+        console.log(ev)
+    }
+    onWheel( ev: WheelEvent ) {
+        this.camera.onWheel( ev )
+    }
+
+    onKeyup( ev: KeyboardEvent ) {
+        this.camera.onKeyup( ev )
+        if (Game.instance.activity == "match") {
+            if (this.playerTurn()) {
+                if ( ev.key == "Tab" ) {
+                    this.activeTeam().cycleUnits()
+                }
+                if ( ev.key == "Escape" ) {
+                    this.goBack()
+                }
+                if ( ev.key == "Enter" ) {
+                    // console.log("logging enter!")
+                    this.endTurn()
+                }
+            }
+        }
     }
 
     update() {
+        this.camera.update()
         this.teams.forEach( team => {
             team.update()
         } )
+
+        //Match exit
+        if (this.teams[0].length == 0 || this.teams[1].length == 0) {
+            this.endTurn()
+        }
+
         if ( this.activeTeam().selectedUnit() ) {
             this.cardTray.update( this.activeTeam().selectedUnit()! )
         }
@@ -172,6 +347,27 @@ export default class Match {
                 this.cardAnim.step += rate
             }
         }
+
+        if ( !this.playerTurn() ) {
+            let AI = this.ai
+            AI.update()
+            if ( AI.startTime == undefined ) {
+                AI.think( this.activeTeam() )
+            }
+            if ( AI.chodiness >= AI.maxChodiness ) {
+                if ( this.activeTeam().selectedUnitIndex >= this.activeTeam().units.length - 1 ) {
+                    this.endTurn()
+                    this.activeTeam().cycleUnits()
+                    if ( this.playerUnits.length > 0 )
+                        this.moveCamToUnit( this.selectedUnit()! )
+                    AI.reset()
+                } else {
+                    this.activeTeam().cycleUnits()
+                    this.moveCamToUnit( this.selectedUnit()! )
+                    AI.reset()
+                }
+            }
+        }
     }
 
     // View
@@ -180,7 +376,7 @@ export default class Match {
         let game = Game.instance
         let tileSize = Match.tileSize
 
-        if ( game.camera.zoom * Game.uiScale <= 1.5 ) {
+        if ( this.camera.zoom * Game.uiScale <= 1.5 ) {
             g.c.imageSmoothingEnabled = true
             g.c.imageSmoothingQuality = "low"
         }
@@ -192,7 +388,13 @@ export default class Match {
         let selectedUnit = this.activeTeam().selectedUnit()
         let cursorWalkable = this.isWalkable( cursor )
 
+        // let elevation = this.map.getElevation( cursor )
+        // console.log( elevation )
+
         //  Draw unit path
+        
+        // TODO: Switch to new path rendering post merge.
+        /*
         // if ( this.playerTurn() && this.hasFocus() && selectedUnit != undefined ) {
         if ( this.playerTurn() && selectedUnit != undefined ) {
             // debugger
@@ -215,6 +417,60 @@ export default class Match {
                     let color = `rgba(${ bright }, 255, ${ bright }, ${ flash( 300, -energy * .75, 0.3, 0.5 ) })`
                     g.drawRect( renderPos, dims, color )
                     g.strokeRect( renderPos, dims, color )
+        */
+        
+        if ( this.playerTurn() ) {
+            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 && selectedUnit.speed > 0) {
+                let walkableTiles = targetsWithinRange( selectedUnit.pos, 0, selectedUnit.speed )
+                walkableTiles.forEach( tile => {
+                    let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed )
+                    if ( path && path.length <= selectedUnit!.speed ) {
+
+                        g.drawRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
+                        g.strokeRect( tile.scale( tileSize ), new Vector( tileSize, tileSize ), "rgba(0, 0, 255, 0.1)" )
+                    }
+                } )
+                let path = findPath( this, selectedUnit.pos, cursor, 100 )
+                if ( path && selectedUnit.canMove() ) {
+                    let pathLength = path.length
+                    let walkableLength = Math.min( path.length, selectedUnit.speed )
+                    let trimmedSteps = path.slice( walkableLength - 1 )
+                    let walkablePath = path.slice( 0, walkableLength )
+                    path.length = walkableLength
+                    let radius = 3
+                    g.c.save()
+                    {
+                        // const walkableColor = "rgb(30, 125, 30)", unwalkableColor = "#c9c5b955"
+                        const walkableColor = "rgb(0, 240, 0)", unwalkableColor = "#c9c5b955"
+                        let pathBacking = "rgb(30, 115, 30)"
+                        g.makePath( walkablePath.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                        g.c.strokeStyle = pathBacking
+                        g.c.lineWidth = radius + 2
+                        g.c.stroke()
+                        g.c.strokeStyle = walkableColor
+                        g.c.lineWidth = radius
+                        g.c.stroke()
+
+                        let pathTooLong = walkableLength != pathLength
+                        if ( pathTooLong ) {
+                            g.makePath( trimmedSteps.map( x => x.add( Vector.one.scale( 0.5 ) ).scale( tileSize ) ) )
+                            g.c.strokeStyle = unwalkableColor
+                            g.c.lineWidth = radius
+                            g.c.stroke()
+                            g.c.setLineDash( [] )
+
+                            g.c.beginPath()
+                            let endpoint = cursor.add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                            g.c.fillStyle = unwalkableColor
+                            g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                        }
+
+                        g.c.beginPath()
+                        let endpoint = path[ path.length - 1 ].add( Vector.one.scale( 0.5 ) ).scale( tileSize )
+                        g.c.fillStyle = walkableColor
+                        g.c.fillRect( endpoint.x - radius, endpoint.y - radius, radius * 2, radius * 2 )
+                    }
+                    g.c.restore()
                 }
 
                 let path = findPath( this, selectedUnit.pos, cursor, 100 )
@@ -328,7 +584,7 @@ export default class Match {
 
         this.scene = Scene.node( {
             description: "match",
-            localMatrix: game.cameraTransform(),
+            localMatrix: this.cameraTransform(),
             rect: { width: width * tileSize, height: height * tileSize, },
             onClick: ( node, pos: Vector ) => {
                 if ( this.playerTurn() ) {
@@ -356,7 +612,8 @@ export default class Match {
             onRender: () => this.render(),
         } )
     }
-
+    
+// <<<<<<< kody-summer-2022
     cardTargetNode( pos, card ) {
         let game = Game.instance
         let g = Graphics.instance
@@ -405,5 +662,11 @@ export default class Match {
                 }
             }
         } )
+// =======
+    cameraTransform() {
+        let game = Game.instance
+        let screenDims = game.screenDimensions()
+        return this.camera.worldToCamera( screenDims.x, screenDims.y )
+// >>>>>>> merge-kody-summer-2022
     }
 }

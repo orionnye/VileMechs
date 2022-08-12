@@ -99,14 +99,14 @@ export default class CardTray {
         let offset = new Vector( 0.5, 0.5 )
         let screenSize = Game.instance.screenDimensions()
         let stride = offset.x, width = stride * handLength
-        let drawBase = new Vector( 20 - width, screenSize.y - Card.dimensions.y / 1.2 )
+        let drawBase = new Vector( 0, screenSize.y - Card.dimensions.y / 2.5 )
         return drawBase.addXY( cardIndex * offset.x, cardIndex * offset.y )
     }
     discardPosition( handLength: number, cardIndex: number ) {
         let offset = new Vector( 0.5, 0.5 )
         let screenSize = Game.instance.screenDimensions()
         let stride = offset.x, width = stride * handLength
-        let discardBase = new Vector( screenSize.x - Card.dimensions.x - 10 - width, screenSize.y - Card.dimensions.y / 1.2 )
+        let discardBase = new Vector( screenSize.x - Card.dimensions.x - width, screenSize.y - Card.dimensions.y / 2.5 )
         return discardBase.addXY( cardIndex * offset.x, cardIndex * offset.y )
     }
 
@@ -156,14 +156,16 @@ export default class CardTray {
             onRender: () => {
                 card.render()
                 if ( i == draw.length - 1 ) {
-                    g.c.save()
-                    g.c.scale( -1, 1 )
-                    g.setFont( 25, "Times" )
-                    let pos = new Vector( -Card.dimensions.x / 4 * 3, Card.dimensions.y / 5 )
-                    g.drawRect( pos.add( new Vector( -7, -7 ) ), new Vector( 38, 38 ), "grey" )
-                    g.drawRect( pos.add( new Vector( -5, -5 ) ), new Vector( 34, 34 ), "white" )
-                    g.drawText( pos, draw.length.toString(), "black" )
-                    g.c.restore()
+                    //this is where we should draw the final count of cards in the drawPile
+
+                    // g.c.save()
+                    // g.c.scale( -1, 1 )
+                    // g.setFont( 25, "Times" )
+                    // let pos = new Vector( -Card.dimensions.x / 4 * 3, Card.dimensions.y / 5 )
+                    // g.drawRect( pos.add( new Vector( -7, -7 ) ), new Vector( 38, 38 ), "grey" )
+                    // g.drawRect( pos.add( new Vector( -5, -5 ) ), new Vector( 34, 34 ), "white" )
+                    // g.drawText( pos, draw.length.toString(), "black" )
+                    // g.c.restore()
                 }
             }
         } ) )
@@ -174,14 +176,16 @@ export default class CardTray {
             onRender: () => {
                 card.render()
                 if ( i == discard.length - 1 ) {
-                    g.c.save()
-                    g.c.scale( -1, 1 )
-                    g.setFont( 25, "Times" )
-                    let pos = new Vector( -Card.dimensions.x / 4 * 3, Card.dimensions.y / 5 )
-                    g.drawRect( pos.add( new Vector( -7, -7 ) ), new Vector( 38, 38 ), "grey" )
-                    g.drawRect( pos.add( new Vector( -5, -5 ) ), new Vector( 34, 34 ), "black" )
-                    g.drawText( pos, discard.length.toString(), "white" )
-                    g.c.restore()
+                    //this is where we need to display total cards in the discard
+
+                    // g.c.save()
+                    // g.c.scale( -1, 1 )
+                    // g.setFont( 25, "Times" )
+                    // let pos = new Vector( -Card.dimensions.x / 4 * 3, Card.dimensions.y / 5 )
+                    // g.drawRect( pos.add( new Vector( -7, -7 ) ), new Vector( 38, 38 ), "grey" )
+                    // g.drawRect( pos.add( new Vector( -5, -5 ) ), new Vector( 34, 34 ), "black" )
+                    // g.drawText( pos, discard.length.toString(), "white" )
+                    // g.c.restore()
                 }
             }
         } ) )

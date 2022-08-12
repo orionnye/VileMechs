@@ -695,17 +695,10 @@ const names = `
     Leif
     Leif
     Leif
-    Leif
-    Leif
-    Kaden
-    Kaden
-    Kaden
     Kaden
     Kaden
     Kaden
     Chase
-    Chase
-    Chase
     Orion
     Orion
     Orion
@@ -718,16 +711,6 @@ const names = `
     Kody
     Kody
     Kody
-    Kody
-    Kody
-    Kody
-    Kody
-    Kody
-    Jaycob
-    Jaycob
-    Jaycob
-    Jaycob
-    Jaycob
     Jaycob
     Jaycob
     Jaycob

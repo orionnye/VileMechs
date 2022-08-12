@@ -11,119 +11,212 @@ import Clock from "./common/Clock"
 import Unit from "./gameobjects/mech/Unit"
 import content from "*.css"
 import Team from "./gameobjects/mech/Team"
-import { Chrome, Earth, Flesh, Treant } from "./gameobjects/mech/RigTypes"
-import Store from "./stages/Store"
+import { Bulwarkus_Johnson, Chrome, Earth, Flesh, Gelraug, Jelly, Treant } from "./gameobjects/mech/RigTypes"
+import CardStore from "./stages/CardStore"
 import Grid from "./gameobjects/map/Grid"
 import { randomFloor } from "./math/math"
+import Title from "./stages/Title"
+import Origin from "./stages/Origin"
+import Lose from "./stages/Lose"
+import DealerShip from "./stages/DealerShip"
+import PawnShop from "./stages/PawnShop"
+import Route from "./stages/route/Route"
+
 const vacationurl = require( './www/audio/Vacation.mp3' )
 let vacation = new Audio( vacationurl )
 const knockurl = require( './www/audio/Knock.mp3' )
 let knock = new Audio( knockurl )
+
+// activity 
+export type Activity = 
+    //mid-screens
+    "title" |
+    "origin" |
+    "lose" |
+    //stat testing
+    "match" |
+    //stat management
+    "shop" |
+    "dealerShip" |
+    "pawnShop" |
+    //test plans
+    "route"
 
 export default class Game {
     static instance: Game
     static uiScale = 3
     static camVelocityDecay = 0.85
     graphics = new Graphics()
-    camera = new Camera()
     input = new Input()
     scene: SceneNode = { localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ) }
     mouseOverData: PickingResult = { node: undefined, point: new Vector( 0, 0 ) }
-    match: Match
-    level: number = 1
+    
+    //Scene List (paired with their relevant stats)
+    title: Title
+    origin: Origin
+    lose: Lose
 
-    store: Store
+    store: CardStore
+    dealerShip: DealerShip
+    pawnShop: PawnShop
+
+    route: Route
+    
     scrip: number
+    scripRewards : number[]
 
+    match: Match
+    level: number = 0
+    
+    // units : Unit[]
+    team: Team
+    unitMax : number = 3
+
+
+    //Dev stats
     showSceneDebug = false
     showFPS = false
     clock = new Clock()
 
     isPlayerDone = false
-    // shopping = true
-    shopping = false
+    activity: Activity = "title"
 
     constructor() {
-        this.store = new Store()
-        this.store.reset()
-        let playerTeam = new Team( "Choden Warriors", "white", false, 0 )
-        this.scrip = 50
-        playerTeam.units = [
-            new Chrome( new Vector( 1, 0 ), 0 ),
-            new Flesh( new Vector( 1, 0 ), 0 ),
-            new Treant( new Vector( 1, 0 ), 0 ),
-            new Earth( new Vector( 2, 0 ), 0 )
-        ]
-        this.match = new Match( playerTeam )
         Game.instance = this
+
+        //Transition Stages
+        this.title = new Title()
+        this.lose = new Lose()
+        this.origin = new Origin()
+        this.route = new Route()
+
+        //Shop Stages
+        this.store = new CardStore()
+        this.store.reset()
+
+        this.dealerShip = new DealerShip()
+        this.dealerShip.reset()
+        this.pawnShop = new PawnShop()
+        this.pawnShop.reset()
+
+        //Store Init
+        this.scrip = 20
+        this.scripRewards = [50, 40, 30, 20, 10]
+        
+        //player team Init
+        let units = [
+            new Earth(new Vector(0, 0), 0),
+            // new Chrome(new Vector(0, 0), 0),
+            // new Treant(new Vector(0, 0), 0),
+            // new Flesh(new Vector(0, 0), 0),
+        ]
+        
+        this.team = new Team("Choden Warriors", units, false, 0)
+        //Match Init
+        this.match = new Match( this.team )
+        if (this.activity == "match") {
+            this.match.start()
+        }
+
         window.addEventListener( "click", ev => this.onClick( ev ) )
-        window.addEventListener( "mousedown", ev => this.onMousedown( ev ) )
-        window.addEventListener( "mouseup", ev => this.onMouseup( ev ) )
-        window.addEventListener( "wheel", ev => this.onWheel( ev ) )
         window.addEventListener( "resize", ev => this.graphics.onResize() )
         window.addEventListener( "keyup", ev => this.onKeyup( ev ) )
         window.addEventListener( "keydown", ev => this.onKeydown( ev ) )
-        this.match.activeTeam().cycleUnits()
-        if ( this.match.activeTeam().selectedUnit() !== undefined ) {
-            this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-        }
     }
-    generateEnemies( amount: number ) {
-        this.match.teams[ 1 ] = new Team( "Drunken Scholars", "red", true, 1 )
+
+    // get team() {
+    //     let playerTeam = new Team("Choden Warriors", this.units, false, 0)
+    //     // playerTeam.units = this.units
+    //     return playerTeam
+    // }
+    get randomUnit() {
         let mechList = [
             new Chrome( new Vector( 0, 0 ), 1 ),
-            new Treant( new Vector( 0, 0 ), 1 ),
-            new Flesh( new Vector( 0, 0 ), 1 ),
-            new Earth( new Vector( 0, 0 ), 1 ),
+            new Earth( new Vector( 0, 0 ), 1 )
         ]
-        // console.log(mechList[0])
-        for ( let i = 0; i < amount; i++ ) {
-            let random = randomFloor( mechList.length )
-            this.match.teams[ 1 ].units.push( mechList[ random ] )
-            mechList = [
-                new Chrome( new Vector( 0, 0 ), 1 ),
-                new Treant( new Vector( 0, 0 ), 1 ),
-                new Flesh( new Vector( 0, 0 ), 1 ),
-                new Earth( new Vector( 0, 0 ), 1 ),
-            ]
-        }
+        let random = randomFloor( mechList.length )
+        return mechList[ random ]
+    }
+    get randomBoss() {
+        let mechList = [
+            new Gelraug( new Vector( 0, 0 ), 1 ),
+            new Bulwarkus_Johnson( new Vector( 0, 0 ), 1 )
+        ]
+        let random = randomFloor( mechList.length )
+        return mechList[ random ]
+    }
+    // get randomStage() {
+    //     let options: Activity[] = [
+    //         "match",
+    //         "shop",
+    //         "pawnShop",
+    //         "dealerShip"
+    //     ]
+    //     let randomPick = options[randomFloor(options.length)]
+    //     return randomPick
+    // }
+    get randomShop() {
+        let options: Activity[] = [
+            "shop",
+            "pawnShop",
+            "dealerShip"
+        ]
+        let randomPick = options[randomFloor(options.length)]
+        return randomPick
+    }
+    reset() {
+        this.level = 1
+        this.scrip = 20
+    }
+    
+    changeStage( stage: Activity ) {
+        let delay = 100
+        window.setTimeout(() => {
+            switch (stage) {
+                case "match": {
+                    this.level += 1
+                    if (this.level >= this.route.length) {
+                        this.match.startBoss()
+                    } else {
+                        this.match.start()
+                    }
+                }
+                case "shop": {
+                    this.store.reset()
+                    this.activity = stage
+                }
+                case "route": {
+                    let peak = 0
+                    this.route.options.forEach(option => {
+                        if (option.traverse().length >= peak) {
+                            peak = option.traverse().length
+                        }
+                    })
+                    if (this.level > peak) {
+                        this.route.reset(6)
+                    }
+                }
+                default: {
+                    this.activity = stage
+                }
+            }
+        }, delay)
     }
     //----------------MODEL------------------
-    moveCamToUnit( unit: Unit ) { this.camera.setCameraTarget( unit.pos.addXY( .5, .5 ).scale( Match.tileSize ) ) }
-    moveCamToFirstUnit() {
-        let units = this.match.activeTeam().units
-        if ( units.length == 0 ) return
-        this.moveCamToUnit( units[ 0 ] )
+    get scripReward() {
+        let rewardIndex = this.match.timer >= this.scripRewards.length ? this.scripRewards.length - 1 : this.match.timer
+        return this.scripRewards[ rewardIndex ]
     }
     //----------------------UPDATE----------------------------
     update() {
         let { match } = this
         this.clock.nextFrame()
 
-        this.match.update()
-        //toggle to determine if AI should be feeding input
-        if ( !this.match.playerTurn() ) {
-            let AI = this.match.ai
-            AI.update()
-            if ( AI.startTime == undefined ) {
-                AI.think( this.match.activeTeam() )
-            }
-            if ( AI.chodiness >= AI.maxChodiness ) {
-                if ( match.activeTeam().selectedUnitIndex >= match.activeTeam().units.length - 1 ) {
-                    match.endTurn()
-                    match.activeTeam().cycleUnits()
-                    if ( match.playerUnits.length > 0 )
-                        this.moveCamToUnit( match.selectedUnit()! )
-                    AI.reset()
-                } else {
-                    match.activeTeam().cycleUnits()
-                    this.moveCamToUnit( match.selectedUnit()! )
-                    AI.reset()
-                }
-            }
+        if (this.activity == "match") {
+            this.match.update()
         }
+
         this.makeSceneNode()
-        this.camera.update()
         //user Input Display
         this.mouseOverData = Scene.pick( this.scene, this.input.cursor )
         let { node, point } = this.mouseOverData
@@ -140,82 +233,13 @@ export default class Game {
                 node.onClick( node, point )
         }
     }
-    onMousedown( ev: MouseEvent ) {
-        let button = ev.button
-        let leftClick = button == 0
-        let middleClick = button == 1
-        let rightClick = button == 2
-        if ( leftClick || middleClick ) {
-            let cursor = this.input.cursor
-            let node = Scene.pickNode( this.scene, cursor )
-            let worldClicked = node == this.match.scene
-            let nothingClicked = node == undefined
-            let unitSelected = this.match.activeTeam().selectedUnit() !== undefined
-            let isMovingUnit = unitSelected && !this.match.isPickingCard()
-            let canLeftClickDrag = ( ( worldClicked || nothingClicked ) && !isMovingUnit ) || this.input.keys.get( "shift" )
-            if ( canLeftClickDrag || middleClick )
-                this.camera.startDragging()
-        } else if ( rightClick ) {
-            this.match.goBack()
-        }
-    }
-    onMouseup( ev: MouseEvent ) {
-        this.camera.stopDragging()
-    }
-    onWheel( ev: WheelEvent ) {
-        this.camera.onWheel( ev )
-    }
+    
     onKeyup( ev: KeyboardEvent ) {
-        this.camera.onKeyup( ev )
-        if ( ev.key == "`" )
+        if ( ev.key == "`" ) {
             this.showSceneDebug = !this.showSceneDebug
-        if ( ev.key == "," )
+        }
+        if ( ev.key == "," ) {
             this.showFPS = !this.showFPS
-        if ( ev.key == "Escape" ) {
-            if ( this.match.playerTurn() )
-                this.match.goBack()
-        }
-        if ( ev.key == "Tab" ) {
-            if ( this.match.playerTurn() ) {
-                this.match.activeTeam().cycleUnits()
-                if ( this.match.activeTeam().selectedUnit() !== undefined ) {
-                    this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-                }
-            }
-        }
-        if ( ev.key == "Enter" ) {
-            //stops you from skipping enemies turn
-            if ( this.match.playerTurn() ) {
-                this.match.endTurn()
-                if ( this.match.teams[ 1 ].units.length == 0 && !this.shopping ) {
-                    //----GO Shopping!------
-                    this.store.reset()
-                    this.match.turn = 0
-                    this.shopping = true
-                    this.scrip += 10
-                } else if ( this.shopping ) {
-                    //----GO Fighting!------
-                    this.match.teams[ 0 ].units.forEach( unit => {
-                        unit.statReset()
-                    } );
-                    this.match.map = new Grid( 20, 20 )
-                    this.match.teams[ 1 ] = new Team( "Choden Warriors", "red", true, 1 )
-                    //Generate enemies to fight
-                    this.generateEnemies( this.level )
-                    this.match.map.newMap()
-                    this.match.placeUnits()
-                    this.match.turn = 0
-                    this.shopping = false
-                    this.level += 1
-                }
-                //Team Selection
-                this.match.activeTeam().cycleUnits()
-                this.moveCamToUnit( this.match.activeTeam().selectedUnit()! )
-                //Enemy Turn?
-                // if (!this.match.playerTurn()) {
-                //     this.match.ai.think(this.match.activeTeam())
-                // }
-            }
         }
     }
     onKeydown( ev: KeyboardEvent ) {
@@ -248,47 +272,77 @@ export default class Game {
     }
     makeSceneNode() {
         let g = Graphics.instance
-        let { match } = this
+        let { match, store } = this
         let { unitTray, cardTray } = this.match
         let selectedUnit = this.match.activeTeam().selectedUnit()
         let center = Game.instance.screenCenter()
         this.scene = Scene.node( {
             localMatrix: Matrix.scale( Game.uiScale, Game.uiScale ),
-            // onRenderPost: () => {
-            //     if ( !this.shopping ) {
-            //         //TEAM NAME DISPLAY
-            //         let team = this.match.activeTeam()
-            //         g.setFont( 6, "pixel" )
-            //         g.drawTextBox( new Vector( center.x, 0 ), team.name, {
-            //             textColor: team.color, boxColor: "#6969698f", alignX: TextAlignX.center
-            //         } )
-            //     }
-            // },
+            onRenderPost: () => {
+                if ( this.activity == "match" ) {
+                    //TEAM NAME DISPLAY
+                    // g.setFont( 6, "pixel" )
+                    // g.drawTextBox( new Vector( center.x, 0 ), this.match.activeTeam().name, {
+                    //     textColor: "#c2c2c2", boxColor: "#6969698f", alignX: TextAlignX.center
+                    // } )
+                    //Money / Reward for current round, and Timer
+                    g.setFont( 5, "pixel" )
+                    g.drawTextBox( new Vector( center.x/4, 0 ), `SCRIP Reward: ${ this.scripReward } `, {
+                        textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.left
+                    } )
+                    g.drawTextBox( new Vector( center.x/4, 8 ), `SCRIP: ${ this.scrip } `, {
+                        textColor: "#c2c2c2", boxColor: "rgba(200, 80, 80, 0.7)", alignX: TextAlignX.left
+                    } )
+                }
+            },
             content: () => {
-                if ( this.shopping ) {
-                    //-----------------Shopping Display-------------------
-                    this.store.makeSceneNode()
-                    unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
-                } else {
-                    //-----------------Match Display-----------------------
-                    match.makeSceneNode()
-                    //displays unitTray forward for first player
-                    g.c.restore()
-                    if ( this.match.turn == 0 ) {
-                        unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
-                    } else {
-                        //display Unit Tray backwords for second player
-                        unitTray.makeSceneNode( new Vector( this.screenDimensions().x, 0 ), match.activeTeam(), true )
-                    }
-                    if ( selectedUnit )
-                        cardTray.makeSceneNode( selectedUnit )
+                switch (this.activity) {
+                    case "shop":
+                        //-----------------Card Shop Display-------------------
+                        store.makeSceneNode()
+                        break
+                    case "dealerShip":
+                        //-----------------Mech Shop Display-------------------
+                        this.dealerShip.makeSceneNode()
+                        break
+                    case "pawnShop":
+                        //-----------------Pawn Shop Display-------------------
+                        this.pawnShop.makeSceneNode()
+                        // unitTray.makeSceneNode( new Vector( 0, 0 ), this.team )
+                        break
+                    case "match" || "boss":
+                        //-----------------Match Display-----------------------
+                        match.makeSceneNode()
+                        g.c.restore()
+                        if ( this.match.turn == 0 ) {
+                            unitTray.makeSceneNode( new Vector( 0, 0 ), match.teams[ 0 ] )
+                        } else {
+                            //display Unit Tray backwords for second player
+                            unitTray.makeSceneNode( new Vector( this.screenDimensions().x, 0 ), match.activeTeam(), true )
+                        }
+                        if ( selectedUnit ) {
+                            cardTray.makeSceneNode( selectedUnit )
+                        }
+                        break
+                    case "title":
+                        //Title
+                        this.title.makeSceneNode()
+                        break 
+                    case "origin":
+                        //Origin
+                        this.origin.makeSceneNode()
+                        break 
+                    case "lose":
+                        //Lose
+                        this.lose.makeSceneNode()
+                        break 
+                    case "route":
+                        //Pathfinding to the next match
+                        this.route.makeSceneNode()
+                        break 
                 }
             }
         } )
-    }
-    cameraTransform() {
-        let screenDims = this.screenDimensions()
-        return this.camera.worldToCamera( screenDims.x, screenDims.y )
     }
     screenDimensions() { return this.graphics.size.scale( 1 / Game.uiScale ) }
     screenCenter() { return this.graphics.size.scale( 0.5 / Game.uiScale ) }

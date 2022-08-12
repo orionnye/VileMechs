@@ -7,6 +7,7 @@ export interface SceneNode {
     children?: Iterable<SceneNode>
     parent?: SceneNode
     rect?: Rect
+    scalar?: number
     // For adding child nodes.
     content?: () => void
     // Events

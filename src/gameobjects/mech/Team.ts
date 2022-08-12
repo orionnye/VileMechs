@@ -10,29 +10,33 @@ import Unit from "./Unit";
 
 export default class Team {
     selectedUnitIndex = -1
-    hasUnitSelected = false
 
     name: string
     color: string
     flipUnits: boolean
 
-    units: Unit[]
+    units: Unit[] = []
     playable = true
 
     scene: SceneNode = { localMatrix: Matrix.identity }
 
-    constructor( name: string, color: string, flip: boolean = false, teamNumber: number ) {
+    // TODO: Update references to respect new signature.
+    constructor( name: string, color: string, units: Unit[], flip: boolean = false, teamNumber: number ) {
+        this.units = units
         this.name = name
         this.color = color
         this.flipUnits = flip
-
-        this.units = []
+    }
+    get length() {
+        return this.units.length
+    }
+    get hasUnitSelected() {
+        return this.selectedUnitIndex > -1
     }
     //----DATA ACCESS----
     setUnitIndex( index: number ) {
         if ( index != this.selectedUnitIndex )
             Game.instance.match.cardTray.deselect()
-        this.hasUnitSelected = index > -1
         this.selectedUnitIndex = index
         // this.onSelectUnit()
     }
@@ -44,10 +48,12 @@ export default class Team {
     }
 
     toggleSelectIndex( index: number ) {
-        if ( this.hasUnitSelected && index == this.selectedUnitIndex )
+        if ( this.hasUnitSelected && index == this.selectedUnitIndex ) {
             this.deselect()
-        else
+            Game.instance.match.cardTray.deselect()
+        } else {
             this.setUnitIndex( index )
+        }
     }
 
     toggleSelectUnit( unit: Unit ) {
@@ -55,15 +61,12 @@ export default class Team {
         this.toggleSelectIndex( index )
     }
 
-    numberOfUnits() {
-        return this.units.length
-    }
-
     cycleUnits() {
-        if ( !this.hasUnitSelected )
+        if ( !this.hasUnitSelected ) {
             this.setUnitIndex( 0 )
-        else
-            this.setUnitIndex( ( this.selectedUnitIndex + 1 ) % this.numberOfUnits() )
+        } else {
+            this.setUnitIndex( ( this.selectedUnitIndex + 1 ) % this.length )
+        }
     }
 
     selectUnit( unit: Unit ) {
