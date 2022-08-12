@@ -171,7 +171,6 @@ export default class Route {
                             },
                             onClick: valid ? () => {
                                 Game.instance.changeStage(stageStats.id)
-                                // console.log("Level:", game.level, "i:", i)
                             } : () => {}
                         })
                     })

@@ -66,7 +66,7 @@ export default class Game {
     scripRewards : number[]
 
     match: Match
-    level: number = 6
+    level: number = 0
     
     // units : Unit[]
     team: Team
@@ -173,6 +173,7 @@ export default class Game {
         window.setTimeout(() => {
             switch (stage) {
                 case "match": {
+                    this.level += 1
                     if (this.level >= this.route.length) {
                         this.match.startBoss()
                     } else {
@@ -191,7 +192,7 @@ export default class Game {
                         }
                     })
                     if (this.level > peak) {
-                        this.route.reset(4)
+                        this.route.reset(6)
                     }
                 }
                 default: {

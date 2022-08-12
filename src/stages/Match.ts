@@ -252,7 +252,6 @@ export default class Match {
             this.moveCamToUnit( this.activeTeam().selectedUnit()! )
         }
         this.turn = 0
-        game.level += 1
         //Toggle!
         game.activity = "match"
     }
@@ -274,7 +273,6 @@ export default class Match {
             this.moveCamToUnit( this.activeTeam().selectedUnit()! )
         }
         this.turn = 0
-        game.level += 1
         //Toggle!
         game.activity = "match"
     }
