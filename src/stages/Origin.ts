@@ -8,7 +8,7 @@ import Scene, { PickingResult, SceneNode } from "../common/Scene"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { Deck } from "../gameobjects/card/Deck"
 import Card from "../gameobjects/card/Card"
-import { Chrome, Earth, Flesh, Gelraug, Treant } from "../gameobjects/mech/RigTypes"
+import { Bulwarkus_Johnson, Chrome, Earth, Flesh, Gelraug, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
 
 
@@ -163,9 +163,9 @@ export default class Origin {
                         selecting = "gel"
                     },
                     onClick: () => {
-                        console.log("Begin with Earth mech")
+                        console.log("Begin with Boss mech")
 
-                        Game.instance.team.units = [new Gelraug(new Vector(0, 0), 0)]
+                        Game.instance.team.units = [new Bulwarkus_Johnson(new Vector(0, 0), 0)]
                         Game.instance.match.start()
                     }
                 }),

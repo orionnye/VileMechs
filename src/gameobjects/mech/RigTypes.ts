@@ -9,6 +9,10 @@ const chrome = getImg( require( "../../www/images/units/ChromeMech2.png" ) )
 const flesh = getImg( require( "../../www/images/units/flesh3.png" ) )
 const jelly = getImg( require( "../../www/images/units/GellyMech.png" ) )
 
+// Start of boss rig types
+
+
+// Gelraug is fast and stabby, but has a low overall hp. 
 
 export class Gelraug extends Unit {
     constructor( pos, teamNumber ) {
@@ -34,6 +38,43 @@ export class Gelraug extends Unit {
         this.statReset()
     }
 }
+
+//Bulwarkus_Johnson is tanky and tosses loads of mountains but is slow as heck
+
+export class Bulwarkus_Johnson  extends Unit {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+        this.sprite = earth
+
+        // Bulwarkus_Johnson Stats
+        this.maxEnergy += 1;
+        this.energy = this.maxEnergy
+        this.maxSpeed = 3
+        this.speed = this.maxSpeed
+        this.maxHealth = 10
+        this.health = this.maxHealth
+        
+        this.draw.cards = []
+        
+        this.drawSpeed = 6
+
+        //custom cards
+        this.draw.add( CardTypes.plating, 2 )
+
+        this.draw.add( CardTypes.gorge, 1 )
+        this.draw.add( CardTypes.bouldertoss, 2 )
+        this.draw.add( CardTypes.plateShift, 1 )
+        this.draw.add( CardTypes.fuel, 4)
+
+        this.cardCycle()
+        this.statReset()
+
+        this.maxHealth = 10
+        this.health = this.maxHealth
+    }
+}
+
+// End of boss rig types
 
 export class Chrome extends Unit {
     constructor( pos, teamNumber ) {
