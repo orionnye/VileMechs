@@ -9,6 +9,32 @@ const chrome = getImg( require( "../../www/images/units/ChromeMech2.png" ) )
 const flesh = getImg( require( "../../www/images/units/flesh3.png" ) )
 const jelly = getImg( require( "../../www/images/units/GellyMech.png" ) )
 
+
+export class Gelraug extends Unit {
+    constructor( pos, teamNumber ) {
+        super( pos, teamNumber )
+        this.sprite = flesh
+
+        // Gelraug Stats
+        this.maxEnergy += 1;
+        this.energy = this.maxEnergy
+        this.maxSpeed = 5
+        this.speed = this.maxSpeed
+        this.maxHealth = 7
+        this.health = this.maxHealth
+
+        this.draw.cards = []
+        this.draw.add( CardTypes.claw, 3 )
+        this.draw.add( CardTypes.tentacle, 2 )
+        this.draw.add( CardTypes.frenzy, 2)
+        this.draw.add( CardTypes.leap,1)
+        // this.draw.add( CardTypes.acid, 2)
+
+        this.cardCycle()
+        this.statReset()
+    }
+}
+
 export class Chrome extends Unit {
     constructor( pos, teamNumber ) {
         super( pos, teamNumber )

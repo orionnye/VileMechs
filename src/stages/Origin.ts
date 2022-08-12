@@ -8,7 +8,7 @@ import Scene, { PickingResult, SceneNode } from "../common/Scene"
 import UnitTray from "../gameobjects/ui/UnitTray"
 import { Deck } from "../gameobjects/card/Deck"
 import Card from "../gameobjects/card/Card"
-import { Chrome, Earth, Flesh, Treant } from "../gameobjects/mech/RigTypes"
+import { Chrome, Earth, Flesh, Gelraug, Treant } from "../gameobjects/mech/RigTypes"
 import Unit from "../gameobjects/mech/Unit"
 
 
@@ -33,7 +33,7 @@ export default class Origin {
 
     constructor() {
         this.image = Backgrounds[ Math.floor( Math.random() * 4 ) ]
-        this.options = [ new Earth( new Vector(0, 0), 0 ), new Chrome( new Vector(0, 0), 0 ) ]
+        this.options = [ new Earth( new Vector(0, 0), 0 ), new Chrome( new Vector(0, 0), 0 ), new Gelraug( new Vector(0,0), 0) ]
     }
 
     makeSceneNode() {
@@ -68,11 +68,15 @@ export default class Origin {
                 const buffer = 5
                 let earth = {
                     dim: new Vector(100, 100),
-                    pos: new Vector(screenDims.x/4- buffer, screenDims.y/4*2),
+                    pos: new Vector(screenDims.x/5- buffer, screenDims.y/4*2),
                 }
                 let chrome = {
                     dim: new Vector(100, 100),
-                    pos: new Vector(screenDims.x/4*2+ buffer, screenDims.y/4*2),
+                    pos: new Vector(screenDims.x/4*1.85+ buffer, screenDims.y/4*2),
+                }
+                let gel = {
+                    dim: new Vector(100, 100),
+                    pos: new Vector(screenDims.x/4*3+ buffer, screenDims.y/4*2),
                 }
                 let selecting = <string> ""
                 Scene.node( {
@@ -117,6 +121,51 @@ export default class Origin {
                         console.log("Begin with Earth mech")
 
                         Game.instance.team.units = [new Earth(new Vector(0, 0), 0)]
+                        Game.instance.match.start()
+                    }
+                }),
+                Scene.node( {
+                    description: "Select a Boss Mech backstory",
+                    localMatrix: Matrix.identity.vTranslate(gel.pos),
+                    rect: { width: earth.dim.x, height: earth.dim.y },
+                    
+                    onRender: () => {
+                        g.c.imageSmoothingEnabled = false
+                        
+                        let mech = this.options[2]
+                        let textColor = "rgb(153, 51, 0)"
+                        //background
+                        g.drawRect(new Vector(0, 0), earth.dim, "rgb(255,102,0)")
+
+                        //mech render
+                        g.c.save()
+                        g.c.translate(5, 0)
+                        g.c.scale(1.5, 1.5)
+                        mech.render()
+                        g.c.restore()
+
+                        //header
+                        g.setFont(12, "Pixel2")
+                        g.drawText(new Vector(5, 50), "Bossu Inc:", textColor)
+                        //description
+                        g.setFont(5, "Pixel2")
+                        g.drawText(new Vector(7, 65), "Field boss looking ", textColor)
+                        g.drawText(new Vector(7, 70), "to improve their fight", textColor)
+                        //gameplay description
+                        g.drawText(new Vector(7, 80), "Largely for testing purposes", textColor)
+
+                        //highlight on hover
+                        if ( selecting == "gel" ) {
+                            g.strokeRect(new Vector(0, 0), chrome.dim, "rgba(255, 255, 255)")
+                        }
+                    },
+                    onHover: () => {
+                        selecting = "gel"
+                    },
+                    onClick: () => {
+                        console.log("Begin with Earth mech")
+
+                        Game.instance.team.units = [new Gelraug(new Vector(0, 0), 0)]
                         Game.instance.match.start()
                     }
                 }),
