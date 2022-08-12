@@ -12,7 +12,6 @@ import UnitTray from "../gameobjects/ui/UnitTray"
 import { CardType, randomCardType, targetsWithinRange } from "../gameobjects/card/CardTypes"
 import { Chrome, Earth, Flesh, Jelly, Treant } from "../gameobjects/mech/RigTypes"
 import AI from "../gameobjects/mech/AI"
-import Unit from "../gameobjects/mech/Unit"
 import { flash } from "../common/utils"
 import { randomCeil, randomFloor } from "../math/math"
 import { match } from "assert"
@@ -47,21 +46,21 @@ export default class Match {
         rate: 0.02,
         cap: 1,
         step: 1,
-        type: <CardType | undefined> undefined,
-        pos: <Vector> new Vector( 0, 0 )
+        type: <CardType | undefined>undefined,
+        pos: <Vector>new Vector( 0, 0 )
     }
 
     //Node
     scene: SceneNode = { localMatrix: Matrix.identity }
 
 
-//  constructor( playerTeam: Team = new Team( "Drunken Scholars", "red", false, 0 ) ) {
+    //  constructor( playerTeam: Team = new Team( "Drunken Scholars", "red", false, 0 ) ) {
     constructor( playerTeam: Team = Game.instance.team ) {
         this.map = new Grid( 15, 15 )
 
         this.teams = [
             playerTeam,
-            new Team("Drunken Scholars", [], true, 1)
+            new Team( "Drunken Scholars", "red", [], true, 1 )
             // new Team( "Thermate Embalmers", true, 2 )
         ]
 
@@ -104,34 +103,34 @@ export default class Match {
         }
     }
     generateBoss() {
-        let enemies = <Unit[]> []
-        enemies.push(Game.instance.randomBoss)
+        let enemies = <Unit[]>[]
+        enemies.push( Game.instance.randomBoss )
 
-        let team = new Team( "Drunken Scholars", enemies, true, 1 )
+        let team = new Team( "Drunken Scholars", "red", enemies, true, 1 )
         return team
     }
     generateEnemies( funds: number ) {
-        let enemies = <Unit[]> []
+        let enemies = <Unit[]>[]
         funds += 1
         let mechCost = 20
         let cardCost = 5
-        let enemyTotal = randomCeil(funds / mechCost)
-        funds = funds - mechCost*enemyTotal
+        let enemyTotal = randomCeil( funds / mechCost )
+        funds = funds - mechCost * enemyTotal
         let bonusCardTotal = Math.floor( funds / cardCost )
-        
-        for (let i = 0; i < enemyTotal; i++) {
-            enemies.push(Game.instance.randomUnit)
+
+        for ( let i = 0; i < enemyTotal; i++ ) {
+            enemies.push( Game.instance.randomUnit )
         }
-        if (enemyTotal)
-        for (let i = 0; i < bonusCardTotal; i++) {
-            let unit: Unit = enemies[randomFloor(enemies.length)]
-            let randomCard = new Card(randomCardType())
-            unit.draw.cards.push(randomCard)
-        }
-        enemies.forEach(enemy => {
+        if ( enemyTotal )
+            for ( let i = 0; i < bonusCardTotal; i++ ) {
+                let unit: Unit = enemies[ randomFloor( enemies.length ) ]
+                let randomCard = new Card( randomCardType() )
+                unit.draw.cards.push( randomCard )
+            }
+        enemies.forEach( enemy => {
             enemy.statReset()
-        });
-        let team = new Team( "Drunken Scholars", enemies, true, 1 )
+        } );
+        let team = new Team( "Drunken Scholars", "red", enemies, true, 1 )
         return team
     }
 
@@ -179,11 +178,11 @@ export default class Match {
                 card.apply( unit, pos )
 
                 //Triggers Card Animtaion
-                this.animateCard(pos, card.type)
+                this.animateCard( pos, card.type )
             }
         }
     }
-    animateCard(pos: Vector, type: CardType) {
+    animateCard( pos: Vector, type: CardType ) {
         this.cardAnim.step = 0
         this.cardAnim.type = type
         this.cardAnim.pos = pos
@@ -222,15 +221,15 @@ export default class Match {
 
         this.timer += 1
 
-        if (this.playerUnits().length == 0) {
-            Game.instance.changeStage("lose")
+        if ( this.playerUnits().length == 0 ) {
+            Game.instance.changeStage( "lose" )
         }
         if ( this.teams[ 1 ].units.length == 0 ) {
             let game = Game.instance
             //----GO Shopping!------
             game.match.turn = 0
             game.scrip += game.scripReward
-            game.changeStage("route")
+            game.changeStage( "route" )
         } else {
             // Team Selection
             this.activeTeam().cycleUnits()
@@ -239,7 +238,7 @@ export default class Match {
     }
     start() {
         let game = Game.instance
-        
+
         //----GO Fighting!------
         this.teams[ 0 ] = game.team
         game.team.units.forEach( unit => {
@@ -247,8 +246,8 @@ export default class Match {
         } )
         this.map = new Grid( 15, 15 )
         //Generate enemies to fight
-        let funds = Math.floor(game.level * 11.5)
-        this.teams[ 1 ] = this.generateEnemies(funds)
+        let funds = Math.floor( game.level * 11.5 )
+        this.teams[ 1 ] = this.generateEnemies( funds )
         this.generateMap()
         this.turn = 0
         this.activeTeam().cycleUnits()
@@ -261,7 +260,7 @@ export default class Match {
     }
     startBoss() {
         let game = Game.instance
-        
+
         //----GO Fighting!------
         this.teams[ 0 ] = game.team
         game.team.units.forEach( unit => {
@@ -302,7 +301,6 @@ export default class Match {
     }
     onMouseup( ev: MouseEvent ) {
         this.camera.stopDragging()
-        console.log(ev)
     }
     onWheel( ev: WheelEvent ) {
         this.camera.onWheel( ev )
@@ -310,8 +308,8 @@ export default class Match {
 
     onKeyup( ev: KeyboardEvent ) {
         this.camera.onKeyup( ev )
-        if (Game.instance.activity == "match") {
-            if (this.playerTurn()) {
+        if ( Game.instance.activity == "match" ) {
+            if ( this.playerTurn() ) {
                 if ( ev.key == "Tab" ) {
                     this.activeTeam().cycleUnits()
                 }
@@ -333,7 +331,7 @@ export default class Match {
         } )
 
         //Match exit
-        if (this.teams[0].length == 0 || this.teams[1].length == 0) {
+        if ( this.teams[ 0 ].length == 0 || this.teams[ 1 ].length == 0 ) {
             this.endTurn()
         }
 
@@ -392,7 +390,7 @@ export default class Match {
         // console.log( elevation )
 
         //  Draw unit path
-        
+
         // TODO: Switch to new path rendering post merge.
         /*
         // if ( this.playerTurn() && this.hasFocus() && selectedUnit != undefined ) {
@@ -418,9 +416,9 @@ export default class Match {
                     g.drawRect( renderPos, dims, color )
                     g.strokeRect( renderPos, dims, color )
         */
-        
+
         if ( this.playerTurn() ) {
-            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 && selectedUnit.speed > 0) {
+            if ( this.hasFocus() && cursorWalkable && selectedUnit != undefined && this.cardTray.index == -1 && selectedUnit.speed > 0 ) {
                 let walkableTiles = targetsWithinRange( selectedUnit.pos, 0, selectedUnit.speed )
                 walkableTiles.forEach( tile => {
                     let path = findPath( this, selectedUnit!.pos, tile, selectedUnit!.speed )
@@ -473,9 +471,9 @@ export default class Match {
                     g.c.restore()
                 }
 
-                let path = findPath( this, selectedUnit.pos, cursor, 100 )
-                if ( this.hasFocus() && path != null && selectedUnit.canMove() )
-                    this.drawPath( path, selectedUnit )
+                // let path = findPath( this, selectedUnit.pos, cursor, 100 )
+                // if ( this.hasFocus() && path != null && selectedUnit.canMove() )
+                //     this.drawPath( path, selectedUnit )
             }
         }
 
@@ -612,8 +610,7 @@ export default class Match {
             onRender: () => this.render(),
         } )
     }
-    
-// <<<<<<< kody-summer-2022
+
     cardTargetNode( pos, card ) {
         let game = Game.instance
         let g = Graphics.instance
@@ -662,11 +659,11 @@ export default class Match {
                 }
             }
         } )
-// =======
+    }
+
     cameraTransform() {
         let game = Game.instance
         let screenDims = game.screenDimensions()
         return this.camera.worldToCamera( screenDims.x, screenDims.y )
-// >>>>>>> merge-kody-summer-2022
     }
 }

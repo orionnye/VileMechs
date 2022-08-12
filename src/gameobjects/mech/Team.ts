@@ -22,6 +22,8 @@ export default class Team {
 
     // TODO: Update references to respect new signature.
     constructor( name: string, color: string, units: Unit[], flip: boolean = false, teamNumber: number ) {
+        if ( !Array.isArray( units ) )
+            throw new Error( "Units must be an array!" )
         this.units = units
         this.name = name
         this.color = color
@@ -104,6 +106,7 @@ export default class Team {
     }
 
     update() {
+        // debugger
         this.units = this.units.filter( unit => unit.health > 0 )
         for ( let unit of this.units )
             unit.update()

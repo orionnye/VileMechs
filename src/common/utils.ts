@@ -41,3 +41,7 @@ export function flash( period: number, phase: number, min: number, max: number )
     let alpha = ( Math.cos( u ) + 1 ) / 2
     return lerp( min, max, alpha )
 }
+
+export function capitalize( str: string ) {
+    return str.charAt( 0 ).toUpperCase() + str.slice( 1 )
+}
